@@ -1,6 +1,5 @@
 import { CloseIssueDefaultActionMessageComposer, CloseIssuesMessageComposer, ReleaseIssuesMessageComposer } from '@octane/renderer';
 import { FC, useState } from 'react';
-import { FaBan, FaCheck, FaCommentDots, FaExternalLinkAlt, FaGavel, FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 import { GetIssueCategoryName, LocalizeText, localizeWithFallback, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useModTools } from '../../../../hooks';
@@ -56,7 +55,6 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                 <OctaneCardContentView className="text-black" gap={2}>
                     {/* Issue header */}
                     <div className="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-transparent rounded p-2 border border-amber-100">
-                        <FaCommentDots className="text-amber-600 shrink-0" size={16} />
                         <div className="flex flex-col grow min-w-0">
                             <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">
                                 {LocalizeText('modtools.tickets.issue.label', ['issueId'], [issueId.toString()])}
@@ -84,7 +82,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                                     className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
                                     onClick={() => openUserInfo(ticket.reporterUserId)}
                                 >
-                                    {ticket.reporterUserName} <FaExternalLinkAlt size={8} className="opacity-60" />
+                                    {ticket.reporterUserName}
                                 </button>
                             </Field>
                             <Field label={LocalizeText('modtools.tickets.issue.field.reported')}>
@@ -92,7 +90,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                                     className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
                                     onClick={() => openUserInfo(ticket.reportedUserId)}
                                 >
-                                    {ticket.reportedUserName} <FaExternalLinkAlt size={8} className="opacity-60" />
+                                    {ticket.reportedUserName}
                                 </button>
                             </Field>
                         </dl>
@@ -100,7 +98,6 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
 
                     {/* Tools */}
                     <Button gap={1} variant="secondary" onClick={() => setCfhChatlogOpen((prev) => !prev)}>
-                        <FaCommentDots size={12} />{' '}
                         {cfhChatlogOpen ? LocalizeText('modtools.tickets.issue.chatlog.close') : LocalizeText('modtools.tickets.issue.chatlog.view')}
                     </Button>
 
@@ -111,17 +108,16 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                         </div>
                         <div className="grid grid-cols-3 gap-1.5">
                             <Button gap={1} variant="success" onClick={() => closeIssue(CloseIssuesMessageComposer.RESOLUTION_RESOLVED)}>
-                                <FaCheck size={11} /> {LocalizeText('modtools.tickets.issue.resolve.resolved')}
+                                {LocalizeText('modtools.tickets.issue.resolve.resolved')}
                             </Button>
                             <Button gap={1} variant="dark" onClick={() => closeIssue(CloseIssuesMessageComposer.RESOLUTION_USELESS)}>
-                                <FaTrashAlt size={11} /> {LocalizeText('modtools.tickets.issue.resolve.useless')}
+                                {LocalizeText('modtools.tickets.issue.resolve.useless')}
                             </Button>
                             <Button gap={1} variant="danger" onClick={() => closeIssue(CloseIssuesMessageComposer.RESOLUTION_ABUSIVE)}>
-                                <FaBan size={11} /> {LocalizeText('modtools.tickets.issue.resolve.abusive')}
+                                {LocalizeText('modtools.tickets.issue.resolve.abusive')}
                             </Button>
                         </div>
                         <Button gap={1} variant="primary" onClick={closeWithDefaultSanction}>
-                            <FaGavel size={11} />{' '}
                             {defaultSanction
                                 ? localizeWithFallback(
                                       'modtools.tickets.issue.resolve.default.with',
@@ -132,7 +128,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                                 : localizeWithFallback('modtools.tickets.issue.resolve.default', 'Default sanction')}
                         </Button>
                         <Button gap={1} variant="secondary" onClick={releaseIssue}>
-                            <FaSignOutAlt size={12} /> {LocalizeText('modtools.tickets.issue.release')}
+                            {LocalizeText('modtools.tickets.issue.release')}
                         </Button>
                     </div>
                 </OctaneCardContentView>

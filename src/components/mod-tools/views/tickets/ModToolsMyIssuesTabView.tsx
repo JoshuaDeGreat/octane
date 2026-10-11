@@ -1,6 +1,5 @@
 import { IssueMessageData, ReleaseIssuesMessageComposer } from '@octane/renderer';
 import { FC, useRef } from 'react';
-import { FaClock, FaInbox, FaSignOutAlt, FaTools, FaUser } from 'react-icons/fa';
 import { GetIssueCategoryName, LocalizeText, localizeWithFallback, SendMessageComposer } from '../../../../api';
 
 interface ModToolsMyIssuesTabViewProps {
@@ -36,7 +35,7 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
                     className="inline-flex items-center justify-center gap-1 self-end px-2 py-1 rounded text-xs font-medium bg-rose-600 text-white hover:bg-rose-700 transition-colors"
                     onClick={releaseAll}
                 >
-                    <FaSignOutAlt size={10} /> {localizeWithFallback('modtools.tickets.action.release.all', 'Release all')}
+                    {localizeWithFallback('modtools.tickets.action.release.all', 'Release all')}
                 </button>
             )}
             <div className="min-w-0 overflow-x-auto">
@@ -44,17 +43,16 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
                     <div className="grid grid-cols-[100px_1fr_100px_90px_90px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
                         <div>{LocalizeText('modtools.tickets.column.type')}</div>
                         <div className="flex items-center gap-1">
-                            <FaUser size={10} /> {LocalizeText('modtools.tickets.column.reported')}
+                            {LocalizeText('modtools.tickets.column.reported')}
                         </div>
                         <div className="flex items-center gap-1">
-                            <FaClock size={10} /> {LocalizeText('modtools.tickets.column.opened')}
+                            {LocalizeText('modtools.tickets.column.opened')}
                         </div>
                         <div></div>
                         <div></div>
                     </div>
                     {isEmpty ? (
                         <div className="flex flex-col items-center justify-center gap-1 py-8 opacity-50 text-sm">
-                            <FaInbox size={22} />
                             <span>{LocalizeText('modtools.tickets.empty.mine')}</span>
                         </div>
                     ) : (
@@ -75,13 +73,13 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
                                         className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium bg-sky-600 text-white hover:bg-sky-700 transition-colors"
                                         onClick={() => handleIssue(issue.issueId)}
                                     >
-                                        <FaTools size={10} /> {LocalizeText('modtools.tickets.action.handle')}
+                                        {LocalizeText('modtools.tickets.action.handle')}
                                     </button>
                                     <button
                                         className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium bg-rose-600 text-white hover:bg-rose-700 transition-colors"
                                         onClick={() => releaseIssue(issue.issueId)}
                                     >
-                                        <FaSignOutAlt size={10} /> {LocalizeText('modtools.tickets.action.release')}
+                                        {LocalizeText('modtools.tickets.action.release')}
                                     </button>
                                 </div>
                             ))}

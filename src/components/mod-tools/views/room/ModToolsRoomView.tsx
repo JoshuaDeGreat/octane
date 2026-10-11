@@ -6,7 +6,6 @@ import {
     ModeratorRoomInfoEvent
 } from '@octane/renderer';
 import { FC, useEffect, useState } from 'react';
-import { FaBullhorn, FaCommentDots, FaDoorOpen, FaExclamationTriangle, FaSignInAlt, FaSync, FaUserShield, FaUsers } from 'react-icons/fa';
 import { LocalizeText, SendMessageComposer, TryVisitRoom } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../../common';
 import { useMessageEvent, useModTools } from '../../../../hooks';
@@ -88,7 +87,6 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
             <OctaneCardContentView className="text-black" gap={2}>
                 {/* Identity header */}
                 <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
-                    <FaDoorOpen className="text-sky-600 shrink-0" size={16} />
                     <div className="flex flex-col grow min-w-0">
                         <Text bold className="truncate text-base leading-tight">
                             {name || LocalizeText('modtools.roominfo.loading')}
@@ -107,7 +105,6 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
                         onClick={refresh}
                         title={LocalizeText('modtools.roominfo.refresh')}
                     >
-                        <FaSync size={12} />
                     </button>
                 </div>
 
@@ -115,14 +112,12 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
                 <div className="flex gap-1.5">
                     <div className="flex flex-col items-center justify-center px-2 py-1.5 rounded border bg-sky-50 border-sky-200 text-sky-700 grow min-w-0">
                         <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide opacity-70">
-                            <FaUsers size={10} />
                             <span>{LocalizeText('modtools.roominfo.stat.users')}</span>
                         </div>
                         <div className="text-lg font-semibold tabular-nums leading-tight">{usersInRoom}</div>
                     </div>
                     <div className="flex flex-col items-center justify-center px-2 py-1.5 rounded border bg-zinc-50 border-zinc-200 text-zinc-700 grow min-w-0">
                         <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide opacity-70">
-                            <FaUserShield size={10} />
                             <span>{LocalizeText('modtools.roominfo.stat.owner')}</span>
                         </div>
                         <div
@@ -138,17 +133,17 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
                 {/* Quick actions */}
                 <div className="grid grid-cols-2 gap-1.5">
                     <Button gap={1} variant="secondary" onClick={() => TryVisitRoom(roomId)}>
-                        <FaSignInAlt size={12} /> {LocalizeText('modtools.roominfo.button.visit')}
+                        {LocalizeText('modtools.roominfo.button.visit')}
                     </Button>
                     <Button gap={1} variant="secondary" onClick={() => CreateLinkEvent(`mod-tools/open-room-chatlog/${roomId}`)}>
-                        <FaCommentDots size={12} /> {LocalizeText('modtools.roominfo.button.chatlog')}
+                        {LocalizeText('modtools.roominfo.button.chatlog')}
                     </Button>
                 </div>
 
                 {/* Moderate panel */}
                 <div className="flex flex-col gap-1.5 bg-amber-50 border border-amber-200 rounded p-2">
                     <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide font-semibold text-amber-800">
-                        <FaExclamationTriangle size={10} /> {LocalizeText('modtools.roominfo.moderate.title')}
+                        {LocalizeText('modtools.roominfo.moderate.title')}
                     </div>
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
                         <input checked={kickUsers} className="form-check-input" type="checkbox" onChange={(event) => setKickUsers(event.target.checked)} />
@@ -176,10 +171,10 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
                     />
                     <div className="flex gap-1.5">
                         <Button className="grow" disabled={!hasMessage || !isLoaded} gap={1} variant="danger" onClick={() => handleClick('send_message')}>
-                            <FaBullhorn size={12} /> {LocalizeText('modtools.roominfo.moderate.send.caution')}
+                            {LocalizeText('modtools.roominfo.moderate.send.caution')}
                         </Button>
                         <Button className="grow" disabled={!hasMessage || !isLoaded} gap={1} variant="warning" onClick={() => handleClick('alert_only')}>
-                            <FaExclamationTriangle size={12} /> {LocalizeText('modtools.roominfo.moderate.send.alert')}
+                            {LocalizeText('modtools.roominfo.moderate.send.alert')}
                         </Button>
                     </div>
                 </div>

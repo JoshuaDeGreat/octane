@@ -1,6 +1,5 @@
 import { GetSessionDataManager, IssueMessageData } from '@octane/renderer';
 import { FC, useMemo, useState } from 'react';
-import { FaCheckSquare, FaListUl, FaUserCheck } from 'react-icons/fa';
 import { LocalizeText } from '../../../../api';
 import { OctaneCardContentView, OctaneCardHeaderView, OctaneCardTabsItemView, OctaneCardTabsView, OctaneCardView } from '../../../../common';
 import { useModTools } from '../../../../hooks';
@@ -16,7 +15,6 @@ interface ModToolsTicketsViewProps {
 interface TabBadgeProps {
     label: string;
     count: number;
-    icon: React.ReactNode;
     tone: 'amber' | 'sky' | 'zinc';
 }
 
@@ -26,9 +24,8 @@ const TONE_MAP: Record<TabBadgeProps['tone'], string> = {
     zinc: 'bg-zinc-400 text-white'
 };
 
-const TabLabel: FC<TabBadgeProps> = ({ label, count, icon, tone }) => (
+const TabLabel: FC<TabBadgeProps> = ({ label, count, tone }) => (
     <span className="inline-flex items-center gap-1.5">
-        <span className="opacity-80">{icon}</span>
         <span>{label}</span>
         {count > 0 && (
             <span className={`inline-flex items-center justify-center min-w-[1.25rem] h-4 px-1 rounded-full text-[10px] font-semibold ${TONE_MAP[tone]}`}>
@@ -94,16 +91,15 @@ export const ModToolsTicketsView: FC<ModToolsTicketsViewProps> = (props) => {
                 <OctaneCardHeaderView headerText={LocalizeText('modtools.tickets.title')} onCloseClick={onCloseClick} />
                 <OctaneCardTabsView>
                     <OctaneCardTabsItemView isActive={currentTab === 0} onClick={() => setCurrentTab(0)}>
-                        <TabLabel label={LocalizeText('modtools.tickets.tab.open')} count={openIssues.length} icon={<FaListUl size={10} />} tone="amber" />
+                        <TabLabel label={LocalizeText('modtools.tickets.tab.open')} count={openIssues.length} tone="amber" />
                     </OctaneCardTabsItemView>
                     <OctaneCardTabsItemView isActive={currentTab === 1} onClick={() => setCurrentTab(1)}>
-                        <TabLabel label={LocalizeText('modtools.tickets.tab.mine')} count={myIssues.length} icon={<FaUserCheck size={10} />} tone="sky" />
+                        <TabLabel label={LocalizeText('modtools.tickets.tab.mine')} count={myIssues.length} tone="sky" />
                     </OctaneCardTabsItemView>
                     <OctaneCardTabsItemView isActive={currentTab === 2} onClick={() => setCurrentTab(2)}>
                         <TabLabel
                             label={LocalizeText('modtools.tickets.tab.picked')}
                             count={pickedIssues.length}
-                            icon={<FaCheckSquare size={10} />}
                             tone="zinc"
                         />
                     </OctaneCardTabsItemView>

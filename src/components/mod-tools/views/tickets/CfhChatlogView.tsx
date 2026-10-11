@@ -1,6 +1,5 @@
 import { CfhChatlogData, CfhChatlogEvent, GetCfhChatlogMessageComposer } from '@octane/renderer';
 import { FC, useEffect, useState } from 'react';
-import { FaSpinner } from 'react-icons/fa';
 import { LocalizeText, SendMessageComposer } from '../../../../api';
 import { DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useMessageEvent } from '../../../../hooks';
@@ -42,7 +41,6 @@ export const CfhChatlogView: FC<CfhChatlogViewProps> = (props) => {
                     <ChatlogView records={[chatlogData.chatRecord]} />
                 ) : (
                     <div className="flex flex-col items-center justify-center gap-2 py-8 opacity-50 text-sm">
-                        <FaSpinner className="animate-spin" size={22} />
                         <span>{LocalizeText('modtools.user.chatlog.loading')}</span>
                     </div>
                 )}

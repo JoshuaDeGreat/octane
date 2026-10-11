@@ -6,7 +6,6 @@ import {
     ModeratorUserInfoEvent
 } from '@octane/renderer';
 import { FC, useEffect, useMemo, useState } from 'react';
-import { FaBan, FaCommentDots, FaDoorOpen, FaEnvelope, FaExchangeAlt, FaExclamationTriangle, FaGavel, FaSync } from 'react-icons/fa';
 import { FriendlyTime, LocalizeText, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../../common';
 import { useMessageEvent, useRoomUserListSnapshot } from '../../../../hooks';
@@ -20,13 +19,12 @@ interface ModToolsUserViewProps {
 }
 
 interface StatCardProps {
-    icon: React.ReactNode;
     label: string;
     value: number | string;
     tone?: 'neutral' | 'warn' | 'danger';
 }
 
-const StatCard: FC<StatCardProps> = ({ icon, label, value, tone = 'neutral' }) => {
+const StatCard: FC<StatCardProps> = ({ label, value, tone = 'neutral' }) => {
     const numericValue = typeof value === 'number' ? value : parseInt(value as string, 10);
     const isElevated = !Number.isNaN(numericValue) && numericValue > 0;
     const toneClasses = (() => {
@@ -38,7 +36,6 @@ const StatCard: FC<StatCardProps> = ({ icon, label, value, tone = 'neutral' }) =
     return (
         <div className={`flex flex-col items-center justify-center px-2 py-1.5 rounded border ${toneClasses} grow min-w-0`}>
             <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide opacity-70">
-                <span className="shrink-0">{icon}</span>
                 <span className="truncate">{label}</span>
             </div>
             <div className="text-lg font-semibold tabular-nums leading-tight">{value}</div>
@@ -152,27 +149,23 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                             onClick={refresh}
                             title={LocalizeText('modtools.userinfo.refresh')}
                         >
-                            <FaSync size={12} />
                         </button>
                     </div>
 
                     {/* Moderation stat strip */}
                     <div className="flex gap-1.5">
                         <StatCard
-                            icon={<FaExclamationTriangle size={10} />}
                             label={LocalizeText('modtools.userinfo.stat.cfh')}
                             tone="warn"
                             value={userInfo.cfhCount}
                         />
                         <StatCard
-                            icon={<FaGavel size={10} />}
                             label={LocalizeText('modtools.userinfo.stat.cautions')}
                             tone="warn"
                             value={userInfo.cautionCount}
                         />
-                        <StatCard icon={<FaBan size={10} />} label={LocalizeText('modtools.userinfo.stat.bans')} tone="danger" value={userInfo.banCount} />
+                        <StatCard label={LocalizeText('modtools.userinfo.stat.bans')} tone="danger" value={userInfo.banCount} />
                         <StatCard
-                            icon={<FaExchangeAlt size={10} />}
                             label={LocalizeText('modtools.userinfo.stat.trade.locks')}
                             tone="danger"
                             value={userInfo.tradingLockCount}
@@ -209,16 +202,16 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                     {/* Action bar */}
                     <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-zinc-200">
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => CreateLinkEvent(`mod-tools/open-user-chatlog/${userId}`)}>
-                            <FaCommentDots size={12} /> {LocalizeText('modtools.userinfo.button.room.chat')}
+                            {LocalizeText('modtools.userinfo.button.room.chat')}
                         </Button>
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => setSendMessageVisible((prev) => !prev)}>
-                            <FaEnvelope size={12} /> {LocalizeText('modtools.userinfo.button.send.message')}
+                            {LocalizeText('modtools.userinfo.button.send.message')}
                         </Button>
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => setRoomVisitsVisible((prev) => !prev)}>
-                            <FaDoorOpen size={12} /> {LocalizeText('modtools.userinfo.button.room.visits')}
+                            {LocalizeText('modtools.userinfo.button.room.visits')}
                         </Button>
                         <Button gap={1} variant="danger" classNames={['mod-tools-danger-button']} onClick={() => setModActionVisible((prev) => !prev)}>
-                            <FaGavel size={12} /> {LocalizeText('modtools.userinfo.button.mod.action')}
+                            {LocalizeText('modtools.userinfo.button.mod.action')}
                         </Button>
                     </div>
                 </OctaneCardContentView>

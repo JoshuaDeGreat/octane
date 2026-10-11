@@ -1,6 +1,5 @@
 import { ChatRecordData, CreateLinkEvent } from '@octane/renderer';
 import { FC, Fragment, useMemo, useState } from 'react';
-import { FaCamera, FaCommentDots, FaComments, FaDoorOpen, FaEnvelope, FaSearch, FaSignInAlt, FaTimes, FaTools } from 'react-icons/fa';
 import { LocalizeText, localizeWithFallback, TryVisitRoom } from '../../../../api';
 import { Column, InfiniteScroll } from '../../../../common';
 import { useModTools } from '../../../../hooks';
@@ -109,24 +108,20 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
         const { roomId = 0, roomName = '', recordType = ChatRecordData.TYPE_ROOM_CHAT, groupId = 0 } = props.record;
         const hasRoom = roomId > 0;
         const roomLabel = roomName || (hasRoom ? `#${roomId}` : '');
-        let icon = <FaDoorOpen className="text-sky-600 shrink-0" size={14} />;
         let title = roomLabel;
 
         switch (recordType) {
             case ChatRecordData.TYPE_IM_SESSION:
-                icon = <FaEnvelope className="text-sky-600 shrink-0" size={14} />;
                 title = localizeWithFallback('modtools.chatlog.context.im', 'IM session');
                 break;
             case ChatRecordData.TYPE_DISCUSSION_THREAD:
             case ChatRecordData.TYPE_DISCUSSION_MESSAGE:
-                icon = <FaComments className="text-sky-600 shrink-0" size={14} />;
                 title = (recordType === ChatRecordData.TYPE_DISCUSSION_THREAD)
                     ? localizeWithFallback('modtools.chatlog.context.forum_thread', 'Forum thread')
                     : localizeWithFallback('modtools.chatlog.context.forum_message', 'Forum message');
                 break;
             case ChatRecordData.TYPE_SELFIE:
             case ChatRecordData.TYPE_PHOTO: {
-                icon = <FaCamera className="text-sky-600 shrink-0" size={14} />;
                 const label = (recordType === ChatRecordData.TYPE_SELFIE)
                     ? localizeWithFallback('modtools.chatlog.context.selfie', 'Selfie report')
                     : localizeWithFallback('modtools.chatlog.context.photo', 'Photo report');
@@ -143,22 +138,21 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
 
         return (
             <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100 my-1">
-                {icon}
                 <div className="font-semibold leading-tight grow truncate">{title}</div>
                 <div className="flex gap-1 shrink-0">
                     {hasRoom && isRoomRecord && (
                         <button className={headerButtonClass} onClick={() => TryVisitRoom(roomId)}>
-                            <FaSignInAlt size={10} /> {LocalizeText('modtools.chatlog.visit')}
+                            {LocalizeText('modtools.chatlog.visit')}
                         </button>
                     )}
                     {showRoomTools && (
                         <button className={headerButtonClass} onClick={() => openRoomInfo(roomId)}>
-                            <FaTools size={10} /> {LocalizeText('modtools.chatlog.tools')}
+                            {LocalizeText('modtools.chatlog.tools')}
                         </button>
                     )}
                     {isForum && (groupId > 0) && (
                         <button className={headerButtonClass} onClick={() => CreateLinkEvent(`groupforum/${groupId}`)}>
-                            <FaComments size={10} /> {localizeWithFallback('modtools.chatlog.open_forum', 'Open forum')}
+                            {localizeWithFallback('modtools.chatlog.open_forum', 'Open forum')}
                         </button>
                     )}
                 </div>
@@ -185,12 +179,10 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
                         title={LocalizeText('generic.cancel')}
                         onClick={() => setQuery('')}
                     >
-                        <FaTimes size={9} />
                     </button>}
                 </div>
                 <span className="text-[.65rem] opacity-60 shrink-0 tabular-nums">
                     {isFiltering ? `${matchCount}/${totalMessages}` : totalMessages}
-                    <FaSearch className="inline ml-1 opacity-50" size={9} />
                 </span>
             </div>
             <div className="min-w-0 overflow-x-auto">
@@ -203,12 +195,10 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
                     </div>
                     {!isEmpty && isFiltering && !matchCount ? (
                         <div className="flex flex-col items-center justify-center gap-1 py-6 opacity-50 text-sm">
-                            <FaSearch size={20} />
                             <span>{LocalizeText('generic.no_results_found')}</span>
                         </div>
                     ) : isEmpty ? (
                         <div className="flex flex-col items-center justify-center gap-1 py-6 opacity-50 text-sm">
-                            <FaCommentDots size={22} />
                             <span>{LocalizeText('modtools.chatlog.empty')}</span>
                         </div>
                     ) : (

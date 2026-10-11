@@ -8,9 +8,12 @@ import {
     RoomObjectCategory,
     RoomObjectType, HabboSearchComposer, HabboSearchResultData, HabboSearchResultEvent } from '@octane/renderer';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FaSearch, FaTimes } from 'react-icons/fa';
 import { GetRoomSession, ISelectedUser, LocalizeText, SendMessageComposer } from '../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../common';
+import chatlogIcon from '../../assets/images/mod-tools/chatlog.png';
+import roomToolIcon from '../../assets/images/mod-tools/room-tool.png';
+import ticketBrowserIcon from '../../assets/images/mod-tools/ticket-browser.png';
+import userInfoIcon from '../../assets/images/mod-tools/user-info.png';
 import { useMessageEvent, useModTools, useOctaneEvent, useObjectSelectedEvent, useRoomUserListSnapshot } from '../../hooks';
 import { ModToolsChatlogView } from './views/room/ModToolsChatlogView';
 import { ModToolsRoomView } from './views/room/ModToolsRoomView';
@@ -230,7 +233,7 @@ export const ModToolsView: FC<{}> = (props) => {
                                 title={!isInRoom ? noRoomHint : undefined}
                                 onClick={() => CreateLinkEvent(`mod-tools/toggle-room-info/${currentRoomId}`)}
                             >
-                                <div className="octane-icon icon-small-room shrink-0" />
+                                <img alt="" className="shrink-0" src={roomToolIcon} />
                                 <span className="grow text-start">{LocalizeText('modtools.window.tools.room')}</span>
                             </Button>
                             <Button
@@ -243,7 +246,7 @@ export const ModToolsView: FC<{}> = (props) => {
                                 title={!isInRoom ? noRoomHint : undefined}
                                 onClick={() => CreateLinkEvent(`mod-tools/toggle-room-chatlog/${currentRoomId}`)}
                             >
-                                <div className="octane-icon icon-chat-history shrink-0" />
+                                <img alt="" className="shrink-0" src={chatlogIcon} />
                                 <span className="grow text-start">{LocalizeText('modtools.window.tools.chatlog')}</span>
                             </Button>
                         </div>
@@ -280,7 +283,6 @@ export const ModToolsView: FC<{}> = (props) => {
                                             }}
                                             title={LocalizeText('modtools.window.user.clear')}
                                         >
-                                            <FaTimes size={10} />
                                         </button>
                                     </div>
                                     <Button
@@ -290,7 +292,7 @@ export const ModToolsView: FC<{}> = (props) => {
                                         variant="secondary"
                                         onClick={() => CreateLinkEvent(`mod-tools/toggle-user-info/${selectedUser.userId}`)}
                                     >
-                                        <div className="octane-icon icon-user shrink-0" />
+                                        <img alt="" className="shrink-0" src={userInfoIcon} />
                                         <span className="grow text-start">{LocalizeText('modtools.window.user.open_info')}</span>
                                     </Button>
                                 </div>
@@ -307,10 +309,6 @@ export const ModToolsView: FC<{}> = (props) => {
                                             value={userQuery}
                                             placeholder={LocalizeText('generic.search')}
                                             onChange={(event) => setUserQuery(event.target.value)}
-                                        />
-                                        <FaSearch
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 opacity-40 pointer-events-none"
-                                            size={10}
                                         />
                                     </div>
                                     {userResults && !userResults.length && <div className="text-[.65rem] italic opacity-60 pl-1">
@@ -337,7 +335,7 @@ export const ModToolsView: FC<{}> = (props) => {
                                 {LocalizeText('modtools.window.section.reports')}
                             </div>
                             <Button active={isTicketsVisible} gap={2} justifyContent="start" variant="secondary" onClick={() => setIsTicketsVisible((prevValue) => !prevValue)}>
-                                <div className="octane-icon icon-tickets shrink-0" />
+                                <img alt="" className="shrink-0" src={ticketBrowserIcon} />
                                 <span className="grow text-start">{LocalizeText('modtools.window.tools.report')}</span>
                                 {openTicketsCount > 0 && (
                                     <span
