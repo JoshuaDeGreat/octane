@@ -71,7 +71,6 @@ export const MentionsView: FC<MentionsViewProps> = (props) => {
     useEffect(() => {
         if (status === 'idle' || status === 'error') requestMentions();
         // Only the state at the moment it opens matters here.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const groups = useMemo(() => {
