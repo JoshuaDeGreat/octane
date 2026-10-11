@@ -57,7 +57,7 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
                             <span>{LocalizeText('modtools.tickets.empty.mine')}</span>
                         </div>
                     ) : (
-                        <div className="flex flex-col overflow-auto">
+                        <div className="flex flex-col overflow-auto octane-mod-tools-list-auto">
                             {myIssues.map((issue) => (
                                 <div
                                     key={issue.issueId}

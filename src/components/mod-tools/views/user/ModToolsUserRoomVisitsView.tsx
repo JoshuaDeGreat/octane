@@ -69,7 +69,7 @@ export const ModToolsUserRoomVisitsView: FC<ModToolsUserRoomVisitsViewProps> = (
                                 <span>{LocalizeText('modtools.user.visits.empty')}</span>
                             </div>
                         ) : (
-                            <div className="flex flex-col grow min-h-0 overflow-hidden">
+                            <div className="octane-mod-tools-list">
                                 <InfiniteScroll
                                     rowRender={(row) => (
                                         <div className="grid grid-cols-[60px_1fr_80px] gap-2 items-center px-1 py-1.5 text-sm border-b border-zinc-100 even:bg-black/[0.02] hover:bg-sky-50 transition-colors">

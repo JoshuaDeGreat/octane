@@ -213,6 +213,7 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
                             <span>{LocalizeText('modtools.chatlog.empty')}</span>
                         </div>
                     ) : (
+                        <div className="octane-mod-tools-list">
                         <InfiniteScroll
                             rowRender={(row: ChatlogRecord) => {
                                 if (row.isRoomInfo) return <RecordHeader record={row} />;
@@ -234,6 +235,7 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
                             }}
                             rows={visibleRecords}
                         />
+                        </div>
                     )}
                 </div>
             </div>

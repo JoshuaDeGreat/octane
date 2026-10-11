@@ -588,6 +588,20 @@ body {
     color: var(--mod-tools-text);
 }
 
+/* A long list has a height of its own, so it scrolls inside the window and only the visible rows
+   are drawn: the virtualised ones (chatlog, visits) get a fixed box, the plain ones a maximum. */
+.octane-mod-tools-list {
+    position: relative;
+    height: min(440px, calc(100vh - 240px));
+    min-height: 160px;
+    overflow: hidden;
+}
+
+.octane-mod-tools-list-auto {
+    max-height: min(380px, calc(100vh - 240px));
+    min-height: 0;
+}
+
 /* The windows that hold a list fill their minimum height with the list instead of leaving it empty. */
 .octane-mod-tools-chatlog > .octane-card-content-shell,
 .octane-mod-tools-tickets > .octane-card-content-shell,
