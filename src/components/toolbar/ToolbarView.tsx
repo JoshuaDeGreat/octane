@@ -502,7 +502,7 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
                     { !rightCollapsed && (<>
                     { mentionsEnabled &&
                         <motion.div variants={ itemVariants } className="relative tb-slot">
-                            <ToolbarItemView icon="mentions" onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
+                            <ToolbarItemView icon={ mentionsUnread > 0 ? 'mentions-unread' : 'mentions' } onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
                             { (mentionsUnread > 0) &&
                                 <LayoutItemCountView count={ mentionsUnread } className="absolute -right-2 -top-1" /> }
                         </motion.div> }
@@ -607,7 +607,7 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
                         </motion.div> }
                     { (!socialInSideStack && mentionsEnabled) &&
                         <motion.div variants={ itemVariants } className="relative">
-                            <ToolbarItemView icon="mentions" onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
+                            <ToolbarItemView icon={ mentionsUnread > 0 ? 'mentions-unread' : 'mentions' } onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
                             { (mentionsUnread > 0) &&
                                 <LayoutItemCountView count={ mentionsUnread } className="absolute -right-2 -top-1" /> }
                         </motion.div> }
@@ -658,7 +658,7 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
                     </motion.div> }
                 { (socialInSideStack && mentionsEnabled) &&
                     <motion.div variants={ itemVariants } className="relative">
-                        <ToolbarItemView icon="mentions" onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
+                        <ToolbarItemView icon={ mentionsUnread > 0 ? 'mentions-unread' : 'mentions' } onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
                         { (mentionsUnread > 0) &&
                             <LayoutItemCountView count={ mentionsUnread } className="pointer-events-none absolute -right-1 -top-1 z-10" /> }
                     </motion.div> }
