@@ -44,7 +44,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
     return (
         <>
             <OctaneCardView
-                className="octane-mod-tools-handle-issue w-max min-w-[min(480px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
+                className="octane-mod-tools-handle-issue min-w-0 w-[min(560px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
                 theme="primary-slim"
                 windowPosition={DraggableWindowPosition.TOP_LEFT}
             >
@@ -54,21 +54,21 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                 />
                 <OctaneCardContentView className="text-black" gap={2}>
                     {/* Issue header */}
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-transparent rounded p-2 border border-amber-100">
+                    <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
                         <div className="flex flex-col grow min-w-0">
                             <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">
                                 {LocalizeText('modtools.tickets.issue.label', ['issueId'], [issueId.toString()])}
                             </div>
                             <div className="font-semibold leading-tight truncate">{GetIssueCategoryName(ticket.categoryId)}</div>
                         </div>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-amber-200 text-amber-800">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-[#959595] text-[#111]">
                             {LocalizeText('help.cfh.topic.' + ticket.reportedCategoryId)}
                         </span>
                     </div>
 
                     {/* Details */}
                     <div className="flex flex-col gap-1">
-                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 mb-0.5">
+                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-[#959595] pb-1 mb-0.5">
                             {LocalizeText('modtools.tickets.issue.details')}
                         </div>
                         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[.8rem] m-0">
@@ -79,7 +79,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                             <Field label={LocalizeText('modtools.tickets.issue.field.description')}>{ticket.message}</Field>
                             <Field label={LocalizeText('modtools.tickets.issue.field.caller')}>
                                 <button
-                                    className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
+                                    className="font-semibold text-[#1c789b] hover:text-sky-900 hover:underline inline-flex items-center gap-1"
                                     onClick={() => openUserInfo(ticket.reporterUserId)}
                                 >
                                     {ticket.reporterUserName}
@@ -87,7 +87,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                             </Field>
                             <Field label={LocalizeText('modtools.tickets.issue.field.reported')}>
                                 <button
-                                    className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
+                                    className="font-semibold text-[#1c789b] hover:text-sky-900 hover:underline inline-flex items-center gap-1"
                                     onClick={() => openUserInfo(ticket.reportedUserId)}
                                 >
                                     {ticket.reportedUserName}
@@ -102,7 +102,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                     </Button>
 
                     {/* Resolution buttons */}
-                    <div className="flex flex-col gap-1.5 pt-1 border-t border-zinc-200">
+                    <div className="flex flex-col gap-1.5 pt-1 border-t border-[#959595]">
                         <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">
                             {LocalizeText('modtools.tickets.issue.resolve.heading')}
                         </div>

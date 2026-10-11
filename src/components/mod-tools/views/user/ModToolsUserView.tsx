@@ -28,9 +28,9 @@ const StatCard: FC<StatCardProps> = ({ label, value, tone = 'neutral' }) => {
     const numericValue = typeof value === 'number' ? value : parseInt(value as string, 10);
     const isElevated = !Number.isNaN(numericValue) && numericValue > 0;
     const toneClasses = (() => {
-        if (tone === 'danger' && isElevated) return 'bg-rose-50 border-rose-200 text-rose-700';
-        if (tone === 'warn' && isElevated) return 'bg-amber-50 border-amber-200 text-amber-700';
-        return 'bg-zinc-50 border-zinc-200 text-zinc-700';
+        if (tone === 'danger' && isElevated) return 'bg-[#f7f7f2] border-[#959595] text-rose-700';
+        if (tone === 'warn' && isElevated) return 'bg-[#f7f7f2] border-[#959595] text-[#111]';
+        return 'bg-[#f7f7f2] border-[#959595] text-[#111]';
     })();
 
     return (
@@ -45,7 +45,7 @@ const StatCard: FC<StatCardProps> = ({ label, value, tone = 'neutral' }) => {
 
 const Section: FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <div className="flex flex-col gap-1">
-        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 mb-0.5">{title}</div>
+        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-[#959595] pb-1 mb-0.5">{title}</div>
         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[.8rem] m-0">{children}</dl>
     </div>
 );
@@ -80,10 +80,10 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
           ? LocalizeText('modtools.userinfo.presence.online.title')
           : LocalizeText('modtools.userinfo.presence.offline.title');
     const presencePillClass = isPresentInCurrentRoom
-        ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+        ? 'bg-[#f7f7f2] text-[#111] border-[#959595]'
         : isOnline
-          ? 'bg-sky-100 text-sky-700 border-sky-200'
-          : 'bg-zinc-100 text-zinc-600 border-zinc-200';
+          ? 'bg-[#f7f7f2] text-[#1c789b] border-[#959595]'
+          : 'bg-[#f7f7f2] text-[#111] border-[#959595]';
     const presenceDotClass = isPresentInCurrentRoom ? 'bg-emerald-500' : isOnline ? 'bg-sky-500' : 'bg-zinc-400';
 
     const refresh = () => SendMessageComposer(new GetModeratorUserInfoMessageComposer(userId));
@@ -117,7 +117,7 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
     return (
         <>
             <OctaneCardView
-                className="octane-mod-tools-user w-max min-w-[min(380px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
+                className="octane-mod-tools-user min-w-0 w-[min(380px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
                 theme="primary-slim"
                 windowPosition={DraggableWindowPosition.TOP_LEFT}
             >
@@ -127,7 +127,7 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                 />
                 <OctaneCardContentView className="text-black" gap={2}>
                     {/* Identity header: name + presence pill + manual refresh */}
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
+                    <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
                         <div className="flex flex-col grow min-w-0">
                             <Text bold className="truncate text-base leading-tight">
                                 {userInfo.userName}
@@ -201,7 +201,7 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                     </div>
 
                     {/* Action bar */}
-                    <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-zinc-200">
+                    <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-[#959595]">
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => CreateLinkEvent(`mod-tools/open-user-chatlog/${userId}`)}>
                             {LocalizeText('modtools.userinfo.button.room.chat')}
                         </Button>

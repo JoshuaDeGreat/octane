@@ -33,14 +33,14 @@ export const ModToolsUserSendMessageView: FC<ModToolsUserSendMessageViewProps> =
 
     return (
         <OctaneCardView
-            className="octane-mod-tools-user-message w-max min-w-[min(340px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
+            className="octane-mod-tools-user-message min-w-0 w-[min(380px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
             theme="primary-slim"
             windowPosition={DraggableWindowPosition.TOP_LEFT}
         >
             <OctaneCardHeaderView headerText={LocalizeText('modtools.user.message.title')} onCloseClick={() => onCloseClick()} />
             <OctaneCardContentView className="text-black" gap={2}>
                 {/* Recipient header */}
-                <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
+                <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
                     <div className="flex flex-col grow min-w-0">
                         <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{LocalizeText('modtools.user.message.recipient')}</div>
                         <div className="flex items-center gap-1.5 font-semibold leading-tight truncate">
@@ -55,7 +55,7 @@ export const ModToolsUserSendMessageView: FC<ModToolsUserSendMessageViewProps> =
                     <ModToolsTemplateSelectView templates={settings?.messageTemplates} onSelect={setMessage} />
                     <textarea
                         autoFocus
-                        className="min-h-[100px] px-2 py-1.5 rounded text-sm border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                        className="min-h-[100px] px-2 py-1.5 rounded text-sm border border-[#959595] focus:outline-none"
                         placeholder={LocalizeText('modtools.user.message.placeholder')}
                         value={message}
                         onChange={(event) => setMessage(event.target.value)}

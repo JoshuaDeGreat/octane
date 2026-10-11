@@ -37,22 +37,22 @@ export const ModToolsUserRoomVisitsView: FC<ModToolsUserRoomVisitsViewProps> = (
 
     return (
         <OctaneCardView
-            className="octane-mod-tools-user-visits w-max min-w-[min(340px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
+            className="octane-mod-tools-user-visits min-w-0 w-[min(380px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
             theme="primary-slim"
             windowPosition={DraggableWindowPosition.TOP_LEFT}
         >
             <OctaneCardHeaderView headerText={LocalizeText('modtools.user.visits.title')} onCloseClick={onCloseClick} />
             <OctaneCardContentView className="text-black" gap={1}>
                 {/* Header strip */}
-                <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
+                <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
                     <div className="text-sm font-semibold leading-tight grow">{LocalizeText('modtools.user.visits.recent')}</div>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-zinc-200">{countLabel}</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-[#959595]">{countLabel}</span>
                 </div>
 
                 <div className="min-w-0 overflow-x-auto">
                     <div className="min-w-[280px]">
                         {/* Table head */}
-                        <div className="grid grid-cols-[60px_1fr_80px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
+                        <div className="grid grid-cols-[60px_1fr_80px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-[#959595] pb-1 px-1">
                             <div className="flex items-center gap-1">
                                 {LocalizeText('modtools.user.visits.time')}
                             </div>
@@ -69,13 +69,13 @@ export const ModToolsUserRoomVisitsView: FC<ModToolsUserRoomVisitsViewProps> = (
                             <div className="flex flex-col grow min-h-0 overflow-hidden">
                                 <InfiniteScroll
                                     rowRender={(row) => (
-                                        <div className="grid grid-cols-[60px_1fr_80px] gap-2 items-center px-1 py-1.5 text-sm border-b border-zinc-100 even:bg-black/[0.02] hover:bg-sky-50 transition-colors">
+                                        <div className="grid grid-cols-[60px_1fr_80px] gap-2 items-center px-1 py-1.5 text-sm border-b border-[#959595] even:bg-black/[0.02] hover:bg-sky-50 transition-colors">
                                             <span className="font-mono text-[.75rem] opacity-70 tabular-nums">
                                                 {row.enterHour.toString().padStart(2, '0')}:{row.enterMinute.toString().padStart(2, '0')}
                                             </span>
                                             <span className="truncate font-medium">{row.roomName}</span>
                                             <button
-                                                className="inline-flex items-center justify-end gap-1 text-sky-700 hover:text-sky-900 hover:underline text-xs"
+                                                className="inline-flex items-center justify-end gap-1 text-[#1c789b] hover:text-sky-900 hover:underline text-xs"
                                                 onClick={() => TryVisitRoom(row.roomId)}
                                                 title={LocalizeText('modtools.user.visits.visit.title')}
                                             >

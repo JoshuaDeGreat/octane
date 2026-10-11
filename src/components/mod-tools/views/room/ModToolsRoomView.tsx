@@ -74,19 +74,19 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
 
     const isLoaded = loadedRoomId !== null;
     const hasMessage = message.trim().length > 0;
-    const ownerPillClass = ownerInRoom ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-zinc-100 text-zinc-600 border-zinc-200';
+    const ownerPillClass = ownerInRoom ? 'bg-[#f7f7f2] text-[#111] border-[#959595]' : 'bg-[#f7f7f2] text-[#111] border-[#959595]';
     const ownerDotClass = ownerInRoom ? 'bg-emerald-500' : 'bg-zinc-400';
 
     return (
         <OctaneCardView
-            className="octane-mod-tools-room w-max min-w-[min(400px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
+            className="octane-mod-tools-room min-w-0 w-[min(380px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
             theme="primary-slim"
             windowPosition={DraggableWindowPosition.TOP_LEFT}
         >
             <OctaneCardHeaderView headerText={LocalizeText('modtools.roominfo.title')} onCloseClick={() => onCloseClick()} />
             <OctaneCardContentView className="text-black" gap={2}>
                 {/* Identity header */}
-                <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
+                <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
                     <div className="flex flex-col grow min-w-0">
                         <Text bold className="truncate text-base leading-tight">
                             {name || LocalizeText('modtools.roominfo.loading')}
@@ -111,13 +111,13 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
 
                 {/* Stat strip */}
                 <div className="flex gap-1.5">
-                    <div className="flex flex-col items-center justify-center px-2 py-1.5 rounded border bg-sky-50 border-sky-200 text-sky-700 grow min-w-0">
+                    <div className="flex flex-col items-center justify-center px-2 py-1.5 rounded border bg-[#f7f7f2] border-[#959595] text-[#1c789b] grow min-w-0">
                         <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide opacity-70">
                             <span>{LocalizeText('modtools.roominfo.stat.users')}</span>
                         </div>
                         <div className="text-lg font-semibold tabular-nums leading-tight">{usersInRoom}</div>
                     </div>
-                    <div className="flex flex-col items-center justify-center px-2 py-1.5 rounded border bg-zinc-50 border-zinc-200 text-zinc-700 grow min-w-0">
+                    <div className="flex flex-col items-center justify-center px-2 py-1.5 rounded border bg-[#f7f7f2] border-[#959595] text-[#111] grow min-w-0">
                         <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide opacity-70">
                             <span>{LocalizeText('modtools.roominfo.stat.owner')}</span>
                         </div>
@@ -142,8 +142,8 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
                 </div>
 
                 {/* Moderate panel */}
-                <div className="flex flex-col gap-1.5 bg-amber-50 border border-amber-200 rounded p-2">
-                    <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide font-semibold text-amber-800">
+                <div className="flex flex-col gap-1.5 bg-[#f7f7f2] border border-[#959595] rounded p-2">
+                    <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide font-semibold text-[#111]">
                         {LocalizeText('modtools.roominfo.moderate.title')}
                     </div>
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -165,7 +165,7 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
                     </label>
                     <ModToolsTemplateSelectView templates={settings?.roomMessageTemplates} onSelect={setMessage} />
                     <textarea
-                        className="min-h-[60px] px-2 py-1.5 rounded text-sm border border-amber-300 bg-white/70 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        className="min-h-[60px] px-2 py-1.5 rounded text-sm border border-[#959595] bg-white/70 focus:outline-none"
                         placeholder={LocalizeText('modtools.roominfo.moderate.message.placeholder')}
                         value={message}
                         onChange={(event) => setMessage(event.target.value)}

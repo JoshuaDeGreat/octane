@@ -212,7 +212,7 @@ export const ModToolsView: FC<{}> = (props) => {
         <>
             {isVisible && (
                 <OctaneCardView
-                    className="octane-mod-tools w-max min-w-[min(240px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
+                    className="octane-mod-tools min-w-0 w-[min(260px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
                     theme="primary-slim"
                     uniqueKey="mod-tools"
                     windowPosition={DraggableWindowPosition.TOP_LEFT}
@@ -258,7 +258,7 @@ export const ModToolsView: FC<{}> = (props) => {
                             </div>
                             {selectedUser ? (
                                 <div
-                                    className={`flex flex-col gap-1.5 rounded p-1.5 border ${isSelectedUserPresent ? 'bg-gradient-to-r from-emerald-50 to-transparent border-emerald-100' : 'bg-gradient-to-r from-zinc-50 to-transparent border-zinc-200'}`}
+                                    className={`flex flex-col gap-1.5 rounded p-1.5 border ${isSelectedUserPresent ? 'bg-gradient-to-r from-emerald-50 to-transparent border-[#959595]' : 'bg-gradient-to-r from-zinc-50 to-transparent border-[#959595]'}`}
                                 >
                                     <div className="flex items-center gap-1.5">
                                         <span
@@ -276,7 +276,7 @@ export const ModToolsView: FC<{}> = (props) => {
                                         />
                                         <span className="truncate grow text-start text-sm font-semibold leading-tight">{selectedUser.username}</span>
                                         <button
-                                            className="inline-flex items-center justify-center w-5 h-5 rounded text-zinc-500 hover:text-rose-600 hover:bg-rose-100 shrink-0 transition-colors"
+                                            className="inline-flex items-center justify-center w-5 h-5 rounded text-[#111] hover:text-rose-600 hover:bg-rose-100 shrink-0 transition-colors"
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSelectedUser(null);
@@ -304,7 +304,7 @@ export const ModToolsView: FC<{}> = (props) => {
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-1.5">
-                                    <div className="flex items-center gap-2 rounded p-2 border border-dashed border-zinc-300 bg-zinc-50/50">
+                                    <div className="flex items-center gap-2 rounded p-2 border border-dashed border-[#959595] bg-zinc-50/50">
                                         <div className="octane-icon icon-avatar-anonymous shrink-0 opacity-70" />
                                         <span className="text-xs italic">{LocalizeText('modtools.window.select.user')}</span>
                                     </div>

@@ -35,12 +35,12 @@ const MOD_ACTION_DEFINITIONS = [
 ];
 
 const ACTION_TONE: Record<number, string> = {
-    [ModActionDefinition.ALERT]: 'bg-amber-100 text-amber-800 border-amber-200',
-    [ModActionDefinition.MUTE]: 'bg-sky-100 text-sky-800 border-sky-200',
-    [ModActionDefinition.BAN]: 'bg-rose-100 text-rose-800 border-rose-200',
-    [ModActionDefinition.KICK]: 'bg-orange-100 text-orange-800 border-orange-200',
-    [ModActionDefinition.TRADE_LOCK]: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200',
-    [ModActionDefinition.MESSAGE]: 'bg-zinc-100 text-zinc-800 border-zinc-200'
+    [ModActionDefinition.ALERT]: 'bg-[#f7f7f2] text-[#111] border-[#959595]',
+    [ModActionDefinition.MUTE]: 'bg-[#f7f7f2] text-[#1c789b] border-[#959595]',
+    [ModActionDefinition.BAN]: 'bg-[#f7f7f2] text-rose-800 border-[#959595]',
+    [ModActionDefinition.KICK]: 'bg-[#f7f7f2] text-[#111] border-[#959595]',
+    [ModActionDefinition.TRADE_LOCK]: 'bg-[#f7f7f2] text-[#111] border-[#959595]',
+    [ModActionDefinition.MESSAGE]: 'bg-[#f7f7f2] text-[#111] border-[#959595]'
 };
 
 const formatSanctionTime = (at: number) => {
@@ -175,7 +175,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
 
     return (
         <OctaneCardView
-            className="octane-mod-tools-user-action w-max min-w-[min(390px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
+            className="octane-mod-tools-user-action min-w-0 w-[min(380px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
             theme="primary-slim"
             windowPosition={DraggableWindowPosition.TOP_LEFT}
         >
@@ -185,7 +185,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
             />
             <OctaneCardContentView className="text-black relative" gap={2}>
                 {/* Target header */}
-                <div className="flex items-center gap-2 bg-gradient-to-r from-rose-50 to-transparent rounded p-2 border border-rose-100">
+                <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
                     <div className="flex flex-col grow min-w-0">
                         <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">
                             {LocalizeText('modtools.user.modaction.sanctioning')}
@@ -236,7 +236,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
                     </label>
                     <ModToolsTemplateSelectView templates={settings?.messageTemplates} onSelect={setMessage} />
                     <textarea
-                        className="min-h-[60px] px-2 py-1.5 rounded text-sm border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-rose-300"
+                        className="min-h-[60px] px-2 py-1.5 rounded text-sm border border-[#959595] focus:outline-none"
                         placeholder={LocalizeText('modtools.user.modaction.message.placeholder')}
                         value={message}
                         onChange={(event) => setMessage(event.target.value)}
@@ -245,11 +245,11 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
 
                 {/* Preview */}
                 {(selectedSanction || selectedTopicName) && (
-                    <div className="flex flex-col gap-1 bg-zinc-50 border border-zinc-200 rounded p-2">
+                    <div className="flex flex-col gap-1 bg-[#f7f7f2] border border-[#959595] rounded p-2">
                         <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{LocalizeText('modtools.user.modaction.preview')}</div>
                         <div className="flex items-center gap-2 flex-wrap">
                             {selectedTopicName && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-zinc-200">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-[#959595]">
                                     {selectedTopicName}
                                 </span>
                             )}
@@ -264,7 +264,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
 
                 {/* What this moderator has already applied to this person, this session */}
                 {!!appliedThisSession.length && (
-                    <div className="flex flex-col gap-0.5 rounded border border-amber-200 bg-amber-50/60 p-1.5">
+                    <div className="flex flex-col gap-0.5 rounded border border-[#959595] bg-amber-50/60 p-1.5">
                         <span className="text-[.6rem] uppercase tracking-wide font-semibold opacity-70">
                             {LocalizeText('modtools.user.modaction.button.apply')}
                         </span>
@@ -278,7 +278,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
                 )}
 
                 {/* Action buttons */}
-                <div className="flex gap-1.5 pt-1 border-t border-zinc-200">
+                <div className="flex gap-1.5 pt-1 border-t border-[#959595]">
                     <Button className="grow" disabled={!canSubmit} gap={1} variant="primary" onClick={sendDefaultSanction}>
                         {LocalizeText('modtools.user.modaction.button.default')}
                     </Button>

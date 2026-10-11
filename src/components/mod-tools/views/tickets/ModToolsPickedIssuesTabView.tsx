@@ -14,7 +14,7 @@ export const ModToolsPickedIssuesTabView: FC<ModToolsPickedIssuesTabViewProps> =
         <div className="flex flex-col gap-1 overflow-hidden">
             <div className="min-w-0 overflow-x-auto">
                 <div className="min-w-[460px]">
-                    <div className="grid grid-cols-[100px_1fr_100px_120px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
+                    <div className="grid grid-cols-[100px_1fr_100px_120px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-[#959595] pb-1 px-1">
                         <div>{LocalizeText('modtools.tickets.column.type')}</div>
                         <div className="flex items-center gap-1">
                             {LocalizeText('modtools.tickets.column.reported')}
@@ -35,9 +35,9 @@ export const ModToolsPickedIssuesTabView: FC<ModToolsPickedIssuesTabViewProps> =
                             {pickedIssues.map((issue) => (
                                 <div
                                     key={issue.issueId}
-                                    className="grid grid-cols-[100px_1fr_100px_120px] gap-2 items-center px-1 py-1.5 text-sm border-b border-zinc-100 even:bg-black/[0.02]"
+                                    className="grid grid-cols-[100px_1fr_100px_120px] gap-2 items-center px-1 py-1.5 text-sm border-b border-[#959595] even:bg-black/[0.02]"
                                 >
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-zinc-50 text-zinc-700 border-zinc-200 w-fit">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-[#f7f7f2] text-[#111] border-[#959595] w-fit">
                                         {GetIssueCategoryName(issue.categoryId)}
                                     </span>
                                     <span className="font-medium truncate">{issue.reportedUserName}</span>
