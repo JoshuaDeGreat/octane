@@ -649,8 +649,10 @@ body {
     padding: 0 8px;
 }
 
-/* The tool buttons of the start panel use the same default button. */
-.octane-mod-tools .habbo-btn-secondary {
+/* The neutral buttons of every moderation window use the same default button. */
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark),
+[class*='octane-mod-tools-'] :where(.habbo-btn-secondary, .bg-dark),
+.octane-mod-tools-button {
     box-sizing: border-box;
     min-height: 28px;
     border-style: solid !important;
@@ -667,18 +669,78 @@ body {
     text-shadow: none !important;
 }
 
-.octane-mod-tools .habbo-btn-secondary:hover {
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):hover,
+[class*='octane-mod-tools-'] :where(.habbo-btn-secondary, .bg-dark):hover,
+.octane-mod-tools-button:hover {
     border-image-source: var(--habbo-skin-button-hover) !important;
 }
 
-.octane-mod-tools .habbo-btn-secondary:active,
-.octane-mod-tools .habbo-btn-secondary.active {
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):active,
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark).active,
+[class*='octane-mod-tools-'] :where(.habbo-btn-secondary, .bg-dark):active,
+.octane-mod-tools-button:active {
     border-image-source: var(--habbo-skin-button-pressed) !important;
 }
 
-.octane-mod-tools .habbo-btn-secondary:disabled {
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):disabled,
+[class*='octane-mod-tools-'] :where(.habbo-btn-secondary, .bg-dark):disabled,
+.octane-mod-tools-button:disabled {
     border-image-source: var(--habbo-skin-button-disabled) !important;
     color: #8a8a8a !important;
+}
+
+/* The small buttons of the ticket tabs and the chatlog heading, with the green and red of the shared theme. */
+.octane-mod-tools-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 8px;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--green,
+.octane-mod-tools-button.octane-mod-tools-button--red {
+    border-width: 5px !important;
+    border-image-slice: 5 fill !important;
+    border-image-width: 5px !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--green {
+    border-image-source: var(--habbo-skin-shiny-thick-green) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--green:hover {
+    border-image-source: var(--habbo-skin-shiny-thick-green-hover) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--green:active {
+    border-image-source: var(--habbo-skin-shiny-thick-green-pressed) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--red {
+    border-image-source: var(--habbo-skin-shiny-red) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--red:hover {
+    border-image-source: var(--habbo-skin-shiny-red-hover) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--red:active {
+    border-image-source: var(--habbo-skin-shiny-red-pressed) !important;
+}
+
+/* The icon at the head of a window or a record: its own size, scaled down smoothly when larger. */
+.octane-mod-tools-header-icon {
+    flex: none;
+    max-width: 24px;
+    max-height: 24px;
+    width: auto;
+    height: auto;
+    image-rendering: auto;
 }
 
 /* An icon of the classic client on a button: drawn at its own size, never stretched. */

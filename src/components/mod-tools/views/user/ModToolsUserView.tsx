@@ -200,35 +200,38 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                         />
                     </div>
 
-                    {/* Body sections */}
-                    <div className="flex flex-col gap-2 max-h-[300px] overflow-auto pr-1">
-                        <Section title={LocalizeText('modtools.userinfo.section.account')}>
-                            <Field label={LocalizeText('modtools.userinfo.primaryEmailAddress')} value={userInfo.primaryEmailAddress} />
-                            <Field
-                                label={LocalizeText('modtools.userinfo.registrationAgeInMinutes')}
-                                value={FriendlyTime.format(userInfo.registrationAgeInMinutes * 60, '.ago', 2)}
-                            />
-                            <Field label={LocalizeText('modtools.userinfo.userClassification')} value={userInfo.userClassification} />
-                        </Section>
-                        <Section title={LocalizeText('modtools.userinfo.section.activity')}>
-                            <Field
-                                label={LocalizeText('modtools.userinfo.minutesSinceLastLogin')}
-                                value={FriendlyTime.format(userInfo.minutesSinceLastLogin * 60, '.ago', 2)}
-                            />
-                            <Field label={LocalizeText('modtools.userinfo.lastPurchaseDate')} value={userInfo.lastPurchaseDate} />
-                        </Section>
-                        <Section title={LocalizeText('modtools.userinfo.section.sanctions')}>
-                            <Field label={LocalizeText('modtools.userinfo.abusiveCfhCount')} value={userInfo.abusiveCfhCount} />
-                            <Field label={LocalizeText('modtools.userinfo.lastSanctionTime')} value={userInfo.lastSanctionTime} />
-                            <Field label={LocalizeText('modtools.userinfo.identityRelatedBanCount')} value={userInfo.identityRelatedBanCount} />
-                        </Section>
-                        <Section title={LocalizeText('modtools.userinfo.section.trading')}>
-                            <Field label={LocalizeText('modtools.userinfo.tradingExpiryDate')} value={userInfo.tradingExpiryDate} />
-                        </Section>
+                    {/* Body: who they are and what they did on the left, what was done to them on the right */}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <div className="flex flex-col gap-2 min-w-0">
+                            <Section title={LocalizeText('modtools.userinfo.section.account')}>
+                                <Field label={LocalizeText('modtools.userinfo.primaryEmailAddress')} value={userInfo.primaryEmailAddress} />
+                                <Field
+                                    label={LocalizeText('modtools.userinfo.registrationAgeInMinutes')}
+                                    value={FriendlyTime.format(userInfo.registrationAgeInMinutes * 60, '.ago', 2)}
+                                />
+                            </Section>
+                            <Section title={LocalizeText('modtools.userinfo.section.activity')}>
+                                <Field
+                                    label={LocalizeText('modtools.userinfo.minutesSinceLastLogin')}
+                                    value={FriendlyTime.format(userInfo.minutesSinceLastLogin * 60, '.ago', 2)}
+                                />
+                                <Field label={LocalizeText('modtools.userinfo.lastPurchaseDate')} value={userInfo.lastPurchaseDate} />
+                            </Section>
+                        </div>
+                        <div className="flex flex-col gap-2 min-w-0">
+                            <Section title={LocalizeText('modtools.userinfo.section.sanctions')}>
+                                <Field label={LocalizeText('modtools.userinfo.abusiveCfhCount')} value={userInfo.abusiveCfhCount} />
+                                <Field label={LocalizeText('modtools.userinfo.lastSanctionTime')} value={userInfo.lastSanctionTime} />
+                                <Field label={LocalizeText('modtools.userinfo.identityRelatedBanCount')} value={userInfo.identityRelatedBanCount} />
+                            </Section>
+                            <Section title={LocalizeText('modtools.userinfo.section.trading')}>
+                                <Field label={LocalizeText('modtools.userinfo.tradingExpiryDate')} value={userInfo.tradingExpiryDate} />
+                            </Section>
+                        </div>
                     </div>
 
                     {/* Action bar */}
-                    <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-zinc-200">
+                    <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-zinc-200">
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => CreateLinkEvent(`mod-tools/open-user-chatlog/${userId}`)}>
                             <img alt="" className="octane-mod-tools-button-icon" src={chatIcon} /> {LocalizeText('modtools.userinfo.button.room.chat')}
                         </Button>
@@ -238,7 +241,7 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => setRoomVisitsVisible((prev) => !prev)}>
                             <img alt="" className="octane-mod-tools-button-icon" src={visitsIcon} /> {LocalizeText('modtools.userinfo.button.room.visits')}
                         </Button>
-                        <Button gap={1} variant="danger" classNames={['mod-tools-danger-button']} onClick={() => setModActionVisible((prev) => !prev)}>
+                        <Button className="col-span-3" gap={1} variant="danger" classNames={['mod-tools-danger-button']} onClick={() => setModActionVisible((prev) => !prev)}>
                             <img alt="" className="octane-mod-tools-button-icon" src={staffIcon} /> {LocalizeText('modtools.userinfo.button.mod.action')}
                         </Button>
                     </div>

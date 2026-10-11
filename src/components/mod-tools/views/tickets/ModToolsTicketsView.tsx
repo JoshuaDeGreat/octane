@@ -1,6 +1,5 @@
 import { GetSessionDataManager, IssueMessageData } from '@octane/renderer';
 import { FC, useMemo, useState } from 'react';
-import { FaCheckSquare, FaListUl, FaUserCheck } from 'react-icons/fa';
 import { LocalizeText } from '../../../../api';
 import { OctaneCardContentView, OctaneCardHeaderView, OctaneCardTabsItemView, OctaneCardTabsView, OctaneCardView } from '../../../../common';
 import { useModTools } from '../../../../hooks';
@@ -16,7 +15,7 @@ interface ModToolsTicketsViewProps {
 interface TabBadgeProps {
     label: string;
     count: number;
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
     tone: 'amber' | 'sky' | 'zinc';
 }
 
@@ -94,16 +93,15 @@ export const ModToolsTicketsView: FC<ModToolsTicketsViewProps> = (props) => {
                 <OctaneCardHeaderView headerText={LocalizeText('modtools.tickets.title')} onCloseClick={onCloseClick} />
                 <OctaneCardTabsView>
                     <OctaneCardTabsItemView isActive={currentTab === 0} onClick={() => setCurrentTab(0)}>
-                        <TabLabel label={LocalizeText('modtools.tickets.tab.open')} count={openIssues.length} icon={<FaListUl size={10} />} tone="amber" />
+                        <TabLabel label={LocalizeText('modtools.tickets.tab.open')} count={openIssues.length} tone="amber" />
                     </OctaneCardTabsItemView>
                     <OctaneCardTabsItemView isActive={currentTab === 1} onClick={() => setCurrentTab(1)}>
-                        <TabLabel label={LocalizeText('modtools.tickets.tab.mine')} count={myIssues.length} icon={<FaUserCheck size={10} />} tone="sky" />
+                        <TabLabel label={LocalizeText('modtools.tickets.tab.mine')} count={myIssues.length} tone="sky" />
                     </OctaneCardTabsItemView>
                     <OctaneCardTabsItemView isActive={currentTab === 2} onClick={() => setCurrentTab(2)}>
                         <TabLabel
                             label={LocalizeText('modtools.tickets.tab.picked')}
                             count={pickedIssues.length}
-                            icon={<FaCheckSquare size={10} />}
                             tone="zinc"
                         />
                     </OctaneCardTabsItemView>

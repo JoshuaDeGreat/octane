@@ -8,8 +8,9 @@ import {
     ModMuteMessageComposer,
     ModTradingLockMessageComposer
 } from '@octane/renderer';
+import staffIcon from '../../../../assets/images/mod-tools/mod-action.png';
+import warningIcon from '../../../../assets/images/mod-tools/warning.png';
 import { FC, useMemo, useRef, useState } from 'react';
-import { FaBan, FaBolt, FaEnvelope, FaExclamationTriangle, FaGavel, FaHistory, FaUserSlash, FaVolumeMute } from 'react-icons/fa';
 import { ISelectedUser, LocalizeText, ModActionDefinition, NotificationAlertType, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useModTools, useNotification } from '../../../../hooks';
@@ -36,12 +37,7 @@ const MOD_ACTION_DEFINITIONS = [
 ];
 
 const ACTION_ICONS: Record<number, React.ReactNode> = {
-    [ModActionDefinition.ALERT]: <FaExclamationTriangle size={10} />,
-    [ModActionDefinition.MUTE]: <FaVolumeMute size={10} />,
-    [ModActionDefinition.BAN]: <FaBan size={10} />,
-    [ModActionDefinition.KICK]: <FaUserSlash size={10} />,
-    [ModActionDefinition.TRADE_LOCK]: <FaGavel size={10} />,
-    [ModActionDefinition.MESSAGE]: <FaEnvelope size={10} />
+    [ModActionDefinition.ALERT]: <img alt="" className="octane-mod-tools-button-icon" src={warningIcon} />,
 };
 
 const ACTION_TONE: Record<number, string> = {
@@ -198,7 +194,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
             <OctaneCardContentView className="text-black relative" gap={2}>
                 {/* Target header */}
                 <div className="flex items-center gap-2 bg-gradient-to-r from-rose-50 to-transparent rounded p-2 border border-rose-100">
-                    <FaGavel className="text-rose-600 shrink-0" size={16} />
+                    <img alt="" className="octane-mod-tools-header-icon" src={staffIcon} />
                     <div className="flex flex-col grow min-w-0">
                         <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">
                             {LocalizeText('modtools.user.modaction.sanctioning')}
@@ -283,7 +279,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
                         </span>
                         {appliedThisSession.slice(-3).map((entry, index) => (
                             <span key={index} className="text-[.65rem] flex items-center gap-1">
-                                <FaHistory className="opacity-50 shrink-0" size={8} />
+                                
                                 <strong className="truncate">{entry.label}</strong>
                                 <span className="opacity-60 tabular-nums shrink-0">{formatSanctionTime(entry.at)}</span>
                             </span>
@@ -294,10 +290,10 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
                 {/* Action buttons */}
                 <div className="flex gap-1.5 pt-1 border-t border-zinc-200">
                     <Button className="grow" disabled={!canSubmit} gap={1} variant="primary" onClick={sendDefaultSanction}>
-                        <FaBolt size={12} /> {LocalizeText('modtools.user.modaction.button.default')}
+                        {LocalizeText('modtools.user.modaction.button.default')}
                     </Button>
                     <Button className="grow" disabled={!canSubmit || selectedAction === -1} gap={1} variant="success" onClick={requestSanction}>
-                        <FaGavel size={12} /> {LocalizeText('modtools.user.modaction.button.apply')}
+                        <img alt="" className="octane-mod-tools-button-icon" src={staffIcon} /> {LocalizeText('modtools.user.modaction.button.apply')}
                     </Button>
                 </div>
                 {pendingSanction && (
@@ -307,7 +303,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
                         className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white/95 p-3 text-center"
                         role="dialog"
                     >
-                        <FaExclamationTriangle className="text-amber-500" size={20} />
+                        <img alt="" className="octane-mod-tools-header-icon" src={warningIcon} />
                         <div className="text-sm">
                             <strong>{pendingSanction.name}</strong>
                             <div className="opacity-70">{user?.username}</div>
