@@ -509,6 +509,71 @@ body {
     font-size: var(--font-size, 16px);
 }
 
+/* -------------------------------------------------------------------------- */
+/* Tooltip. habbo_skin_tooltip.xml cuts a 6px-corner bubble out of             */
+/* habbo_blue_skin (x 0-13, y 49-71: #232323 at 90%); text is u_tool_tip,      */
+/* Ubuntu 11 white. HintManager.as parks it 10px above or below the target,    */
+/* slides it in and bobs it 5px on |sin(t * 0.003)|, i.e. about once a second.  */
+/* -------------------------------------------------------------------------- */
+.octane-tooltip {
+    position: fixed;
+    z-index: 9999;
+    box-sizing: border-box;
+    max-width: 260px;
+    padding: 0 1px;
+    border: 6px solid transparent;
+    border-image: url("@/assets/images/habbo-skin/slices/tooltip-blue.png") 6 fill / 6px stretch;
+    image-rendering: pixelated;
+    color: #ffffff;
+    font-family: Ubuntu, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 13px;
+    text-align: center;
+    white-space: pre-line;
+    pointer-events: none;
+    user-select: none;
+}
+
+.octane-tooltip.is-measuring {
+    visibility: hidden;
+}
+
+.octane-tooltip--above {
+    animation: octane-tooltip-in-above 120ms ease-out, octane-tooltip-bob-above 1050ms ease-in-out 120ms infinite;
+}
+
+.octane-tooltip--below {
+    animation: octane-tooltip-in-below 120ms ease-out, octane-tooltip-bob-below 1050ms ease-in-out 120ms infinite;
+}
+
+@keyframes octane-tooltip-in-above {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes octane-tooltip-in-below {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes octane-tooltip-bob-above {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes octane-tooltip-bob-below {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .octane-tooltip--above,
+    .octane-tooltip--below {
+        animation: none;
+    }
+}
+
 .octane-mod-tools,
 [class*="octane-mod-tools-"] {
     --mod-tools-bg: #ecece4;
