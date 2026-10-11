@@ -1,7 +1,7 @@
-import { CloseIssuesMessageComposer, ReleaseIssuesMessageComposer } from '@octane/renderer';
+import { CloseIssueDefaultActionMessageComposer, CloseIssuesMessageComposer, ReleaseIssuesMessageComposer } from '@octane/renderer';
 import { FC, useState } from 'react';
-import { FaBan, FaCheck, FaCommentDots, FaExternalLinkAlt, FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
-import { GetIssueCategoryName, LocalizeText, SendMessageComposer } from '../../../../api';
+import { FaBan, FaCheck, FaCommentDots, FaExternalLinkAlt, FaGavel, FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
+import { GetIssueCategoryName, LocalizeText, localizeWithFallback, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useModTools } from '../../../../hooks';
 import { CfhChatlogView } from './CfhChatlogView';
@@ -21,8 +21,9 @@ const Field: FC<{ label: string; children: React.ReactNode }> = ({ label, childr
 export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
     const { issueId = null, onIssueInfoClosed = null } = props;
     const [cfhChatlogOpen, setCfhChatlogOpen] = useState(false);
-    const { tickets = [], openUserInfo = null } = useModTools();
+    const { tickets = [], issueSanctions = {}, openUserInfo = null } = useModTools();
     const ticket = tickets.find((issue) => issue.issueId === issueId);
+    const defaultSanction = issueSanctions[issueId] ?? null;
 
     const releaseIssue = () => {
         SendMessageComposer(new ReleaseIssuesMessageComposer([issueId]));
@@ -31,6 +32,11 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
 
     const closeIssue = (resolutionType: number) => {
         SendMessageComposer(new CloseIssuesMessageComposer([issueId], resolutionType));
+        onIssueInfoClosed(issueId);
+    };
+
+    const closeWithDefaultSanction = () => {
+        SendMessageComposer(new CloseIssueDefaultActionMessageComposer(issueId, [], ticket.reportedCategoryId));
         onIssueInfoClosed(issueId);
     };
 
@@ -114,6 +120,17 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                                 <FaBan size={11} /> {LocalizeText('modtools.tickets.issue.resolve.abusive')}
                             </Button>
                         </div>
+                        <Button gap={1} variant="primary" onClick={closeWithDefaultSanction}>
+                            <FaGavel size={11} />{' '}
+                            {defaultSanction
+                                ? localizeWithFallback(
+                                      'modtools.tickets.issue.resolve.default.with',
+                                      `Default sanction: ${defaultSanction.name}`,
+                                      ['sanction', 'hours'],
+                                      [defaultSanction.name, defaultSanction.sanctionLengthInHours.toString()]
+                                  )
+                                : localizeWithFallback('modtools.tickets.issue.resolve.default', 'Default sanction')}
+                        </Button>
                         <Button gap={1} variant="secondary" onClick={releaseIssue}>
                             <FaSignOutAlt size={12} /> {LocalizeText('modtools.tickets.issue.release')}
                         </Button>

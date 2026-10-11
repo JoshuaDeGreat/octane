@@ -293,6 +293,8 @@
     "modtools.tickets.action.handle": "Handle",
     "modtools.tickets.action.release": "Release",
     "modtools.tickets.action.release.all": "Release all",
+    "modtools.tickets.issue.resolve.default": "Default sanction",
+    "modtools.tickets.issue.resolve.default.with": "Default sanction: ${sanction} (${hours} h)",
     "modtools.tickets.action.pick.next": "Give me the next priority issue",
     "modtools.template.select": "Select from message templates",
     "modtools.tickets.issue.title": "Resolve report #%issueId%",
