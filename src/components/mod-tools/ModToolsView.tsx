@@ -9,7 +9,7 @@ import {
     RoomObjectType, HabboSearchComposer, HabboSearchResultData, HabboSearchResultEvent } from '@octane/renderer';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GetRoomSession, ISelectedUser, LocalizeText, SendMessageComposer } from '../../api';
-import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../common';
+import { Button, DraggableWindowPosition, LayoutAvatarImageView, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../common';
 import chatlogIcon from '../../assets/images/mod-tools/chatlog.png';
 import roomToolIcon from '../../assets/images/mod-tools/room-tool.png';
 import ticketBrowserIcon from '../../assets/images/mod-tools/ticket-browser.png';
@@ -89,7 +89,7 @@ export const ModToolsView: FC<{}> = (props) => {
 
         if (!userData || userData.type !== RoomObjectType.USER) return;
 
-        setSelectedUser({ userId: userData.webID, username: userData.name });
+        setSelectedUser({ userId: userData.webID, username: userData.name, figure: userData.figure });
     });
 
     useMessageEvent<HabboSearchResultEvent>(HabboSearchResultEvent, (event) => {
@@ -121,7 +121,7 @@ export const ModToolsView: FC<{}> = (props) => {
     }, [userQuery]);
 
     const pickUser = useCallback((result: HabboSearchResultData) => {
-        setSelectedUser({ userId: result.avatarId, username: result.avatarName });
+        setSelectedUser({ userId: result.avatarId, username: result.avatarName, figure: result.avatarFigure });
         setUserResults(null);
         setUserQuery('');
     }, []);
@@ -292,7 +292,13 @@ export const ModToolsView: FC<{}> = (props) => {
                                         variant="secondary"
                                         onClick={() => CreateLinkEvent(`mod-tools/toggle-user-info/${selectedUser.userId}`)}
                                     >
-                                        <img alt="" className="shrink-0" src={userInfoIcon} />
+                                        {selectedUser.figure ? (
+                                            <div className="relative w-[20px] h-[20px] shrink-0 overflow-hidden">
+                                                <LayoutAvatarImageView figure={selectedUser.figure} headOnly compactHead compactHeadSize={20} compactHeadPadding={0} direction={2} />
+                                            </div>
+                                        ) : (
+                                            <img alt="" className="shrink-0" src={userInfoIcon} />
+                                        )}
                                         <span className="grow text-start">{LocalizeText('modtools.window.user.open_info')}</span>
                                     </Button>
                                 </div>
