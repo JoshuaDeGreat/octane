@@ -36,11 +36,26 @@
     height: 37px;
 }
 
+/* The mentions bubble: plain, brighter under the pointer, and with its red mark while something is unread. */
+.octane-icon.icon-mentions,
+.octane-icon.icon-mentions-unread {
+    background-size: auto;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 37px;
+    height: 37px;
+}
+
 .octane-icon.icon-mentions {
     background-image: url("@/assets/images/toolbar/icons/mentions.png");
-    background-size: contain;
-    width: 36px;
-    height: 32px;
+}
+
+.octane-icon.icon-mentions:hover {
+    background-image: url("@/assets/images/toolbar/icons/mentions-hover.png");
+}
+
+.octane-icon.icon-mentions-unread {
+    background-image: url("@/assets/images/toolbar/icons/mentions-unread.png");
 }
 
 .octane-icon.icon-buildersclub {

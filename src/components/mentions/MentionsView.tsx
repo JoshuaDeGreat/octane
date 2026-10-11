@@ -162,7 +162,12 @@ export const MentionsView: FC<MentionsViewProps> = (props) => {
                     </button>
                 </div>
                 <div className="mentions-list" role="list" aria-busy={isLoading}>
-                    {!hasAny && <div className="mentions-empty">{renderEmpty()}</div>}
+                    {!hasAny && (
+                        <div className="mentions-empty">
+                            <span className="mentions-empty-glyph" aria-hidden />
+                            {renderEmpty()}
+                        </div>
+                    )}
                     {hasAny &&
                         groups.map((group) => (
                             <div key={group.key} className="mentions-group">

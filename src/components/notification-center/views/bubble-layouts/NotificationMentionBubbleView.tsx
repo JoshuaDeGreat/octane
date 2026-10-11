@@ -65,7 +65,7 @@ export const NotificationMentionBubbleView: FC<NotificationMentionBubbleViewProp
                 {mention.roomName && mention.roomName.length > 0 && <span className="mention-toast-room">· {mention.roomName}</span>}
                 <MentionMessageView className="mention-toast-message" ownUsername={ownUsername} text={mention.message} />
                 <Flex gap={1} className="mention-toast-actions">
-                    <button type="button" className="mention-toast-btn" onClick={(event) => act(event, open)}>
+                    <button type="button" className="mention-toast-btn has-icon" onClick={(event) => act(event, open)}>
                         {LocalizeText('mentions.window.title')}
                     </button>
                     {mention.roomId > 0 && (

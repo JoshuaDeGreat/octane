@@ -247,16 +247,9 @@
 }
 
 .mentions-empty-glyph {
-    width: 46px;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(30, 114, 149, 0.10);
-    color: #418db0;
-    font-size: 22px;
-    font-weight: 700;
+    width: 37px;
+    height: 37px;
+    background: url("@/assets/images/mentions/mentions-37.png") center / 37px 37px no-repeat;
 }
 
 .mentions-empty-text {

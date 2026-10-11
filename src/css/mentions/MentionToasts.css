@@ -37,6 +37,16 @@
     color: #fff;
 }
 
+.mention-toast-btn.has-icon::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    vertical-align: -4px;
+    background: url("@/assets/images/mentions/mentions-16.png") center / 16px 16px no-repeat;
+}
+
 .mention-toast-chip.is-direct { background: #418db0; }
 .mention-toast-chip.is-room { background: #d08a1e; }
 
