@@ -36,22 +36,11 @@
     height: 37px;
 }
 
-/* The messenger bubble of the classic client: plain while nothing is unread, with its mark when something is. */
-.octane-icon.icon-mentions,
-.octane-icon.icon-mentions-unread {
-    background-size: auto;
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 37px;
-    height: 37px;
-}
-
 .octane-icon.icon-mentions {
     background-image: url("@/assets/images/toolbar/icons/mentions.png");
-}
-
-.octane-icon.icon-mentions-unread {
-    background-image: url("@/assets/images/toolbar/icons/mentions-unread.png");
+    background-size: contain;
+    width: 36px;
+    height: 32px;
 }
 
 .octane-icon.icon-buildersclub {
