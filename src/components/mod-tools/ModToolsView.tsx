@@ -212,7 +212,7 @@ export const ModToolsView: FC<{}> = (props) => {
         <>
             {isVisible && (
                 <OctaneCardView
-                    className="octane-mod-tools min-w-0 w-[min(260px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
+                    className="octane-mod-tools w-max min-w-[min(240px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
                     theme="primary-slim"
                     uniqueKey="mod-tools"
                     windowPosition={DraggableWindowPosition.TOP_LEFT}

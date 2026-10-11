@@ -175,7 +175,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
 
     return (
         <OctaneCardView
-            className="octane-mod-tools-user-action min-w-0 w-[min(460px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
+            className="octane-mod-tools-user-action w-max min-w-[min(390px,calc(100vw-16px))] max-w-[min(640px,calc(100vw-16px))] max-h-[calc(100vh-16px)]"
             theme="primary-slim"
             windowPosition={DraggableWindowPosition.TOP_LEFT}
         >
