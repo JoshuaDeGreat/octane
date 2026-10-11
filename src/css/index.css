@@ -588,18 +588,14 @@ body {
     color: var(--mod-tools-text);
 }
 
-/* A long list has a height of its own, so it scrolls inside the window and only the visible rows
-   are drawn: the virtualised ones (chatlog, visits) get a fixed box, the plain ones a maximum. */
-.octane-mod-tools-list {
-    position: relative;
-    height: min(440px, calc(100vh - 240px));
-    min-height: 160px;
-    overflow: hidden;
-}
-
+/* A long list keeps a minimum of its own and grows with its rows up to what the screen leaves
+   under the window chrome; past that it scrolls inside the window. */
+.octane-mod-tools-list,
 .octane-mod-tools-list-auto {
-    max-height: min(380px, calc(100vh - 240px));
-    min-height: 0;
+    position: relative;
+    min-height: 160px;
+    max-height: calc(100vh - 240px);
+    overflow: auto;
 }
 
 /* The windows that hold a list fill their minimum height with the list instead of leaving it empty. */
