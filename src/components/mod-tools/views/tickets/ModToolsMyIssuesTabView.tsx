@@ -1,7 +1,7 @@
 import { IssueMessageData, ReleaseIssuesMessageComposer } from '@octane/renderer';
 import { FC, useRef } from 'react';
 import { FaClock, FaInbox, FaSignOutAlt, FaTools, FaUser } from 'react-icons/fa';
-import { GetIssueCategoryName, LocalizeText, SendMessageComposer } from '../../../../api';
+import { GetIssueCategoryName, LocalizeText, localizeWithFallback, SendMessageComposer } from '../../../../api';
 
 interface ModToolsMyIssuesTabViewProps {
     myIssues: IssueMessageData[];
@@ -21,10 +21,24 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
         setTimeout(() => pendingReleasesRef.current.delete(issueId), 2000);
     };
 
+    const releaseAll = () => {
+        if (!myIssues || myIssues.length === 0) return;
+
+        SendMessageComposer(new ReleaseIssuesMessageComposer(myIssues.map((issue) => issue.issueId)));
+    };
+
     const isEmpty = !myIssues || myIssues.length === 0;
 
     return (
         <div className="flex flex-col gap-1 overflow-hidden">
+            {!isEmpty && (
+                <button
+                    className="inline-flex items-center justify-center gap-1 self-end px-2 py-1 rounded text-xs font-medium bg-rose-600 text-white hover:bg-rose-700 transition-colors"
+                    onClick={releaseAll}
+                >
+                    <FaSignOutAlt size={10} /> {localizeWithFallback('modtools.tickets.action.release.all', 'Release all')}
+                </button>
+            )}
             <div className="min-w-0 overflow-x-auto">
                 <div className="min-w-[500px]">
                     <div className="grid grid-cols-[100px_1fr_100px_90px_90px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">

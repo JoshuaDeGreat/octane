@@ -3,7 +3,8 @@ import { FC, useState } from 'react';
 import { FaEnvelope, FaPaperPlane, FaUser } from 'react-icons/fa';
 import { ISelectedUser, LocalizeText, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
-import { useNotification } from '../../../../hooks';
+import { useModTools, useNotification } from '../../../../hooks';
+import { ModToolsTemplateSelectView } from '../ModToolsTemplateSelectView';
 
 interface ModToolsUserSendMessageViewProps {
     user: ISelectedUser;
@@ -14,6 +15,7 @@ export const ModToolsUserSendMessageView: FC<ModToolsUserSendMessageViewProps> =
     const { user = null, onCloseClick = null } = props;
     const [message, setMessage] = useState('');
     const { simpleAlert = null } = useNotification();
+    const { settings = null } = useModTools();
 
     if (!user) return null;
 
@@ -53,6 +55,7 @@ export const ModToolsUserSendMessageView: FC<ModToolsUserSendMessageViewProps> =
                 {/* Body */}
                 <div className="flex flex-col gap-1">
                     <label className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{LocalizeText('modtools.user.message.label')}</label>
+                    <ModToolsTemplateSelectView templates={settings?.messageTemplates} onSelect={setMessage} />
                     <textarea
                         autoFocus
                         className="min-h-[100px] px-2 py-1.5 rounded text-sm border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-sky-300"

@@ -1,7 +1,7 @@
 import { IssueMessageData, PickIssuesMessageComposer } from '@octane/renderer';
-import { FC, useRef } from 'react';
-import { FaClock, FaHandPointer, FaInbox, FaUser } from 'react-icons/fa';
-import { GetIssueCategoryName, LocalizeText, SendMessageComposer } from '../../../../api';
+import { FC, useMemo, useRef } from 'react';
+import { FaClock, FaForward, FaHandPointer, FaInbox, FaUser } from 'react-icons/fa';
+import { GetIssueCategoryName, LocalizeText, localizeWithFallback, SendMessageComposer } from '../../../../api';
 
 interface ModToolsOpenIssuesTabViewProps {
     openIssues: IssueMessageData[];
@@ -20,13 +20,25 @@ export const ModToolsOpenIssuesTabView: FC<ModToolsOpenIssuesTabViewProps> = (pr
         setTimeout(() => pendingPicksRef.current.delete(issueId), 2000);
     };
 
-    const isEmpty = !openIssues || openIssues.length === 0;
+    // The classic issue browser lists the issues by score, highest first.
+    const sortedIssues = useMemo(() => (openIssues ? [...openIssues].sort((a, b) => b.priority - a.priority || b.issueAgeInMilliseconds - a.issueAgeInMilliseconds) : []), [openIssues]);
+
+    const isEmpty = sortedIssues.length === 0;
 
     return (
         <div className="flex flex-col gap-1 overflow-hidden">
+            {!isEmpty && (
+                <button
+                    className="inline-flex items-center justify-center gap-1 self-end px-2 py-1 rounded text-xs font-medium bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+                    onClick={() => pickIssue(sortedIssues[0].issueId)}
+                >
+                    <FaForward size={10} /> {localizeWithFallback('modtools.tickets.action.pick.next', 'Give me the next priority issue')}
+                </button>
+            )}
             <div className="min-w-0 overflow-x-auto">
-                <div className="min-w-[420px]">
-                    <div className="grid grid-cols-[100px_1fr_100px_100px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
+                <div className="min-w-[470px]">
+                    <div className="grid grid-cols-[44px_100px_1fr_100px_100px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
+                        <div>{localizeWithFallback('modtools.tickets.column.score', 'Score')}</div>
                         <div>{LocalizeText('modtools.tickets.column.type')}</div>
                         <div className="flex items-center gap-1">
                             <FaUser size={10} /> {LocalizeText('modtools.tickets.column.reported')}
@@ -43,11 +55,12 @@ export const ModToolsOpenIssuesTabView: FC<ModToolsOpenIssuesTabViewProps> = (pr
                         </div>
                     ) : (
                         <div className="flex flex-col overflow-auto">
-                            {openIssues.map((issue) => (
+                            {sortedIssues.map((issue) => (
                                 <div
                                     key={issue.issueId}
-                                    className="grid grid-cols-[100px_1fr_100px_100px] gap-2 items-center px-1 py-1.5 text-sm border-b border-zinc-100 even:bg-black/[0.02] hover:bg-amber-50/50 transition-colors"
+                                    className="grid grid-cols-[44px_100px_1fr_100px_100px] gap-2 items-center px-1 py-1.5 text-sm border-b border-zinc-100 even:bg-black/[0.02] hover:bg-amber-50/50 transition-colors"
                                 >
+                                    <span className="font-mono text-[.75rem] tabular-nums">{issue.priority}</span>
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-amber-50 text-amber-800 border-amber-200 w-fit">
                                         {GetIssueCategoryName(issue.categoryId)}
                                     </span>

@@ -13,6 +13,7 @@ import { FaBan, FaBolt, FaEnvelope, FaExclamationTriangle, FaGavel, FaHistory, F
 import { ISelectedUser, LocalizeText, ModActionDefinition, NotificationAlertType, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useModTools, useNotification } from '../../../../hooks';
+import { ModToolsTemplateSelectView } from '../ModToolsTemplateSelectView';
 
 interface ModToolsUserModActionViewProps {
     user: ISelectedUser;
@@ -245,6 +246,7 @@ export const ModToolsUserModActionView: FC<ModToolsUserModActionViewProps> = (pr
                         {LocalizeText('modtools.user.modaction.step.message')}{' '}
                         <span className="opacity-50 normal-case font-normal">{LocalizeText('modtools.user.modaction.step.message.optional')}</span>
                     </label>
+                    <ModToolsTemplateSelectView templates={settings?.messageTemplates} onSelect={setMessage} />
                     <textarea
                         className="min-h-[60px] px-2 py-1.5 rounded text-sm border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-rose-300"
                         placeholder={LocalizeText('modtools.user.modaction.message.placeholder')}

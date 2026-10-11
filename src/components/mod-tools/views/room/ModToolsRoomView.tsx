@@ -9,7 +9,8 @@ import { FC, useEffect, useState } from 'react';
 import { FaBullhorn, FaCommentDots, FaDoorOpen, FaExclamationTriangle, FaSignInAlt, FaSync, FaUserShield, FaUsers } from 'react-icons/fa';
 import { LocalizeText, SendMessageComposer, TryVisitRoom } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../../common';
-import { useMessageEvent } from '../../../../hooks';
+import { useMessageEvent, useModTools } from '../../../../hooks';
+import { ModToolsTemplateSelectView } from '../ModToolsTemplateSelectView';
 
 interface ModToolsRoomViewProps {
     roomId: number;
@@ -29,6 +30,7 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
     const [lockRoom, setLockRoom] = useState(false);
     const [changeRoomName, setChangeRoomName] = useState(false);
     const [message, setMessage] = useState('');
+    const { settings = null } = useModTools();
 
     const refresh = () => SendMessageComposer(new GetModeratorRoomInfoMessageComposer(roomId));
 
@@ -165,6 +167,7 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
                         />
                         <span>{LocalizeText('modtools.roominfo.moderate.rename')}</span>
                     </label>
+                    <ModToolsTemplateSelectView templates={settings?.roomMessageTemplates} onSelect={setMessage} />
                     <textarea
                         className="min-h-[60px] px-2 py-1.5 rounded text-sm border border-amber-300 bg-white/70 focus:outline-none focus:ring-2 focus:ring-amber-400"
                         placeholder={LocalizeText('modtools.roominfo.moderate.message.placeholder')}
