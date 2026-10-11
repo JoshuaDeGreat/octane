@@ -179,12 +179,42 @@
 }
 
 .mention-row-actions {
-    display: none;
+    display: flex;
     gap: 4px;
 }
 
-.mention-row:hover .mention-row-time { display: none; }
-.mention-row:hover .mention-row-actions { display: flex; }
+/* The row is two parts side by side, so the actions are real buttons that keyboard and touch reach. */
+.mention-row-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: inherit;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.mention-row-main .mention-row-avatar {
+    display: block;
+}
+
+.mention-row-main:focus-visible,
+.mention-row-action:focus-visible,
+.mentions-filter:focus-visible,
+.mentions-refresh:focus-visible {
+    outline: 2px solid #418db0;
+    outline-offset: 1px;
+}
+
+.mentions-refresh:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
 
 .mention-row-action {
     width: 22px;

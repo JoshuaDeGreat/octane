@@ -1,5 +1,4 @@
-import { FC, MouseEvent } from 'react';
-import { FaArrowRight, FaTimes } from 'react-icons/fa';
+import { FC } from 'react';
 import { formatMentionTime, IMentionEntry, LocalizeText, MentionType } from '../../api';
 import { LayoutAvatarImageView } from '../../common';
 import { MentionMessageView } from './MentionMessageView';
@@ -18,47 +17,36 @@ export const MentionRowView: FC<MentionRowViewProps> = (props) => {
     const isRoom = mention.mentionType === MentionType.ROOM;
     const typeTitle = LocalizeText(isRoom ? 'mentions.type.room' : 'mentions.type.direct');
     const time = formatMentionTime(mention.timestamp);
-
-    const stop = (event: MouseEvent, action: () => void) => {
-        event.stopPropagation();
-        action();
-    };
+    const gotoLabel = LocalizeText('mentions.action.goto');
+    const removeLabel = LocalizeText('mentions.action.remove');
 
     return (
-        <div className={`mention-row ${mention.read ? '' : 'is-unread'}`} onClick={() => onOpen(mention)}>
+        <div className={`mention-row ${mention.read ? '' : 'is-unread'}`} role="listitem">
             {!mention.read && <span className="mention-row-unread-dot" aria-hidden />}
-            <div className="mention-row-avatar" title={typeTitle}>
-                <LayoutAvatarImageView headOnly direction={2} figure={mention.senderFigure} />
-                <span className={`mention-row-type ${isRoom ? 'is-room' : 'is-direct'}`}>{isRoom ? '∗' : '@'}</span>
-            </div>
-            <div className="mention-row-body">
-                <div className="mention-row-head">
-                    <span className="mention-row-name">{mention.senderUsername}</span>
-                    {mention.roomName && mention.roomName.length > 0 && <span className="mention-row-room">· {mention.roomName}</span>}
-                </div>
-                <MentionMessageView className="mention-row-msg" ownUsername={ownUsername} text={mention.message} />
-            </div>
+            <button type="button" className="mention-row-main" aria-label={`${mention.senderUsername}: ${mention.message}`} onClick={() => onOpen(mention)}>
+                <span className="mention-row-avatar" title={typeTitle}>
+                    <LayoutAvatarImageView headOnly direction={2} figure={mention.senderFigure} />
+                    <span className={`mention-row-type ${isRoom ? 'is-room' : 'is-direct'}`}>{isRoom ? '∗' : '@'}</span>
+                </span>
+                <span className="mention-row-body">
+                    <span className="mention-row-head">
+                        <span className="mention-row-name">{mention.senderUsername}</span>
+                        {mention.roomName && mention.roomName.length > 0 && <span className="mention-row-room">· {mention.roomName}</span>}
+                    </span>
+                    <MentionMessageView className="mention-row-msg" ownUsername={ownUsername} text={mention.message} />
+                </span>
+            </button>
             <div className="mention-row-meta">
                 {time.length > 0 && <span className="mention-row-time">{time}</span>}
                 <div className="mention-row-actions">
-                    {onGoto && (
-                        <button
-                            type="button"
-                            className="mention-row-action"
-                            title={LocalizeText('mentions.action.goto')}
-                            onClick={(event) => stop(event, () => onGoto(mention))}
-                        >
-                            <FaArrowRight />
+                    {onGoto && mention.roomId > 0 && (
+                        <button type="button" className="mention-row-action" title={gotoLabel} aria-label={gotoLabel} onClick={() => onGoto(mention)}>
+                            ›
                         </button>
                     )}
                     {onRemove && (
-                        <button
-                            type="button"
-                            className="mention-row-action is-remove"
-                            title={LocalizeText('mentions.action.remove')}
-                            onClick={(event) => stop(event, () => onRemove(mention))}
-                        >
-                            <FaTimes />
+                        <button type="button" className="mention-row-action is-remove" title={removeLabel} aria-label={removeLabel} onClick={() => onRemove(mention)}>
+                            ×
                         </button>
                     )}
                 </div>
