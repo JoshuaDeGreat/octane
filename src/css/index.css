@@ -588,6 +588,14 @@ body {
     color: var(--mod-tools-text);
 }
 
+/* The windows that hold a list fill their minimum height with the list instead of leaving it empty. */
+.octane-mod-tools-chatlog > .octane-card-content-shell,
+.octane-mod-tools-tickets > .octane-card-content-shell,
+.octane-mod-tools-user-visits > .octane-card-content-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
 .octane-mod-tools .octane-card-content-shell,
 [class*="octane-mod-tools-"] .octane-card-content-shell {
     background: var(--mod-tools-bg);

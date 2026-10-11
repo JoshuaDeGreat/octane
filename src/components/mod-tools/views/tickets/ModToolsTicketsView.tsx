@@ -89,7 +89,7 @@ export const ModToolsTicketsView: FC<ModToolsTicketsViewProps> = (props) => {
 
     return (
         <>
-            <OctaneCardView className="octane-mod-tools-tickets w-max min-w-[min(580px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]">
+            <OctaneCardView className="octane-mod-tools-tickets w-max min-w-[min(580px,calc(100vw-16px))] max-w-[min(760px,calc(100vw-16px))] min-h-[min(320px,calc(100vh-16px))] max-h-[calc(100vh-16px)]">
                 <OctaneCardHeaderView headerText={LocalizeText('modtools.tickets.title')} onCloseClick={onCloseClick} />
                 <OctaneCardTabsView>
                     <OctaneCardTabsItemView isActive={currentTab === 0} onClick={() => setCurrentTab(0)}>

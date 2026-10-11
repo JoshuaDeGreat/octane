@@ -28,7 +28,7 @@ export const ModToolsChatlogView: FC<ModToolsChatlogViewProps> = (props) => {
 
     return (
         <OctaneCardView
-            className="octane-mod-tools-chatlog w-max min-w-[min(580px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
+            className="octane-mod-tools-chatlog w-max min-w-[min(580px,calc(100vw-16px))] max-w-[min(760px,calc(100vw-16px))] min-h-[min(360px,calc(100vh-16px))] max-h-[calc(100vh-16px)]"
             theme="primary-slim"
             windowPosition={DraggableWindowPosition.TOP_LEFT}
         >
