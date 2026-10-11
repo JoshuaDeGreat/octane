@@ -28,7 +28,7 @@ export const ModToolsOpenIssuesTabView: FC<ModToolsOpenIssuesTabViewProps> = (pr
         <div className="flex flex-col gap-1 overflow-hidden">
             {!isEmpty && (
                 <button
-                    className="octane-mod-tools-button self-end"
+                    className="octane-mod-tools-button octane-mod-tools-button--green self-end"
                     onClick={() => pickIssue(sortedIssues[0].issueId)}
                 >
                     {localizeWithFallback('modtools.tickets.action.pick.next', 'Give me the next priority issue')}
@@ -67,7 +67,7 @@ export const ModToolsOpenIssuesTabView: FC<ModToolsOpenIssuesTabViewProps> = (pr
                                         {new Date(Date.now() - issue.issueAgeInMilliseconds).toLocaleTimeString()}
                                     </span>
                                     <button
-                                        className="octane-mod-tools-button"
+                                        className="octane-mod-tools-button octane-mod-tools-button--green"
                                         onClick={() => pickIssue(issue.issueId)}
                                     >
                                         {LocalizeText('modtools.tickets.action.pick')}

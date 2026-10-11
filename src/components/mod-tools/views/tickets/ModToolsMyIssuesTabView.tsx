@@ -32,7 +32,7 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
         <div className="flex flex-col gap-1 overflow-hidden">
             {!isEmpty && (
                 <button
-                    className="octane-mod-tools-button self-end"
+                    className="octane-mod-tools-button octane-mod-tools-button--red self-end"
                     onClick={releaseAll}
                 >
                     {localizeWithFallback('modtools.tickets.action.release.all', 'Release all')}
@@ -76,7 +76,7 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
                                         {LocalizeText('modtools.tickets.action.handle')}
                                     </button>
                                     <button
-                                        className="octane-mod-tools-button"
+                                        className="octane-mod-tools-button octane-mod-tools-button--red"
                                         onClick={() => releaseIssue(issue.issueId)}
                                     >
                                         {LocalizeText('modtools.tickets.action.release')}
