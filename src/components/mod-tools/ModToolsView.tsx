@@ -14,6 +14,8 @@ import chatlogIcon from '../../assets/images/mod-tools/chatlog.png';
 import roomToolIcon from '../../assets/images/mod-tools/room-tool.png';
 import ticketBrowserIcon from '../../assets/images/mod-tools/ticket-browser.png';
 import userInfoIcon from '../../assets/images/mod-tools/user-info.png';
+import { resolveAvatarFigure } from '../friends/views/friends-list/resolveAvatarFigure';
+import { resolveAvatarGender } from '../friends/views/friends-list/resolveAvatarGender';
 import { useMessageEvent, useModTools, useOctaneEvent, useObjectSelectedEvent, useRoomUserListSnapshot } from '../../hooks';
 import { ModToolsChatlogView } from './views/room/ModToolsChatlogView';
 import { ModToolsRoomView } from './views/room/ModToolsRoomView';
@@ -89,7 +91,7 @@ export const ModToolsView: FC<{}> = (props) => {
 
         if (!userData || userData.type !== RoomObjectType.USER) return;
 
-        setSelectedUser({ userId: userData.webID, username: userData.name, figure: userData.figure });
+        setSelectedUser({ userId: userData.webID, username: userData.name, figure: userData.figure, gender: userData.sex });
     });
 
     useMessageEvent<HabboSearchResultEvent>(HabboSearchResultEvent, (event) => {
@@ -121,7 +123,7 @@ export const ModToolsView: FC<{}> = (props) => {
     }, [userQuery]);
 
     const pickUser = useCallback((result: HabboSearchResultData) => {
-        setSelectedUser({ userId: result.avatarId, username: result.avatarName, figure: result.avatarFigure });
+        setSelectedUser({ userId: result.avatarId, username: result.avatarName, figure: result.avatarFigure, gender: result.avatarGender });
         setUserResults(null);
         setUserQuery('');
     }, []);
@@ -292,9 +294,9 @@ export const ModToolsView: FC<{}> = (props) => {
                                         variant="secondary"
                                         onClick={() => CreateLinkEvent(`mod-tools/toggle-user-info/${selectedUser.userId}`)}
                                     >
-                                        {selectedUser.figure ? (
+                                        {selectedUser.figure?.includes('hd-') ? (
                                             <div className="relative w-[20px] h-[20px] shrink-0 overflow-hidden">
-                                                <LayoutAvatarImageView figure={selectedUser.figure} headOnly compactHead compactHeadSize={20} compactHeadPadding={0} direction={2} />
+                                                <LayoutAvatarImageView figure={resolveAvatarFigure(selectedUser.figure, selectedUser.gender)} gender={resolveAvatarGender(selectedUser.gender)} headOnly compactHead compactHeadSize={20} compactHeadPadding={0} direction={2} />
                                             </div>
                                         ) : (
                                             <img alt="" className="shrink-0" src={userInfoIcon} />

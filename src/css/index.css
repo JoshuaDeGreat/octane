@@ -730,7 +730,30 @@ body {
     border-image-source: var(--habbo-skin-shiny-red-pressed) !important;
 }
 
-/* The label and value rows of a section, shaded the way the classic user info is. */
+/* The label and value rows of a section, shaded the way the classic user info is: one label
+   column of the same width in every section, and no gap between the rows or the columns,
+   so the shading reads as continuous stripes. */
+.octane-mod-tools dl,
+[class*='octane-mod-tools-'] dl {
+    grid-template-columns: 132px 1fr !important;
+    column-gap: 0 !important;
+    row-gap: 0 !important;
+}
+
+.octane-mod-tools dl > dt,
+.octane-mod-tools dl > dd,
+[class*='octane-mod-tools-'] dl > dt,
+[class*='octane-mod-tools-'] dl > dd {
+    padding: 1px 6px;
+    min-height: 18px;
+}
+
+.octane-mod-tools dl > dt,
+[class*='octane-mod-tools-'] dl > dt {
+    white-space: normal !important;
+    opacity: 1 !important;
+}
+
 .octane-mod-tools dl > :nth-child(4n + 1),
 .octane-mod-tools dl > :nth-child(4n + 2),
 [class*='octane-mod-tools-'] dl > :nth-child(4n + 1),
