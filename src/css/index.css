@@ -688,7 +688,8 @@ body {
     max-height: 20px;
     width: auto;
     height: auto;
-    image-rendering: pixelated;
+    /* Icons that are larger than their slot are scaled down: smooth, not nearest neighbour. */
+    image-rendering: auto;
 }
 
 /* The head of a user, framed the way the friends list frames it: the box has the size of the
@@ -718,7 +719,13 @@ body {
     max-width: 100%;
     max-height: 100%;
     margin: auto;
-    image-rendering: pixelated;
+    image-rendering: auto;
+}
+
+.octane-mod-tools-stat-icon {
+    width: 13px;
+    height: 13px;
+    image-rendering: auto;
 }
 
 .octane-mod-tools :where(.bg-white, .bg-light, .bg-muted, .bg-card-grid-item, .bg-white\/70),

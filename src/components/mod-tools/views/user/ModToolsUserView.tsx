@@ -181,13 +181,13 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                     {/* Moderation stat strip */}
                     <div className="flex gap-1.5">
                         <StatCard
-                            icon={<img alt="" className="w-[13px] h-[13px]" src={warningIcon} />}
+                            icon={<img alt="" className="octane-mod-tools-stat-icon" src={warningIcon} />}
                             label={LocalizeText('modtools.userinfo.stat.cfh')}
                             tone="warn"
                             value={userInfo.cfhCount}
                         />
                         <StatCard
-                            icon={<img alt="" className="w-[13px] h-[13px]" src={warningIcon} />}
+                            icon={<img alt="" className="octane-mod-tools-stat-icon" src={warningIcon} />}
                             label={LocalizeText('modtools.userinfo.stat.cautions')}
                             tone="warn"
                             value={userInfo.cautionCount}
