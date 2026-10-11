@@ -297,7 +297,7 @@ export const ModToolsView: FC<{}> = (props) => {
                                         onClick={() => CreateLinkEvent(`mod-tools/toggle-user-info/${selectedUser.userId}`)}
                                     >
                                         {selectedUser.figure?.includes('hd-') ? (
-                                            <div className="relative w-[20px] h-[20px] shrink-0 overflow-hidden">
+                                            <div className="octane-mod-tools-face">
                                                 <LayoutAvatarImageView
                                                     figure={resolveAvatarFigure(selectedUser.figure, selectedUser.gender)}
                                                     gender={resolveAvatarGender(selectedUser.gender)}
