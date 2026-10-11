@@ -1,9 +1,10 @@
 import { IMentionEntry } from '../../api/mentions';
-import { useExternalSnapshot } from '../events/useExternalSnapshot';
-import { getMentionsSnapshot, getUnreadCount, subscribeMentions } from './mentionsStore';
+import { MentionsStatus, useMentionsStore } from './mentionsStore';
 
-export const useMentionsSnapshot = (): { mentions: ReadonlyArray<IMentionEntry>; unreadCount: number } => {
-    const mentions = useExternalSnapshot(subscribeMentions, getMentionsSnapshot);
-    const unreadCount = useExternalSnapshot(subscribeMentions, getUnreadCount);
-    return { mentions, unreadCount };
+export const useMentionsSnapshot = (): { mentions: ReadonlyArray<IMentionEntry>; unreadCount: number; status: MentionsStatus } => {
+    const mentions = useMentionsStore((state) => state.mentions);
+    const unreadCount = useMentionsStore((state) => state.unreadCount);
+    const status = useMentionsStore((state) => state.status);
+
+    return { mentions, unreadCount, status };
 };

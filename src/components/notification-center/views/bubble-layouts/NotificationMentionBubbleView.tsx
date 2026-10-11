@@ -1,9 +1,9 @@
-import { CreateLinkEvent, MarkMentionsReadComposer } from '@octane/renderer';
+import { CreateLinkEvent } from '@octane/renderer';
 import { FC, MouseEvent } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { formatMentionTime, LocalizeText, MentionNotificationBubbleItem, MentionType, SendMessageComposer } from '../../../../api';
+import { formatMentionTime, LocalizeText, MentionNotificationBubbleItem, MentionType } from '../../../../api';
 import { Flex, LayoutAvatarImageView, LayoutNotificationBubbleView, LayoutNotificationBubbleViewProps, Text } from '../../../../common';
-import { markRead } from '../../../../hooks/mentions/mentionsStore';
+import { markMentionRead } from '../../../../hooks/mentions/mentionsRequests';
 import { useUserDataSnapshot } from '../../../../hooks/session/useSessionSnapshots';
 import { MentionMessageView } from '../../../mentions/MentionMessageView';
 
@@ -19,11 +19,6 @@ export const NotificationMentionBubbleView: FC<NotificationMentionBubbleViewProp
     const isRoom = mention.mentionType === MentionType.ROOM;
     const time = formatMentionTime(mention.timestamp);
 
-    const markReadOnServer = () => {
-        markRead(mention.mentionId);
-        SendMessageComposer(new MarkMentionsReadComposer(1, mention.mentionId));
-    };
-
     // Whole-bubble click opens the mentions panel (and dismisses the bubble).
     const open = () => {
         CreateLinkEvent('mentions/toggle');
@@ -31,7 +26,7 @@ export const NotificationMentionBubbleView: FC<NotificationMentionBubbleViewProp
     };
 
     const goto = () => {
-        markReadOnServer();
+        markMentionRead(mention);
         if (mention.roomId > 0) CreateLinkEvent(`navigator/goto/${mention.roomId}`);
         onClose();
     };

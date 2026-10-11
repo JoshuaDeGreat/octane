@@ -58,6 +58,9 @@ const cleanText = (text: string) => (text && text.length ? text.replace(/\\r/g, 
 
 const HOTEL_ALERT_TOAST_MAX_LENGTH = 240;
 
+/** Mention toasts on screen at once; a burst replaces the oldest instead of piling up. */
+const MAX_MENTION_BUBBLES = 3;
+
 const getTimeZeroPadded = (time: number) => {
     const text = '0' + time;
 
@@ -180,10 +183,18 @@ const useNotificationStore = () => {
     );
 
     const showMentionBubble = useCallback((mention: IMentionEntry) => {
+        if (bubblesDisabled) return;
+
         const item = new MentionNotificationBubbleItem(mention);
 
-        setBubbleAlerts((prevValue) => [...prevValue, item]);
-    }, []);
+        // A burst of mentions keeps the latest few on screen instead of stacking one toast for each.
+        setBubbleAlerts((prevValue) => {
+            const shown = prevValue.filter((bubble) => bubble instanceof MentionNotificationBubbleItem);
+            const kept = shown.length >= MAX_MENTION_BUBBLES ? prevValue.filter((bubble) => bubble !== shown[0]) : prevValue;
+
+            return [...kept, item];
+        });
+    }, [bubblesDisabled]);
 
     const showNotification = (type: string, options: Map<string, string> = null) => {
         if (!options) options = new Map();
