@@ -145,10 +145,11 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                             {presenceLabel}
                         </span>
                         <button
-                            className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-500 hover:text-sky-700 hover:bg-sky-100 transition-colors shrink-0"
+                            className="octane-mod-tools-button"
                             onClick={refresh}
                             title={LocalizeText('modtools.userinfo.refresh')}
                         >
+                            {LocalizeText('modtools.userinfo.refresh')}
                         </button>
                     </div>
 

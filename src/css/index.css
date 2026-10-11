@@ -594,6 +594,51 @@ body {
     color: var(--mod-tools-text);
 }
 
+/* The buttons of the moderation windows are the default button of the classic client
+   (habbo_skin_button_default: 11 x 22, 3 px corners, cut from habbo_blue_skin), whatever
+   the variant asked for. */
+.octane-mod-tools :where(.habbo-btn-primary, .habbo-btn-danger, .habbo-btn-secondary, .bg-dark),
+[class*="octane-mod-tools-"] :where(.habbo-btn-primary, .habbo-btn-danger, .habbo-btn-secondary, .bg-dark),
+.octane-mod-tools-button {
+    box-sizing: border-box;
+    min-height: 22px;
+    padding: 0 6px !important;
+    border-style: solid !important;
+    border-color: transparent !important;
+    border-width: 3px !important;
+    border-image: var(--habbo-skin-button) 3 fill / 3px stretch !important;
+    border-radius: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    color: #151515 !important;
+    font-family: UbuntuRegular, Ubuntu, sans-serif;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 16px;
+    text-shadow: none !important;
+    cursor: pointer;
+}
+
+.octane-mod-tools :where(.habbo-btn-primary, .habbo-btn-danger, .habbo-btn-secondary, .bg-dark):hover,
+[class*="octane-mod-tools-"] :where(.habbo-btn-primary, .habbo-btn-danger, .habbo-btn-secondary, .bg-dark):hover,
+.octane-mod-tools-button:hover {
+    border-image-source: var(--habbo-skin-button-hover) !important;
+}
+
+.octane-mod-tools :where(.habbo-btn-primary, .habbo-btn-danger, .habbo-btn-secondary, .bg-dark):active,
+[class*="octane-mod-tools-"] :where(.habbo-btn-primary, .habbo-btn-danger, .habbo-btn-secondary, .bg-dark):active,
+.octane-mod-tools-button:active {
+    border-image-source: var(--habbo-skin-button-pressed) !important;
+}
+
+.octane-mod-tools :where(.habbo-btn-primary, .habbo-btn-danger, .habbo-btn-secondary, .bg-dark):disabled,
+[class*="octane-mod-tools-"] :where(.habbo-btn-primary, .habbo-btn-danger, .habbo-btn-secondary, .bg-dark):disabled,
+.octane-mod-tools-button:disabled {
+    border-image-source: var(--habbo-skin-button-disabled) !important;
+    color: #8a8a8a !important;
+    cursor: default;
+}
+
 .octane-mod-tools-user .mod-tools-action-button {
     border: 2px solid #0e3f52 !important;
     border-radius: 4px !important;

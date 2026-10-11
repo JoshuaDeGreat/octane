@@ -101,10 +101,11 @@ export const ModToolsRoomView: FC<ModToolsRoomViewProps> = (props) => {
                         {ownerInRoom ? LocalizeText('modtools.roominfo.owner.here') : LocalizeText('modtools.roominfo.owner.away')}
                     </span>
                     <button
-                        className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-500 hover:text-sky-700 hover:bg-sky-100 transition-colors shrink-0"
+                        className="octane-mod-tools-button"
                         onClick={refresh}
                         title={LocalizeText('modtools.roominfo.refresh')}
                     >
+                        {LocalizeText('modtools.roominfo.refresh')}
                     </button>
                 </div>
 

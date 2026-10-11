@@ -32,7 +32,7 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
         <div className="flex flex-col gap-1 overflow-hidden">
             {!isEmpty && (
                 <button
-                    className="inline-flex items-center justify-center gap-1 self-end px-2 py-1 rounded text-xs font-medium bg-rose-600 text-white hover:bg-rose-700 transition-colors"
+                    className="octane-mod-tools-button self-end"
                     onClick={releaseAll}
                 >
                     {localizeWithFallback('modtools.tickets.action.release.all', 'Release all')}
@@ -70,13 +70,13 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
                                         {new Date(Date.now() - issue.issueAgeInMilliseconds).toLocaleTimeString()}
                                     </span>
                                     <button
-                                        className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium bg-sky-600 text-white hover:bg-sky-700 transition-colors"
+                                        className="octane-mod-tools-button"
                                         onClick={() => handleIssue(issue.issueId)}
                                     >
                                         {LocalizeText('modtools.tickets.action.handle')}
                                     </button>
                                     <button
-                                        className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium bg-rose-600 text-white hover:bg-rose-700 transition-colors"
+                                        className="octane-mod-tools-button"
                                         onClick={() => releaseIssue(issue.issueId)}
                                     >
                                         {LocalizeText('modtools.tickets.action.release')}
