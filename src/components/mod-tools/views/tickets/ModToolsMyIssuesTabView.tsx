@@ -1,5 +1,6 @@
 import { IssueMessageData, ReleaseIssuesMessageComposer } from '@octane/renderer';
 import { FC, useRef } from 'react';
+import { FaClock, FaInbox, FaSignOutAlt, FaTools, FaUser } from 'react-icons/fa';
 import { GetIssueCategoryName, LocalizeText, localizeWithFallback, SendMessageComposer } from '../../../../api';
 
 interface ModToolsMyIssuesTabViewProps {
@@ -32,27 +33,28 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
         <div className="flex flex-col gap-1 overflow-hidden">
             {!isEmpty && (
                 <button
-                    className="octane-mod-tools-button octane-mod-tools-button--red self-end"
+                    className="inline-flex items-center justify-center gap-1 self-end px-2 py-1 rounded text-xs font-medium bg-rose-600 text-white hover:bg-rose-700 transition-colors"
                     onClick={releaseAll}
                 >
-                    {localizeWithFallback('modtools.tickets.action.release.all', 'Release all')}
+                    <FaSignOutAlt size={10} /> {localizeWithFallback('modtools.tickets.action.release.all', 'Release all')}
                 </button>
             )}
             <div className="min-w-0 overflow-x-auto">
                 <div className="min-w-[500px]">
-                    <div className="grid grid-cols-[100px_1fr_100px_90px_90px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-[#959595] pb-1 px-1">
+                    <div className="grid grid-cols-[100px_1fr_100px_90px_90px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
                         <div>{LocalizeText('modtools.tickets.column.type')}</div>
                         <div className="flex items-center gap-1">
-                            {LocalizeText('modtools.tickets.column.reported')}
+                            <FaUser size={10} /> {LocalizeText('modtools.tickets.column.reported')}
                         </div>
                         <div className="flex items-center gap-1">
-                            {LocalizeText('modtools.tickets.column.opened')}
+                            <FaClock size={10} /> {LocalizeText('modtools.tickets.column.opened')}
                         </div>
                         <div></div>
                         <div></div>
                     </div>
                     {isEmpty ? (
                         <div className="flex flex-col items-center justify-center gap-1 py-8 opacity-50 text-sm">
+                            <FaInbox size={22} />
                             <span>{LocalizeText('modtools.tickets.empty.mine')}</span>
                         </div>
                     ) : (
@@ -60,9 +62,9 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
                             {myIssues.map((issue) => (
                                 <div
                                     key={issue.issueId}
-                                    className="grid grid-cols-[100px_1fr_100px_90px_90px] gap-2 items-center px-1 py-1.5 text-sm border-b border-[#959595] even:bg-black/[0.02] hover:bg-sky-50/50 transition-colors"
+                                    className="grid grid-cols-[100px_1fr_100px_90px_90px] gap-2 items-center px-1 py-1.5 text-sm border-b border-zinc-100 even:bg-black/[0.02] hover:bg-sky-50/50 transition-colors"
                                 >
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-[#f7f7f2] text-[#1c789b] border-[#959595] w-fit">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-sky-50 text-sky-800 border-sky-200 w-fit">
                                         {GetIssueCategoryName(issue.categoryId)}
                                     </span>
                                     <span className="font-medium truncate">{issue.reportedUserName}</span>
@@ -70,16 +72,16 @@ export const ModToolsMyIssuesTabView: FC<ModToolsMyIssuesTabViewProps> = (props)
                                         {new Date(Date.now() - issue.issueAgeInMilliseconds).toLocaleTimeString()}
                                     </span>
                                     <button
-                                        className="octane-mod-tools-button"
+                                        className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium bg-sky-600 text-white hover:bg-sky-700 transition-colors"
                                         onClick={() => handleIssue(issue.issueId)}
                                     >
-                                        {LocalizeText('modtools.tickets.action.handle')}
+                                        <FaTools size={10} /> {LocalizeText('modtools.tickets.action.handle')}
                                     </button>
                                     <button
-                                        className="octane-mod-tools-button octane-mod-tools-button--red"
+                                        className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs font-medium bg-rose-600 text-white hover:bg-rose-700 transition-colors"
                                         onClick={() => releaseIssue(issue.issueId)}
                                     >
-                                        {LocalizeText('modtools.tickets.action.release')}
+                                        <FaSignOutAlt size={10} /> {LocalizeText('modtools.tickets.action.release')}
                                     </button>
                                 </div>
                             ))}

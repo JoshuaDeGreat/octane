@@ -8,6 +8,7 @@ import {
     RoomObjectCategory,
     RoomObjectType, HabboSearchComposer, HabboSearchResultData, HabboSearchResultEvent } from '@octane/renderer';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 import { GetRoomSession, ISelectedUser, LocalizeText, SendMessageComposer } from '../../api';
 import { Button, DraggableWindowPosition, LayoutAvatarImageView, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../common';
 import chatlogIcon from '../../assets/images/mod-tools/chatlog.png';
@@ -260,7 +261,7 @@ export const ModToolsView: FC<{}> = (props) => {
                             </div>
                             {selectedUser ? (
                                 <div
-                                    className={`flex flex-col gap-1.5 rounded p-1.5 border ${isSelectedUserPresent ? 'bg-gradient-to-r from-emerald-50 to-transparent border-[#959595]' : 'bg-gradient-to-r from-zinc-50 to-transparent border-[#959595]'}`}
+                                    className={`flex flex-col gap-1.5 rounded p-1.5 border ${isSelectedUserPresent ? 'bg-gradient-to-r from-emerald-50 to-transparent border-emerald-100' : 'bg-gradient-to-r from-zinc-50 to-transparent border-zinc-200'}`}
                                 >
                                     <div className="flex items-center gap-1.5">
                                         <span
@@ -278,13 +279,14 @@ export const ModToolsView: FC<{}> = (props) => {
                                         />
                                         <span className="truncate grow text-start text-sm font-semibold leading-tight">{selectedUser.username}</span>
                                         <button
-                                            className="inline-flex items-center justify-center w-5 h-5 rounded text-[#111] hover:text-rose-600 hover:bg-rose-100 shrink-0 transition-colors"
+                                            className="inline-flex items-center justify-center w-5 h-5 rounded text-zinc-500 hover:text-rose-600 hover:bg-rose-100 shrink-0 transition-colors"
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSelectedUser(null);
                                             }}
                                             title={LocalizeText('modtools.window.user.clear')}
                                         >
+                                            <FaTimes size={10} />
                                         </button>
                                     </div>
                                     <Button
@@ -296,7 +298,15 @@ export const ModToolsView: FC<{}> = (props) => {
                                     >
                                         {selectedUser.figure?.includes('hd-') ? (
                                             <div className="relative w-[20px] h-[20px] shrink-0 overflow-hidden">
-                                                <LayoutAvatarImageView figure={resolveAvatarFigure(selectedUser.figure, selectedUser.gender)} gender={resolveAvatarGender(selectedUser.gender)} headOnly compactHead compactHeadSize={20} compactHeadPadding={0} direction={2} />
+                                                <LayoutAvatarImageView
+                                                    figure={resolveAvatarFigure(selectedUser.figure, selectedUser.gender)}
+                                                    gender={resolveAvatarGender(selectedUser.gender)}
+                                                    headOnly
+                                                    compactHead
+                                                    compactHeadSize={20}
+                                                    compactHeadPadding={0}
+                                                    direction={2}
+                                                />
                                             </div>
                                         ) : (
                                             <img alt="" className="shrink-0" src={userInfoIcon} />
@@ -306,7 +316,7 @@ export const ModToolsView: FC<{}> = (props) => {
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-1.5">
-                                    <div className="flex items-center gap-2 rounded p-2 border border-dashed border-[#959595] bg-zinc-50/50">
+                                    <div className="flex items-center gap-2 rounded p-2 border border-dashed border-zinc-300 bg-zinc-50/50">
                                         <div className="octane-icon icon-avatar-anonymous shrink-0 opacity-70" />
                                         <span className="text-xs italic">{LocalizeText('modtools.window.select.user')}</span>
                                     </div>
@@ -317,6 +327,10 @@ export const ModToolsView: FC<{}> = (props) => {
                                             value={userQuery}
                                             placeholder={LocalizeText('generic.search')}
                                             onChange={(event) => setUserQuery(event.target.value)}
+                                        />
+                                        <FaSearch
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 opacity-40 pointer-events-none"
+                                            size={10}
                                         />
                                     </div>
                                     {userResults && !userResults.length && <div className="text-[.65rem] italic opacity-60 pl-1">

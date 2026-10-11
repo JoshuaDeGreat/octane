@@ -1,5 +1,6 @@
 import { CloseIssueDefaultActionMessageComposer, CloseIssuesMessageComposer, ReleaseIssuesMessageComposer } from '@octane/renderer';
 import { FC, useState } from 'react';
+import { FaBan, FaCheck, FaCommentDots, FaExternalLinkAlt, FaGavel, FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 import { GetIssueCategoryName, LocalizeText, localizeWithFallback, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useModTools } from '../../../../hooks';
@@ -44,7 +45,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
     return (
         <>
             <OctaneCardView
-                className="octane-mod-tools-handle-issue min-w-0 w-[min(560px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
+                className="octane-mod-tools-handle-issue min-w-0 w-[min(500px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
                 theme="primary-slim"
                 windowPosition={DraggableWindowPosition.TOP_LEFT}
             >
@@ -54,21 +55,22 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                 />
                 <OctaneCardContentView className="text-black" gap={2}>
                     {/* Issue header */}
-                    <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-transparent rounded p-2 border border-amber-100">
+                        <FaCommentDots className="text-amber-600 shrink-0" size={16} />
                         <div className="flex flex-col grow min-w-0">
                             <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">
                                 {LocalizeText('modtools.tickets.issue.label', ['issueId'], [issueId.toString()])}
                             </div>
                             <div className="font-semibold leading-tight truncate">{GetIssueCategoryName(ticket.categoryId)}</div>
                         </div>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-[#959595] text-[#111]">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-white border-amber-200 text-amber-800">
                             {LocalizeText('help.cfh.topic.' + ticket.reportedCategoryId)}
                         </span>
                     </div>
 
                     {/* Details */}
                     <div className="flex flex-col gap-1">
-                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-[#959595] pb-1 mb-0.5">
+                        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 mb-0.5">
                             {LocalizeText('modtools.tickets.issue.details')}
                         </div>
                         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[.8rem] m-0">
@@ -79,18 +81,18 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                             <Field label={LocalizeText('modtools.tickets.issue.field.description')}>{ticket.message}</Field>
                             <Field label={LocalizeText('modtools.tickets.issue.field.caller')}>
                                 <button
-                                    className="font-semibold text-[#1c789b] hover:text-sky-900 hover:underline inline-flex items-center gap-1"
+                                    className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
                                     onClick={() => openUserInfo(ticket.reporterUserId)}
                                 >
-                                    {ticket.reporterUserName}
+                                    {ticket.reporterUserName} <FaExternalLinkAlt size={8} className="opacity-60" />
                                 </button>
                             </Field>
                             <Field label={LocalizeText('modtools.tickets.issue.field.reported')}>
                                 <button
-                                    className="font-semibold text-[#1c789b] hover:text-sky-900 hover:underline inline-flex items-center gap-1"
+                                    className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
                                     onClick={() => openUserInfo(ticket.reportedUserId)}
                                 >
-                                    {ticket.reportedUserName}
+                                    {ticket.reportedUserName} <FaExternalLinkAlt size={8} className="opacity-60" />
                                 </button>
                             </Field>
                         </dl>
@@ -98,26 +100,28 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
 
                     {/* Tools */}
                     <Button gap={1} variant="secondary" onClick={() => setCfhChatlogOpen((prev) => !prev)}>
+                        <FaCommentDots size={12} />{' '}
                         {cfhChatlogOpen ? LocalizeText('modtools.tickets.issue.chatlog.close') : LocalizeText('modtools.tickets.issue.chatlog.view')}
                     </Button>
 
                     {/* Resolution buttons */}
-                    <div className="flex flex-col gap-1.5 pt-1 border-t border-[#959595]">
+                    <div className="flex flex-col gap-1.5 pt-1 border-t border-zinc-200">
                         <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">
                             {LocalizeText('modtools.tickets.issue.resolve.heading')}
                         </div>
                         <div className="grid grid-cols-3 gap-1.5">
                             <Button gap={1} variant="success" onClick={() => closeIssue(CloseIssuesMessageComposer.RESOLUTION_RESOLVED)}>
-                                {LocalizeText('modtools.tickets.issue.resolve.resolved')}
+                                <FaCheck size={11} /> {LocalizeText('modtools.tickets.issue.resolve.resolved')}
                             </Button>
                             <Button gap={1} variant="dark" onClick={() => closeIssue(CloseIssuesMessageComposer.RESOLUTION_USELESS)}>
-                                {LocalizeText('modtools.tickets.issue.resolve.useless')}
+                                <FaTrashAlt size={11} /> {LocalizeText('modtools.tickets.issue.resolve.useless')}
                             </Button>
                             <Button gap={1} variant="danger" onClick={() => closeIssue(CloseIssuesMessageComposer.RESOLUTION_ABUSIVE)}>
-                                {LocalizeText('modtools.tickets.issue.resolve.abusive')}
+                                <FaBan size={11} /> {LocalizeText('modtools.tickets.issue.resolve.abusive')}
                             </Button>
                         </div>
                         <Button gap={1} variant="primary" onClick={closeWithDefaultSanction}>
+                            <FaGavel size={11} />{' '}
                             {defaultSanction
                                 ? localizeWithFallback(
                                       'modtools.tickets.issue.resolve.default.with',
@@ -128,7 +132,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                                 : localizeWithFallback('modtools.tickets.issue.resolve.default', 'Default sanction')}
                         </Button>
                         <Button gap={1} variant="secondary" onClick={releaseIssue}>
-                            {LocalizeText('modtools.tickets.issue.release')}
+                            <FaSignOutAlt size={12} /> {LocalizeText('modtools.tickets.issue.release')}
                         </Button>
                     </div>
                 </OctaneCardContentView>

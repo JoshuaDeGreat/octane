@@ -6,6 +6,7 @@ import {
     ModeratorUserInfoEvent
 } from '@octane/renderer';
 import { FC, useEffect, useMemo, useState } from 'react';
+import { FaBan, FaCommentDots, FaDoorOpen, FaEnvelope, FaExchangeAlt, FaExclamationTriangle, FaGavel, FaSync } from 'react-icons/fa';
 import { FriendlyTime, LocalizeText, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../../common';
 import { useMessageEvent, useRoomUserListSnapshot } from '../../../../hooks';
@@ -19,23 +20,25 @@ interface ModToolsUserViewProps {
 }
 
 interface StatCardProps {
+    icon: React.ReactNode;
     label: string;
     value: number | string;
     tone?: 'neutral' | 'warn' | 'danger';
 }
 
-const StatCard: FC<StatCardProps> = ({ label, value, tone = 'neutral' }) => {
+const StatCard: FC<StatCardProps> = ({ icon, label, value, tone = 'neutral' }) => {
     const numericValue = typeof value === 'number' ? value : parseInt(value as string, 10);
     const isElevated = !Number.isNaN(numericValue) && numericValue > 0;
     const toneClasses = (() => {
-        if (tone === 'danger' && isElevated) return 'bg-[#f7f7f2] border-[#959595] text-rose-700';
-        if (tone === 'warn' && isElevated) return 'bg-[#f7f7f2] border-[#959595] text-[#111]';
-        return 'bg-[#f7f7f2] border-[#959595] text-[#111]';
+        if (tone === 'danger' && isElevated) return 'bg-rose-50 border-rose-200 text-rose-700';
+        if (tone === 'warn' && isElevated) return 'bg-amber-50 border-amber-200 text-amber-700';
+        return 'bg-zinc-50 border-zinc-200 text-zinc-700';
     })();
 
     return (
         <div className={`flex flex-col items-center justify-center px-2 py-1.5 rounded border ${toneClasses} grow min-w-0`}>
             <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide opacity-70">
+                <span className="shrink-0">{icon}</span>
                 <span className="truncate">{label}</span>
             </div>
             <div className="text-lg font-semibold tabular-nums leading-tight">{value}</div>
@@ -45,7 +48,7 @@ const StatCard: FC<StatCardProps> = ({ label, value, tone = 'neutral' }) => {
 
 const Section: FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <div className="flex flex-col gap-1">
-        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-[#959595] pb-1 mb-0.5">{title}</div>
+        <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 mb-0.5">{title}</div>
         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[.8rem] m-0">{children}</dl>
     </div>
 );
@@ -80,10 +83,10 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
           ? LocalizeText('modtools.userinfo.presence.online.title')
           : LocalizeText('modtools.userinfo.presence.offline.title');
     const presencePillClass = isPresentInCurrentRoom
-        ? 'bg-[#f7f7f2] text-[#111] border-[#959595]'
+        ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
         : isOnline
-          ? 'bg-[#f7f7f2] text-[#1c789b] border-[#959595]'
-          : 'bg-[#f7f7f2] text-[#111] border-[#959595]';
+          ? 'bg-sky-100 text-sky-700 border-sky-200'
+          : 'bg-zinc-100 text-zinc-600 border-zinc-200';
     const presenceDotClass = isPresentInCurrentRoom ? 'bg-emerald-500' : isOnline ? 'bg-sky-500' : 'bg-zinc-400';
 
     const refresh = () => SendMessageComposer(new GetModeratorUserInfoMessageComposer(userId));
@@ -117,7 +120,7 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
     return (
         <>
             <OctaneCardView
-                className="octane-mod-tools-user min-w-0 w-[min(380px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
+                className="octane-mod-tools-user min-w-0 w-[min(480px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
                 theme="primary-slim"
                 windowPosition={DraggableWindowPosition.TOP_LEFT}
             >
@@ -127,7 +130,7 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                 />
                 <OctaneCardContentView className="text-black" gap={2}>
                     {/* Identity header: name + presence pill + manual refresh */}
-                    <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
                         <div className="flex flex-col grow min-w-0">
                             <Text bold className="truncate text-base leading-tight">
                                 {userInfo.userName}
@@ -145,28 +148,31 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                             {presenceLabel}
                         </span>
                         <button
-                            className="octane-mod-tools-button"
+                            className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-500 hover:text-sky-700 hover:bg-sky-100 transition-colors shrink-0"
                             onClick={refresh}
                             title={LocalizeText('modtools.userinfo.refresh')}
                         >
-                            {LocalizeText('modtools.userinfo.refresh')}
+                            <FaSync size={12} />
                         </button>
                     </div>
 
                     {/* Moderation stat strip */}
                     <div className="flex gap-1.5">
                         <StatCard
+                            icon={<FaExclamationTriangle size={10} />}
                             label={LocalizeText('modtools.userinfo.stat.cfh')}
                             tone="warn"
                             value={userInfo.cfhCount}
                         />
                         <StatCard
+                            icon={<FaGavel size={10} />}
                             label={LocalizeText('modtools.userinfo.stat.cautions')}
                             tone="warn"
                             value={userInfo.cautionCount}
                         />
-                        <StatCard label={LocalizeText('modtools.userinfo.stat.bans')} tone="danger" value={userInfo.banCount} />
+                        <StatCard icon={<FaBan size={10} />} label={LocalizeText('modtools.userinfo.stat.bans')} tone="danger" value={userInfo.banCount} />
                         <StatCard
+                            icon={<FaExchangeAlt size={10} />}
                             label={LocalizeText('modtools.userinfo.stat.trade.locks')}
                             tone="danger"
                             value={userInfo.tradingLockCount}
@@ -201,18 +207,18 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                     </div>
 
                     {/* Action bar */}
-                    <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-[#959595]">
+                    <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-zinc-200">
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => CreateLinkEvent(`mod-tools/open-user-chatlog/${userId}`)}>
-                            {LocalizeText('modtools.userinfo.button.room.chat')}
+                            <FaCommentDots size={12} /> {LocalizeText('modtools.userinfo.button.room.chat')}
                         </Button>
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => setSendMessageVisible((prev) => !prev)}>
-                            {LocalizeText('modtools.userinfo.button.send.message')}
+                            <FaEnvelope size={12} /> {LocalizeText('modtools.userinfo.button.send.message')}
                         </Button>
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => setRoomVisitsVisible((prev) => !prev)}>
-                            {LocalizeText('modtools.userinfo.button.room.visits')}
+                            <FaDoorOpen size={12} /> {LocalizeText('modtools.userinfo.button.room.visits')}
                         </Button>
                         <Button gap={1} variant="danger" classNames={['mod-tools-danger-button']} onClick={() => setModActionVisible((prev) => !prev)}>
-                            {LocalizeText('modtools.userinfo.button.mod.action')}
+                            <FaGavel size={12} /> {LocalizeText('modtools.userinfo.button.mod.action')}
                         </Button>
                     </div>
                 </OctaneCardContentView>

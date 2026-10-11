@@ -594,171 +594,38 @@ body {
     color: var(--mod-tools-text);
 }
 
-/* The neutral buttons of the moderation windows are the default button of the classic client
-   (habbo_skin_button_default: 11 x 22, 3 px corners, cut from habbo_blue_skin). The green and
-   red ones (success, danger) keep the shiny skins of the shared theme. */
-.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark),
-[class*="octane-mod-tools-"] :where(.habbo-btn-secondary, .bg-dark),
-.octane-mod-tools-button {
-    box-sizing: border-box;
-    min-height: 22px;
-    padding: 0 6px !important;
-    border-style: solid !important;
-    border-color: transparent !important;
-    border-width: 3px !important;
-    border-image: var(--habbo-skin-button) 3 fill / 3px stretch !important;
-    border-radius: 0 !important;
-    background: none !important;
-    box-shadow: none !important;
-    color: #151515 !important;
-    font-family: UbuntuRegular, Ubuntu, sans-serif;
-    font-size: 12px !important;
-    font-weight: 400 !important;
-    line-height: 16px;
-    text-shadow: none !important;
-    cursor: pointer;
-}
-
-.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):hover,
-[class*="octane-mod-tools-"] :where(.habbo-btn-secondary, .bg-dark):hover,
-.octane-mod-tools-button:hover {
-    border-image-source: var(--habbo-skin-button-hover) !important;
-}
-
-.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):active,
-[class*="octane-mod-tools-"] :where(.habbo-btn-secondary, .bg-dark):active,
-.octane-mod-tools-button:active {
-    border-image-source: var(--habbo-skin-button-pressed) !important;
-}
-
-.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):disabled,
-[class*="octane-mod-tools-"] :where(.habbo-btn-secondary, .bg-dark):disabled,
-.octane-mod-tools-button:disabled {
-    border-image-source: var(--habbo-skin-button-disabled) !important;
-    color: #8a8a8a !important;
-    cursor: default;
-}
-
-.octane-mod-tools-button.octane-mod-tools-button--green,
-.octane-mod-tools-button.octane-mod-tools-button--red {
-    border-width: 5px !important;
-    border-image-slice: 5 fill !important;
-    border-image-width: 5px !important;
-    color: #ffffff !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35) !important;
-}
-
-.octane-mod-tools-button.octane-mod-tools-button--green {
-    border-image-source: var(--habbo-skin-shiny-thick-green) !important;
-}
-
-.octane-mod-tools-button.octane-mod-tools-button--green:hover {
-    border-image-source: var(--habbo-skin-shiny-thick-green-hover) !important;
-}
-
-.octane-mod-tools-button.octane-mod-tools-button--green:active {
-    border-image-source: var(--habbo-skin-shiny-thick-green-pressed) !important;
-}
-
-.octane-mod-tools-button.octane-mod-tools-button--red {
-    border-image-source: var(--habbo-skin-shiny-red) !important;
-}
-
-.octane-mod-tools-button.octane-mod-tools-button--red:hover {
-    border-image-source: var(--habbo-skin-shiny-red-hover) !important;
-}
-
-.octane-mod-tools-button.octane-mod-tools-button--red:active {
-    border-image-source: var(--habbo-skin-shiny-red-pressed) !important;
-}
-
-/* The window keeps its own structure (presence, counters, sections, previews) and takes the
-   skin of the classic client: square corners, flat surfaces, thin grey borders, Ubuntu 12 px,
-   the default button, and the 0xa2d6ea tint on every other row of a table. */
-.octane-mod-tools :where([class*='rounded']),
-[class*='octane-mod-tools-'] :where([class*='rounded']) {
-    border-radius: 0 !important;
-}
-
-.octane-mod-tools :where([class*='bg-gradient-to']),
-[class*='octane-mod-tools-'] :where([class*='bg-gradient-to']) {
-    background: var(--mod-tools-panel) !important;
-    border-color: var(--mod-tools-line) !important;
-}
-
-.octane-mod-tools-user .mod-tools-action-button,
-.octane-mod-tools-user .mod-tools-danger-button {
-    border-style: solid !important;
-    border-color: transparent !important;
-    border-width: 3px !important;
-    border-radius: 0 !important;
-    background: none !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    font-family: UbuntuRegular, Ubuntu, sans-serif;
-    font-size: 12px !important;
-    font-weight: 400 !important;
-}
-
 .octane-mod-tools-user .mod-tools-action-button {
-    border-image: var(--habbo-skin-button) 3 fill / 3px stretch !important;
-    color: #151515 !important;
+    border: 2px solid #0e3f52 !important;
+    border-radius: 4px !important;
+    color: #fff !important;
+    background: linear-gradient(180deg, #67b6d3 0%, #418db0 48%, #2e6f8a 100%) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+        0 1px 0 rgba(0, 0, 0, 0.18) !important;
+    font-weight: 700;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
 }
 
 .octane-mod-tools-user .mod-tools-action-button:hover {
-    border-image-source: var(--habbo-skin-button-hover) !important;
-}
-
-.octane-mod-tools-user .mod-tools-action-button:active {
-    border-image-source: var(--habbo-skin-button-pressed) !important;
+    background: linear-gradient(180deg, #79c5df 0%, #4a9bc0 48%, #3580a0 100%) !important;
 }
 
 .octane-mod-tools-user .mod-tools-danger-button {
-    border-width: 5px !important;
-    border-image: var(--habbo-skin-shiny-red) 5 fill / 5px stretch !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
+    border: 2px solid #71110c !important;
+    border-radius: 4px !important;
+    color: #fff !important;
+    background: linear-gradient(180deg, #e96f65 0%, #bd271f 48%, #8f160f 100%) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.38),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.24),
+        0 1px 0 rgba(0, 0, 0, 0.2) !important;
+    font-weight: 700;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
 }
 
 .octane-mod-tools-user .mod-tools-danger-button:hover {
-    border-image-source: var(--habbo-skin-shiny-red-hover) !important;
-}
-
-.octane-mod-tools-user .mod-tools-danger-button:active {
-    border-image-source: var(--habbo-skin-shiny-red-pressed) !important;
-}
-
-/* The label and value rows of a section, shaded the way the classic user info is: one label
-   column of the same width in every section, and no gap between the rows or the columns,
-   so the shading reads as continuous stripes. */
-.octane-mod-tools dl,
-[class*='octane-mod-tools-'] dl {
-    grid-template-columns: 132px 1fr !important;
-    column-gap: 0 !important;
-    row-gap: 0 !important;
-}
-
-.octane-mod-tools dl > dt,
-.octane-mod-tools dl > dd,
-[class*='octane-mod-tools-'] dl > dt,
-[class*='octane-mod-tools-'] dl > dd {
-    padding: 1px 6px;
-    min-height: 18px;
-}
-
-.octane-mod-tools dl > dt,
-[class*='octane-mod-tools-'] dl > dt {
-    white-space: normal !important;
-    opacity: 1 !important;
-}
-
-.octane-mod-tools dl > :nth-child(4n + 1),
-.octane-mod-tools dl > :nth-child(4n + 2),
-[class*='octane-mod-tools-'] dl > :nth-child(4n + 1),
-[class*='octane-mod-tools-'] dl > :nth-child(4n + 2) {
-    background: #a2d6ea;
+    background: linear-gradient(180deg, #f07f75 0%, #cd3229 48%, #a31b14 100%) !important;
 }
 
 .octane-mod-tools :where(.bg-white, .bg-light, .bg-muted, .bg-card-grid-item, .bg-white\/70),

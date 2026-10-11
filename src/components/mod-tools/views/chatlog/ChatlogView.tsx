@@ -1,5 +1,6 @@
 import { ChatRecordData, CreateLinkEvent } from '@octane/renderer';
 import { FC, Fragment, useMemo, useState } from 'react';
+import { FaCamera, FaCommentDots, FaComments, FaDoorOpen, FaEnvelope, FaSearch, FaSignInAlt, FaTimes, FaTools } from 'react-icons/fa';
 import { LocalizeText, localizeWithFallback, TryVisitRoom } from '../../../../api';
 import { Column, InfiniteScroll } from '../../../../common';
 import { useModTools } from '../../../../hooks';
@@ -101,27 +102,31 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
         );
     };
 
-    const headerButtonClass = 'inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-white border border-[#959595] text-[#1c789b] hover:bg-sky-100 transition-colors';
+    const headerButtonClass = 'inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-white border border-sky-200 text-sky-700 hover:bg-sky-100 transition-colors';
 
     // IM, forum and photo evidence has no room to visit, so the heading follows the record type.
     const RecordHeader = (props: { record: ChatlogRecord }) => {
         const { roomId = 0, roomName = '', recordType = ChatRecordData.TYPE_ROOM_CHAT, groupId = 0 } = props.record;
         const hasRoom = roomId > 0;
         const roomLabel = roomName || (hasRoom ? `#${roomId}` : '');
+        let icon = <FaDoorOpen className="text-sky-600 shrink-0" size={14} />;
         let title = roomLabel;
 
         switch (recordType) {
             case ChatRecordData.TYPE_IM_SESSION:
+                icon = <FaEnvelope className="text-sky-600 shrink-0" size={14} />;
                 title = localizeWithFallback('modtools.chatlog.context.im', 'IM session');
                 break;
             case ChatRecordData.TYPE_DISCUSSION_THREAD:
             case ChatRecordData.TYPE_DISCUSSION_MESSAGE:
+                icon = <FaComments className="text-sky-600 shrink-0" size={14} />;
                 title = (recordType === ChatRecordData.TYPE_DISCUSSION_THREAD)
                     ? localizeWithFallback('modtools.chatlog.context.forum_thread', 'Forum thread')
                     : localizeWithFallback('modtools.chatlog.context.forum_message', 'Forum message');
                 break;
             case ChatRecordData.TYPE_SELFIE:
             case ChatRecordData.TYPE_PHOTO: {
+                icon = <FaCamera className="text-sky-600 shrink-0" size={14} />;
                 const label = (recordType === ChatRecordData.TYPE_SELFIE)
                     ? localizeWithFallback('modtools.chatlog.context.selfie', 'Selfie report')
                     : localizeWithFallback('modtools.chatlog.context.photo', 'Photo report');
@@ -137,22 +142,23 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
         const isForum = (recordType === ChatRecordData.TYPE_DISCUSSION_THREAD) || (recordType === ChatRecordData.TYPE_DISCUSSION_MESSAGE);
 
         return (
-            <div className="flex items-center gap-2 rounded p-2 border border-[#959595] my-1">
+            <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100 my-1">
+                {icon}
                 <div className="font-semibold leading-tight grow truncate">{title}</div>
                 <div className="flex gap-1 shrink-0">
                     {hasRoom && isRoomRecord && (
                         <button className={headerButtonClass} onClick={() => TryVisitRoom(roomId)}>
-                            {LocalizeText('modtools.chatlog.visit')}
+                            <FaSignInAlt size={10} /> {LocalizeText('modtools.chatlog.visit')}
                         </button>
                     )}
                     {showRoomTools && (
                         <button className={headerButtonClass} onClick={() => openRoomInfo(roomId)}>
-                            {LocalizeText('modtools.chatlog.tools')}
+                            <FaTools size={10} /> {LocalizeText('modtools.chatlog.tools')}
                         </button>
                     )}
                     {isForum && (groupId > 0) && (
                         <button className={headerButtonClass} onClick={() => CreateLinkEvent(`groupforum/${groupId}`)}>
-                            {localizeWithFallback('modtools.chatlog.open_forum', 'Open forum')}
+                            <FaComments size={10} /> {localizeWithFallback('modtools.chatlog.open_forum', 'Open forum')}
                         </button>
                     )}
                 </div>
@@ -174,31 +180,35 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
                         onChange={(event) => setQuery(event.target.value)}
                     />
                     {isFiltering && <button
-                        className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-4 h-4 rounded text-[#111] hover:text-rose-600"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-4 h-4 rounded text-zinc-500 hover:text-rose-600"
                         type="button"
                         title={LocalizeText('generic.cancel')}
                         onClick={() => setQuery('')}
                     >
+                        <FaTimes size={9} />
                     </button>}
                 </div>
                 <span className="text-[.65rem] opacity-60 shrink-0 tabular-nums">
                     {isFiltering ? `${matchCount}/${totalMessages}` : totalMessages}
+                    <FaSearch className="inline ml-1 opacity-50" size={9} />
                 </span>
             </div>
             <div className="min-w-0 overflow-x-auto">
                 <div className="min-w-[360px]">
                     {/* Column headers */}
-                    <div className="grid grid-cols-[84px_120px_1fr] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-[#959595] pb-1 px-1">
+                    <div className="grid grid-cols-[84px_120px_1fr] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
                         <div>{LocalizeText('modtools.chatlog.column.time')}</div>
                         <div>{LocalizeText('modtools.chatlog.column.user')}</div>
                         <div>{LocalizeText('modtools.chatlog.column.message')}</div>
                     </div>
                     {!isEmpty && isFiltering && !matchCount ? (
                         <div className="flex flex-col items-center justify-center gap-1 py-6 opacity-50 text-sm">
+                            <FaSearch size={20} />
                             <span>{LocalizeText('generic.no_results_found')}</span>
                         </div>
                     ) : isEmpty ? (
                         <div className="flex flex-col items-center justify-center gap-1 py-6 opacity-50 text-sm">
+                            <FaCommentDots size={22} />
                             <span>{LocalizeText('modtools.chatlog.empty')}</span>
                         </div>
                     ) : (
@@ -208,11 +218,11 @@ export const ChatlogView: FC<ChatlogViewProps> = (props) => {
 
                                 return (
                                     <div
-                                        className={`grid grid-cols-[84px_120px_1fr] gap-2 items-start px-1 py-1.5 text-sm border-b border-[#959595] even:bg-black/[0.02] hover:bg-sky-50/50 transition-colors ${row.hasHighlighting ? 'bg-amber-50/60' : ''}`}
+                                        className={`grid grid-cols-[84px_120px_1fr] gap-2 items-start px-1 py-1.5 text-sm border-b border-zinc-100 even:bg-black/[0.02] hover:bg-sky-50/50 transition-colors ${row.hasHighlighting ? 'bg-amber-50/60' : ''}`}
                                     >
                                         <span className="font-mono text-[.7rem] opacity-70 tabular-nums whitespace-nowrap">{row.timestamp}</span>
                                         <button
-                                            className="text-left font-semibold text-[#1c789b] hover:text-sky-900 hover:underline truncate"
+                                            className="text-left font-semibold text-sky-700 hover:text-sky-900 hover:underline truncate"
                                             onClick={() => CreateLinkEvent(`mod-tools/open-user-info/${row.habboId}`)}
                                         >
                                             {highlight(row.username)}

@@ -1,5 +1,6 @@
 import { ModMessageMessageComposer } from '@octane/renderer';
 import { FC, useState } from 'react';
+import { FaEnvelope, FaPaperPlane, FaUser } from 'react-icons/fa';
 import { ISelectedUser, LocalizeText, SendMessageComposer } from '../../../../api';
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useModTools, useNotification } from '../../../../hooks';
@@ -33,17 +34,19 @@ export const ModToolsUserSendMessageView: FC<ModToolsUserSendMessageViewProps> =
 
     return (
         <OctaneCardView
-            className="octane-mod-tools-user-message min-w-0 w-[min(380px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
+            className="octane-mod-tools-user-message min-w-0 w-[min(420px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
             theme="primary-slim"
             windowPosition={DraggableWindowPosition.TOP_LEFT}
         >
             <OctaneCardHeaderView headerText={LocalizeText('modtools.user.message.title')} onCloseClick={() => onCloseClick()} />
             <OctaneCardContentView className="text-black" gap={2}>
                 {/* Recipient header */}
-                <div className="flex items-center gap-2 rounded p-2 border border-[#959595]">
+                <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
+                    <FaEnvelope className="text-sky-600 shrink-0" size={16} />
                     <div className="flex flex-col grow min-w-0">
                         <div className="text-[.7rem] uppercase tracking-wide opacity-60 font-semibold">{LocalizeText('modtools.user.message.recipient')}</div>
                         <div className="flex items-center gap-1.5 font-semibold leading-tight truncate">
+                            <FaUser className="opacity-60" size={11} />
                             <span className="truncate">{user.username}</span>
                         </div>
                     </div>
@@ -55,7 +58,7 @@ export const ModToolsUserSendMessageView: FC<ModToolsUserSendMessageViewProps> =
                     <ModToolsTemplateSelectView templates={settings?.messageTemplates} onSelect={setMessage} />
                     <textarea
                         autoFocus
-                        className="min-h-[100px] px-2 py-1.5 rounded text-sm border border-[#959595] focus:outline-none"
+                        className="min-h-[100px] px-2 py-1.5 rounded text-sm border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-sky-300"
                         placeholder={LocalizeText('modtools.user.message.placeholder')}
                         value={message}
                         onChange={(event) => setMessage(event.target.value)}
@@ -70,7 +73,7 @@ export const ModToolsUserSendMessageView: FC<ModToolsUserSendMessageViewProps> =
                 </div>
 
                 <Button disabled={!canSend} fullWidth gap={1} variant="primary" onClick={sendMessage}>
-                    {LocalizeText('modtools.user.message.send')}
+                    <FaPaperPlane size={12} /> {LocalizeText('modtools.user.message.send')}
                 </Button>
             </OctaneCardContentView>
         </OctaneCardView>
