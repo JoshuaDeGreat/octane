@@ -588,44 +588,224 @@ body {
     color: var(--mod-tools-text);
 }
 
+/* A long list keeps a minimum of its own and grows with its rows up to what the screen leaves
+   under the window chrome; past that it scrolls inside the window. */
+.octane-mod-tools-list,
+.octane-mod-tools-list-auto {
+    position: relative;
+    min-height: 160px;
+    max-height: calc(100vh - 240px);
+    overflow: auto;
+}
+
+/* The windows that hold a list fill their minimum height with the list instead of leaving it empty. */
+.octane-mod-tools-chatlog > .octane-card-content-shell,
+.octane-mod-tools-tickets > .octane-card-content-shell,
+.octane-mod-tools-user-visits > .octane-card-content-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
 .octane-mod-tools .octane-card-content-shell,
 [class*="octane-mod-tools-"] .octane-card-content-shell {
     background: var(--mod-tools-bg);
     color: var(--mod-tools-text);
 }
 
-.octane-mod-tools-user .mod-tools-action-button {
-    border: 2px solid #0e3f52 !important;
-    border-radius: 4px !important;
-    color: #fff !important;
-    background: linear-gradient(180deg, #67b6d3 0%, #418db0 48%, #2e6f8a 100%) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.42),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-        0 1px 0 rgba(0, 0, 0, 0.18) !important;
-    font-weight: 700;
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+/* The action buttons of the user window are the classic default button (habbo_skin_button_default,
+   3 px corners); the mod action is the red shiny button of the shared theme. */
+.octane-mod-tools-user .mod-tools-action-button,
+.octane-mod-tools-user .mod-tools-danger-button,
+.octane-mod-tools-refresh {
+    border-style: solid !important;
+    border-color: transparent !important;
+    border-radius: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    font-family: UbuntuRegular, Ubuntu, sans-serif;
+    font-size: 12px !important;
+    cursor: pointer;
 }
 
-.octane-mod-tools-user .mod-tools-action-button:hover {
-    background: linear-gradient(180deg, #79c5df 0%, #4a9bc0 48%, #3580a0 100%) !important;
+.octane-mod-tools-user .mod-tools-action-button,
+.octane-mod-tools-refresh {
+    border-width: 3px !important;
+    border-image: var(--habbo-skin-button) 3 fill / 3px stretch !important;
+    color: #151515 !important;
+    font-weight: 400 !important;
+}
+
+.octane-mod-tools-user .mod-tools-action-button:hover,
+.octane-mod-tools-refresh:hover {
+    border-image-source: var(--habbo-skin-button-hover) !important;
+}
+
+.octane-mod-tools-user .mod-tools-action-button:active,
+.octane-mod-tools-refresh:active {
+    border-image-source: var(--habbo-skin-button-pressed) !important;
 }
 
 .octane-mod-tools-user .mod-tools-danger-button {
-    border: 2px solid #71110c !important;
-    border-radius: 4px !important;
-    color: #fff !important;
-    background: linear-gradient(180deg, #e96f65 0%, #bd271f 48%, #8f160f 100%) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.38),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.24),
-        0 1px 0 rgba(0, 0, 0, 0.2) !important;
-    font-weight: 700;
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+    border-width: 5px !important;
+    border-image: var(--habbo-skin-shiny-red) 5 fill / 5px stretch !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
 }
 
 .octane-mod-tools-user .mod-tools-danger-button:hover {
-    background: linear-gradient(180deg, #f07f75 0%, #cd3229 48%, #a31b14 100%) !important;
+    border-image-source: var(--habbo-skin-shiny-red-hover) !important;
+}
+
+.octane-mod-tools-user .mod-tools-danger-button:active {
+    border-image-source: var(--habbo-skin-shiny-red-pressed) !important;
+}
+
+.octane-mod-tools-refresh {
+    flex: none;
+    min-height: 22px;
+    padding: 0 8px;
+}
+
+/* The neutral buttons of every moderation window use the same default button. */
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark),
+[class*='octane-mod-tools-'] :where(.habbo-btn-secondary, .bg-dark),
+.octane-mod-tools-button {
+    box-sizing: border-box;
+    min-height: 28px;
+    border-style: solid !important;
+    border-color: transparent !important;
+    border-width: 3px !important;
+    border-image: var(--habbo-skin-button) 3 fill / 3px stretch !important;
+    border-radius: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    color: #151515 !important;
+    font-family: UbuntuRegular, Ubuntu, sans-serif;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
+}
+
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):hover,
+[class*='octane-mod-tools-'] :where(.habbo-btn-secondary, .bg-dark):hover,
+.octane-mod-tools-button:hover {
+    border-image-source: var(--habbo-skin-button-hover) !important;
+}
+
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):active,
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark).active,
+[class*='octane-mod-tools-'] :where(.habbo-btn-secondary, .bg-dark):active,
+.octane-mod-tools-button:active {
+    border-image-source: var(--habbo-skin-button-pressed) !important;
+}
+
+.octane-mod-tools :where(.habbo-btn-secondary, .bg-dark):disabled,
+[class*='octane-mod-tools-'] :where(.habbo-btn-secondary, .bg-dark):disabled,
+.octane-mod-tools-button:disabled {
+    border-image-source: var(--habbo-skin-button-disabled) !important;
+    color: #8a8a8a !important;
+}
+
+/* The small buttons of the ticket tabs and the chatlog heading, with the green and red of the shared theme. */
+.octane-mod-tools-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 8px;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--green,
+.octane-mod-tools-button.octane-mod-tools-button--red {
+    border-width: 5px !important;
+    border-image-slice: 5 fill !important;
+    border-image-width: 5px !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--green {
+    border-image-source: var(--habbo-skin-shiny-thick-green) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--green:hover {
+    border-image-source: var(--habbo-skin-shiny-thick-green-hover) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--green:active {
+    border-image-source: var(--habbo-skin-shiny-thick-green-pressed) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--red {
+    border-image-source: var(--habbo-skin-shiny-red) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--red:hover {
+    border-image-source: var(--habbo-skin-shiny-red-hover) !important;
+}
+
+.octane-mod-tools-button.octane-mod-tools-button--red:active {
+    border-image-source: var(--habbo-skin-shiny-red-pressed) !important;
+}
+
+/* The icon at the head of a window or a record: its own size, scaled down smoothly when larger. */
+.octane-mod-tools-header-icon {
+    flex: none;
+    max-width: 24px;
+    max-height: 24px;
+    width: auto;
+    height: auto;
+    image-rendering: auto;
+}
+
+/* An icon of the classic client on a button: drawn at its own size, never stretched. */
+.octane-mod-tools-button-icon {
+    flex: none;
+    max-width: 22px;
+    max-height: 20px;
+    width: auto;
+    height: auto;
+    /* Icons that are larger than their slot are scaled down: smooth, not nearest neighbour. */
+    image-rendering: auto;
+}
+
+/* The head of a user, framed the way the friends list frames it: the box has the size of the
+   head and the avatar layer fills it. */
+.octane-mod-tools-face {
+    position: relative;
+    flex: none;
+    width: var(--face-size, 20px);
+    height: var(--face-size, 20px);
+    overflow: hidden;
+}
+
+.octane-mod-tools-face .avatar-image {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    transform: none !important;
+    background-position: center !important;
+    background-size: 100% 100% !important;
+    image-rendering: auto !important;
+}
+
+.octane-mod-tools-face img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+    image-rendering: auto;
+}
+
+.octane-mod-tools-stat-icon {
+    width: 13px;
+    height: 13px;
+    image-rendering: auto;
 }
 
 .octane-mod-tools :where(.bg-white, .bg-light, .bg-muted, .bg-card-grid-item, .bg-white\/70),

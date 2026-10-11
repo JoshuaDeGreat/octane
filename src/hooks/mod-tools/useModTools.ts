@@ -1,6 +1,7 @@
 import {
     CallForHelpCategoryData,
     CfhSanctionMessageEvent,
+    CfhSanctionTypeData,
     CfhTopicsInitEvent,
     IssueDeletedMessageEvent,
     IssueInfoMessageEvent,
@@ -33,6 +34,8 @@ const useModToolsState = () => {
     // What this moderator has already applied to whom, for as long as the client is open.
     // Two panels on the same person is the easy way to sanction twice for one thing.
     const [sanctionLog, setSanctionLog] = useState<Record<number, ModToolsSanctionEntry[]>>({});
+    // The sanction the server proposes for an issue's topic; it arrives when the issue is picked.
+    const [issueSanctions, setIssueSanctions] = useState<Record<number, CfhSanctionTypeData>>({});
     const { simpleAlert = null } = useNotification();
 
     const openRoomInfo = (roomId: number) => {
@@ -190,7 +193,9 @@ const useModToolsState = () => {
     useMessageEvent<CfhSanctionMessageEvent>(CfhSanctionMessageEvent, (event) => {
         const parser = event.getParser();
 
-        // todo: update sanction data
+        if (!parser?.sanctionType) return;
+
+        setIssueSanctions((prevValue) => ({ ...prevValue, [parser.issueId]: parser.sanctionType }));
     });
 
     const recordSanction = useCallback((userId: number, label: string) => {
@@ -206,6 +211,7 @@ const useModToolsState = () => {
         openUserChatlogs,
         openUserInfos,
         cfhCategories,
+        issueSanctions,
         tickets,
         openRoomInfo,
         closeRoomInfo,

@@ -160,10 +160,10 @@ describe('UI CSS ownership', () =>
         expect(indexCss).toContain('[class*="octane-mod-tools-"] :where(.bg-white, .bg-light, .bg-muted, .bg-card-grid-item, .bg-white\\/70)');
         expect(wiredCss).toContain('.octane-wired__body');
         expect(wiredCss).toContain('overflow-y: auto');
-        expect(modToolsView).toContain('max-w-[calc(100vw-16px)]');
-        expect(modToolsRoomView).toContain('max-w-[calc(100vw-16px)]');
-        expect(modToolsTicketsView).toContain('max-w-[calc(100vw-16px)]');
-        expect(modToolsUserView).toContain('max-w-[calc(100vw-16px)]');
+        expect(modToolsView).toContain('max-w-[min(760px,calc(100vw-16px))]');
+        expect(modToolsRoomView).toContain('max-w-[min(760px,calc(100vw-16px))]');
+        expect(modToolsTicketsView).toContain('max-w-[min(760px,calc(100vw-16px))]');
+        expect(modToolsUserView).toContain('max-w-[min(760px,calc(100vw-16px))]');
         expect(inventoryView).toContain('max-w-[calc(100vw-16px)]');
         expect(navigatorView).toContain('max-w-[calc(100vw-16px)]');
         expect(navigatorRoomSettingsView).toContain('max-w-[calc(100vw-16px)]');

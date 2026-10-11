@@ -6,9 +6,15 @@ import {
     ModeratorUserInfoEvent
 } from '@octane/renderer';
 import { FC, useEffect, useMemo, useState } from 'react';
-import { FaBan, FaCommentDots, FaDoorOpen, FaEnvelope, FaExchangeAlt, FaExclamationTriangle, FaGavel, FaSync } from 'react-icons/fa';
 import { FriendlyTime, LocalizeText, SendMessageComposer } from '../../../../api';
-import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../../common';
+import warningIcon from '../../../../assets/images/mod-tools/warning.png';
+import chatIcon from '../../../../assets/images/mod-tools/chatlog.png';
+import staffIcon from '../../../../assets/images/mod-tools/mod-action.png';
+import messageIcon from '../../../../assets/images/mod-tools/send-message.png';
+import visitsIcon from '../../../../assets/images/mod-tools/room-visits.png';
+import { resolveAvatarFigure } from '../../../friends/views/friends-list/resolveAvatarFigure';
+import { resolveAvatarGender } from '../../../friends/views/friends-list/resolveAvatarGender';
+import { Button, LayoutAvatarImageView, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../../common';
 import { useMessageEvent, useRoomUserListSnapshot } from '../../../../hooks';
 import { ModToolsUserModActionView } from './ModToolsUserModActionView';
 import { ModToolsUserRoomVisitsView } from './ModToolsUserRoomVisitsView';
@@ -20,7 +26,7 @@ interface ModToolsUserViewProps {
 }
 
 interface StatCardProps {
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
     label: string;
     value: number | string;
     tone?: 'neutral' | 'warn' | 'danger';
@@ -38,7 +44,7 @@ const StatCard: FC<StatCardProps> = ({ icon, label, value, tone = 'neutral' }) =
     return (
         <div className={`flex flex-col items-center justify-center px-2 py-1.5 rounded border ${toneClasses} grow min-w-0`}>
             <div className="flex items-center gap-1.5 text-[.7rem] uppercase tracking-wide opacity-70">
-                <span className="shrink-0">{icon}</span>
+                {icon && <span className="shrink-0">{icon}</span>}
                 <span className="truncate">{label}</span>
             </div>
             <div className="text-lg font-semibold tabular-nums leading-tight">{value}</div>
@@ -71,6 +77,7 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
     // one-shot ModeratorUserInfoData.online said when the panel opened.
     const roomUserList = useRoomUserListSnapshot();
     const isPresentInCurrentRoom = useMemo(() => roomUserList.some((user) => user && user.webID === userId), [roomUserList, userId]);
+    const roomUser = useMemo(() => roomUserList.find((user) => user && user.webID === userId) ?? null, [roomUserList, userId]);
     const isOnline = isPresentInCurrentRoom || !!(userInfo && userInfo.online);
     const presenceLabel = isPresentInCurrentRoom
         ? LocalizeText('modtools.userinfo.presence.in_room')
@@ -120,7 +127,7 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
     return (
         <>
             <OctaneCardView
-                className="octane-mod-tools-user min-w-0 w-[min(480px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
+                className="octane-mod-tools-user w-max min-w-[min(440px,calc(100vw-16px))] max-w-[min(760px,calc(100vw-16px))] min-h-[min(400px,calc(100vh-16px))] max-h-[calc(100vh-16px)]"
                 theme="primary-slim"
                 windowPosition={DraggableWindowPosition.TOP_LEFT}
             >
@@ -131,6 +138,21 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                 <OctaneCardContentView className="text-black" gap={2}>
                     {/* Identity header: name + presence pill + manual refresh */}
                     <div className="flex items-center gap-2 bg-gradient-to-r from-sky-50 to-transparent rounded p-2 border border-sky-100">
+                        <div className="octane-mod-tools-face" style={{ ['--face-size' as string]: '38px' }}>
+                            {roomUser?.figure ? (
+                                <LayoutAvatarImageView
+                                    figure={resolveAvatarFigure(roomUser.figure, roomUser.sex)}
+                                    gender={resolveAvatarGender(roomUser.sex)}
+                                    headOnly
+                                    compactHead
+                                    compactHeadSize={38}
+                                    compactHeadPadding={0}
+                                    direction={2}
+                                />
+                            ) : (
+                                <img alt="" src={staffIcon} />
+                            )}
+                        </div>
                         <div className="flex flex-col grow min-w-0">
                             <Text bold className="truncate text-base leading-tight">
                                 {userInfo.userName}
@@ -148,77 +170,79 @@ export const ModToolsUserView: FC<ModToolsUserViewProps> = (props) => {
                             {presenceLabel}
                         </span>
                         <button
-                            className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-500 hover:text-sky-700 hover:bg-sky-100 transition-colors shrink-0"
+                            className="octane-mod-tools-refresh"
                             onClick={refresh}
                             title={LocalizeText('modtools.userinfo.refresh')}
                         >
-                            <FaSync size={12} />
+                            {LocalizeText('modtools.userinfo.refresh')}
                         </button>
                     </div>
 
                     {/* Moderation stat strip */}
                     <div className="flex gap-1.5">
                         <StatCard
-                            icon={<FaExclamationTriangle size={10} />}
+                            icon={<img alt="" className="octane-mod-tools-stat-icon" src={warningIcon} />}
                             label={LocalizeText('modtools.userinfo.stat.cfh')}
                             tone="warn"
                             value={userInfo.cfhCount}
                         />
                         <StatCard
-                            icon={<FaGavel size={10} />}
+                            icon={<img alt="" className="octane-mod-tools-stat-icon" src={warningIcon} />}
                             label={LocalizeText('modtools.userinfo.stat.cautions')}
                             tone="warn"
                             value={userInfo.cautionCount}
                         />
-                        <StatCard icon={<FaBan size={10} />} label={LocalizeText('modtools.userinfo.stat.bans')} tone="danger" value={userInfo.banCount} />
+                        <StatCard label={LocalizeText('modtools.userinfo.stat.bans')} tone="danger" value={userInfo.banCount} />
                         <StatCard
-                            icon={<FaExchangeAlt size={10} />}
                             label={LocalizeText('modtools.userinfo.stat.trade.locks')}
                             tone="danger"
                             value={userInfo.tradingLockCount}
                         />
                     </div>
 
-                    {/* Body sections */}
-                    <div className="flex flex-col gap-2 max-h-[300px] overflow-auto pr-1">
-                        <Section title={LocalizeText('modtools.userinfo.section.account')}>
-                            <Field label={LocalizeText('modtools.userinfo.primaryEmailAddress')} value={userInfo.primaryEmailAddress} />
-                            <Field
-                                label={LocalizeText('modtools.userinfo.registrationAgeInMinutes')}
-                                value={FriendlyTime.format(userInfo.registrationAgeInMinutes * 60, '.ago', 2)}
-                            />
-                            <Field label={LocalizeText('modtools.userinfo.userClassification')} value={userInfo.userClassification} />
-                        </Section>
-                        <Section title={LocalizeText('modtools.userinfo.section.activity')}>
-                            <Field
-                                label={LocalizeText('modtools.userinfo.minutesSinceLastLogin')}
-                                value={FriendlyTime.format(userInfo.minutesSinceLastLogin * 60, '.ago', 2)}
-                            />
-                            <Field label={LocalizeText('modtools.userinfo.lastPurchaseDate')} value={userInfo.lastPurchaseDate} />
-                        </Section>
-                        <Section title={LocalizeText('modtools.userinfo.section.sanctions')}>
-                            <Field label={LocalizeText('modtools.userinfo.abusiveCfhCount')} value={userInfo.abusiveCfhCount} />
-                            <Field label={LocalizeText('modtools.userinfo.lastSanctionTime')} value={userInfo.lastSanctionTime} />
-                            <Field label={LocalizeText('modtools.userinfo.identityRelatedBanCount')} value={userInfo.identityRelatedBanCount} />
-                        </Section>
-                        <Section title={LocalizeText('modtools.userinfo.section.trading')}>
-                            <Field label={LocalizeText('modtools.userinfo.tradingExpiryDate')} value={userInfo.tradingExpiryDate} />
-                        </Section>
+                    {/* Body: who they are and what they did on the left, what was done to them on the right */}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <div className="flex flex-col gap-2 min-w-0">
+                            <Section title={LocalizeText('modtools.userinfo.section.account')}>
+                                <Field label={LocalizeText('modtools.userinfo.primaryEmailAddress')} value={userInfo.primaryEmailAddress} />
+                                <Field
+                                    label={LocalizeText('modtools.userinfo.registrationAgeInMinutes')}
+                                    value={FriendlyTime.format(userInfo.registrationAgeInMinutes * 60, '.ago', 2)}
+                                />
+                            </Section>
+                            <Section title={LocalizeText('modtools.userinfo.section.activity')}>
+                                <Field
+                                    label={LocalizeText('modtools.userinfo.minutesSinceLastLogin')}
+                                    value={FriendlyTime.format(userInfo.minutesSinceLastLogin * 60, '.ago', 2)}
+                                />
+                                <Field label={LocalizeText('modtools.userinfo.lastPurchaseDate')} value={userInfo.lastPurchaseDate} />
+                            </Section>
+                        </div>
+                        <div className="flex flex-col gap-2 min-w-0">
+                            <Section title={LocalizeText('modtools.userinfo.section.sanctions')}>
+                                <Field label={LocalizeText('modtools.userinfo.abusiveCfhCount')} value={userInfo.abusiveCfhCount} />
+                                <Field label={LocalizeText('modtools.userinfo.lastSanctionTime')} value={userInfo.lastSanctionTime} />
+                                <Field label={LocalizeText('modtools.userinfo.identityRelatedBanCount')} value={userInfo.identityRelatedBanCount} />
+                            </Section>
+                            <Section title={LocalizeText('modtools.userinfo.section.trading')}>
+                                <Field label={LocalizeText('modtools.userinfo.tradingExpiryDate')} value={userInfo.tradingExpiryDate} />
+                            </Section>
+                        </div>
                     </div>
 
                     {/* Action bar */}
-                    <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-zinc-200">
+                    <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-zinc-200">
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => CreateLinkEvent(`mod-tools/open-user-chatlog/${userId}`)}>
-                            <FaCommentDots size={12} /> {LocalizeText('modtools.userinfo.button.room.chat')}
+                            <img alt="" className="octane-mod-tools-button-icon" src={chatIcon} /> {LocalizeText('modtools.userinfo.button.room.chat')}
                         </Button>
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => setSendMessageVisible((prev) => !prev)}>
-                            <FaEnvelope size={12} /> {LocalizeText('modtools.userinfo.button.send.message')}
+                            <img alt="" className="octane-mod-tools-button-icon" src={messageIcon} /> {LocalizeText('modtools.userinfo.button.send.message')}
                         </Button>
                         <Button gap={1} variant="primary" classNames={['mod-tools-action-button']} onClick={() => setRoomVisitsVisible((prev) => !prev)}>
-                            <FaDoorOpen size={12} /> {LocalizeText('modtools.userinfo.button.room.visits')}
+                            <img alt="" className="octane-mod-tools-button-icon" src={visitsIcon} /> {LocalizeText('modtools.userinfo.button.room.visits')}
                         </Button>
-                        <Button gap={1} variant="danger" classNames={['mod-tools-danger-button']} onClick={() => setModActionVisible((prev) => !prev)}>
-                            <FaGavel size={12} /> {LocalizeText('modtools.userinfo.button.mod.action')}
+                        <Button className="col-span-3" gap={1} variant="danger" classNames={['mod-tools-danger-button']} onClick={() => setModActionVisible((prev) => !prev)}>
+                            <img alt="" className="octane-mod-tools-button-icon" src={staffIcon} /> {LocalizeText('modtools.userinfo.button.mod.action')}
                         </Button>
                     </div>
                 </OctaneCardContentView>
