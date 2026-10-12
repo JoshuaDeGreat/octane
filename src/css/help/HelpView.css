@@ -42,3 +42,41 @@
     color: #46a01e;
     font-size: 0.95rem;
 }
+
+/* A row of the user list and the bar of the selected user, with the head of the user. */
+.octane-help-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.octane-help-user__avatar {
+    display: inline-flex;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.octane-help-selected-user {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border: 1px solid #919191;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #000000;
+    font-size: 12px;
+}
+
+.octane-help-selected-user__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 15px;
+}

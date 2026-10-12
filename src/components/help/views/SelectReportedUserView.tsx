@@ -1,7 +1,7 @@
 import { GetSessionDataManager, RoomObjectType } from '@octane/renderer';
 import { FC, useMemo, useState } from 'react';
 import { ChatEntryType, IReportedUser, LocalizeText, ReportState, SanitizeHtml } from '../../../api';
-import { AutoGrid, Button, Column, Flex, LayoutGridItem, Text } from '../../../common';
+import { AutoGrid, Button, Column, Flex, LayoutAvatarImageView, LayoutGridItem, Text } from '../../../common';
 import { useChatHistory, useHelp } from '../../../hooks';
 
 export const SelectReportedUserView: FC<{}> = (props) => {
@@ -19,7 +19,7 @@ export const SelectReportedUserView: FC<{}> = (props) => {
                 chat.webId !== GetSessionDataManager().userId &&
                 !users.has(chat.webId)
             )
-                users.set(chat.webId, { id: chat.webId, username: chat.name });
+                users.set(chat.webId, { id: chat.webId, username: chat.name, look: chat.look });
         });
 
         return Array.from(users.values());
@@ -60,7 +60,12 @@ export const SelectReportedUserView: FC<{}> = (props) => {
                         {availableUsers.map((user, index) => {
                             return (
                                 <LayoutGridItem key={user.id} itemActive={selectedUserId === user.id} onClick={(event) => selectUser(user.id)}>
-                                    <span dangerouslySetInnerHTML={{ __html: SanitizeHtml(user.username) }} />
+                                    <span className="octane-help-user">
+                                        <span className="octane-help-user__avatar">
+                                            <LayoutAvatarImageView headOnly compactHead compactHeadSize={30} compactHeadPadding={0} direction={2} figure={user.look ?? ''} />
+                                        </span>
+                                        <span dangerouslySetInnerHTML={{ __html: SanitizeHtml(user.username) }} />
+                                    </span>
                                 </LayoutGridItem>
                             );
                         })}
