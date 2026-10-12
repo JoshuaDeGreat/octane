@@ -1,5 +1,6 @@
 import { MentionNotificationBubbleItem, NotificationBubbleItem, NotificationBubbleType } from '../../../../api';
 import { NotificationBadgeReceivedBubbleView } from './NotificationBadgeReceivedBubbleView';
+import { NotificationCaptionBubbleView } from './NotificationCaptionBubbleView';
 import { NotificationClubGiftBubbleView } from './NotificationClubGiftBubbleView';
 import { NotificationDefaultBubbleView } from './NotificationDefaultBubbleView';
 import { NotificationFriendOnlineBubbleView } from './NotificationFriendOnlineBubbleView';
@@ -15,6 +16,10 @@ export const GetBubbleLayout = (item: NotificationBubbleItem, onClose: () => voi
         case NotificationBubbleType.ACHIEVEMENT:
         case NotificationBubbleType.BADGE_RECEIVED:
             return <NotificationBadgeReceivedBubbleView key={item.id} {...props} />;
+        case NotificationBubbleType.WIRED:
+        case NotificationBubbleType.TREASURE_HUNT:
+        case NotificationBubbleType.NFT_OPENING:
+            return <NotificationCaptionBubbleView key={item.id} {...props} />;
         case NotificationBubbleType.CLUBGIFT:
             return <NotificationClubGiftBubbleView key={item.id} {...props} />;
         case NotificationBubbleType.FRIENDONLINE:

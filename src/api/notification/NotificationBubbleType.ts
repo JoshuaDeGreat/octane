@@ -17,4 +17,15 @@ export class NotificationBubbleType {
     public static VIP: string = 'vip';
     public static ROOMMESSAGESPOSTED: string = 'roommessagesposted';
     public static MENTION: string = 'mention';
+    public static WIRED: string = 'wired';
+    public static TREASURE_HUNT: string = 'treasure_hunt';
+    public static NFT_OPENING: string = 'nft_opening';
+
+    /** The styles drawn with a coloured caption above the text, as the official client does. */
+    public static CAPTIONED: string[] = [NotificationBubbleType.WIRED, NotificationBubbleType.TREASURE_HUNT, NotificationBubbleType.NFT_OPENING];
+
+    /** The bubble style a server notification asks for: the first name that is a captioned style, else a plain info bubble. */
+    public static resolve(...names: string[]): string {
+        return names.find((name) => NotificationBubbleType.CAPTIONED.includes(name)) ?? NotificationBubbleType.INFO;
+    }
 }
