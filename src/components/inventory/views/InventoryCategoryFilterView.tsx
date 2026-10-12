@@ -74,7 +74,7 @@ export const InventoryCategoryFilterView: FC<InventoryCategoryFilterViewProps> =
     } = props;
 
     const isBadges = currentTab === TAB_BADGES;
-    const isFurniture = currentTab === TAB_FURNITURE;
+    const isFurniture = currentTab === TAB_FURNITURE || currentTab === 'inventory.collectibles' || currentTab === 'inventory.rentables';
     const typeOptions = isFurniture ? FURNI_TYPE_OPTIONS[(mainFilter as FurniMainFilter) || FURNI_MAIN_FILTER.ALL] || FURNI_TYPE_OPTIONS.all : [];
 
     return (

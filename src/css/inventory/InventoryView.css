@@ -80,7 +80,7 @@
 
 .octane-inventory-window .octane-inventory-tabs-shell .octane-card-tab-item {
     min-width: 0 !important;
-    flex: 0 0 auto;
+    flex: 0 1 auto; /* seven tabs share 490 px: the labels give way before the window grows */
     height: 32px !important;
     min-height: 32px !important;
     max-height: 32px !important;
