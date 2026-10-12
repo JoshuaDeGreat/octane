@@ -1,0 +1,26 @@
+/* The clear cross of the search box and the amount line of the user and furni choosers. */
+.octane-chooser-clear {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: #666666;
+    font-size: 16px;
+    line-height: 16px;
+    cursor: pointer;
+}
+
+.octane-chooser-clear:hover {
+    color: #000000;
+}
+
+.octane-chooser-amount {
+    flex: none;
+    opacity: 0.6;
+    font-size: 12px;
+}

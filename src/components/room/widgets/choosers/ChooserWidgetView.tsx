@@ -1,6 +1,6 @@
 import { FurniturePickupAllComposer, RoomObjectCategory } from '@octane/renderer';
 import { FC, useEffect, useEffectEvent, useMemo, useState } from 'react';
-import { chooserSelectionVisualizer, LocalizeText, RoomObjectItem, SendMessageComposer } from '../../../../api';
+import { chooserSelectionVisualizer, localizeWithFallback, LocalizeText, RoomObjectItem, SendMessageComposer } from '../../../../api';
 import { Button, Flex, InfiniteScroll, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../../common';
 import { useFurniPickupGuard, useHasPermission } from '../../../../hooks';
 import { classNames, OctaneInput } from '../../../../layout';
@@ -121,16 +121,28 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
     };
 
     return (
-        <OctaneCardView className="w-[420px] h-[400px]" theme="primary-slim">
-            <OctaneCardHeaderView headerText={title + ' (' + filteredItems.length + ')'} onCloseClick={handleClose} />
+        <OctaneCardView className={type === 'users' ? 'w-[290px] h-[357px]' : 'w-[413px] h-[354px]'} theme="primary-slim">
+            <OctaneCardHeaderView headerText={title} onCloseClick={handleClose} />
             <OctaneCardContentView overflow="hidden" gap={1}>
                 <Flex gap={2}>
-                    <OctaneInput
-                        type="text"
-                        placeholder={LocalizeText('generic.search')}
-                        value={searchValue}
-                        onChange={(event) => setSearchValue(event.target.value)}
-                    />
+                    <div className="relative grow">
+                        <OctaneInput
+                            type="text"
+                            placeholder={LocalizeText('generic.search')}
+                            value={searchValue}
+                            onChange={(event) => setSearchValue(event.target.value)}
+                        />
+                        {searchValue.length > 0 && (
+                            <button
+                                aria-label={localizeWithFallback('generic.clear', 'Clear')}
+                                className="octane-chooser-clear"
+                                type="button"
+                                onClick={() => setSearchValue('')}
+                            >
+                                ×
+                            </button>
+                        )}
+                    </div>
                     {pickallFurni && (
                         <select className="form-control form-control-sm" value={selectedFilter} onChange={(event) => setSelectedFilter(event.target.value)}>
                             <option value="all">{LocalizeText('roomsettings.access_rights.anyone')}</option>
@@ -184,6 +196,9 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
                         </Flex>
                     )}
                 />
+                <Text className="octane-chooser-amount">
+                    {localizeWithFallback('widget.chooser.amount', 'Shown')}: {filteredItems.length}/{items.length}
+                </Text>
                 {pickallFurni && (
                     <Button variant="secondary" onClick={onClickPickAll} disabled={!checkedIds.length}>
                         {LocalizeText('widget.chooser.btn.pickall')}
