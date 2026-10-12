@@ -16,6 +16,7 @@
     "widget.buildheight.reset": "Reimposta (off)",
     "widget.buildheight.underpass": "Consenti di passare sotto i mobili posizionati",
     "widget.buildheight.underpass.min_height": "Alza l'altezza ad almeno %height% per consentire di passarci sotto.",
+    "navigator.roomsettings.allow_underpass": "Consenti di passare sotto i mobili piazzati in modalità costruzione",
 
     // ------------------------------------------------------------------------
     // Purse / Currency
