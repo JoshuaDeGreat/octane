@@ -1,7 +1,7 @@
 import { AddLinkEventTracker, ILinkEventTracker, RemoveLinkEventTracker } from '@octane/renderer';
 import { FC, useEffect, useState } from 'react';
 import { LocalizeText, ReportState } from '../../api';
-import { Column, Grid, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../common';
+import { Column, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../common';
 import { useHelp } from '../../hooks';
 import { DescribeReportView } from './views/DescribeReportView';
 import { HelpIndexView } from './views/HelpIndexView';
@@ -91,20 +91,15 @@ export const HelpView: FC<{}> = (props) => {
         <>
             {isVisible && (
                 <OctaneCardView
-                    className={`octane-help min-w-0 ${isReporting ? 'w-[min(560px,calc(100vw-16px))]' : 'w-[min(420px,calc(100vw-16px))]'} max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]`}
+                    className={`octane-help min-w-0 ${isReporting ? 'w-[min(448px,calc(100vw-16px))]' : 'w-[min(420px,calc(100vw-16px))]'} max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]`}
                     theme="primary-slim"
                 >
                     <OctaneCardHeaderView headerText={LocalizeText('help.button.cfh')} onCloseClick={onClose} />
                     <OctaneCardContentView className="text-black">
                         {isReporting ? (
-                            <Grid>
-                                <Column center overflow="hidden" size={5}>
-                                    <div className="index-image" />
-                                </Column>
-                                <Column justifyContent="between" overflow="hidden" size={7}>
-                                    <CurrentStepView />
-                                </Column>
-                            </Grid>
+                            <Column grow gap={2} justifyContent="between" overflow="hidden">
+                                <CurrentStepView />
+                            </Column>
                         ) : (
                             <CurrentStepView />
                         )}
