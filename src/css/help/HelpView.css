@@ -42,3 +42,29 @@
     color: #46a01e;
     font-size: 0.95rem;
 }
+
+/* Official abusive_notice: 309 px, a red heading, the explanation and one button. */
+.octane-alert.octane-abusive-alert {
+    width: 309px;
+    min-height: 153px;
+}
+
+.octane-abusive-alert__heading {
+    margin-bottom: 4px;
+    color: #c30000;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.octane-abusive-alert__text {
+    flex: 1;
+    font-size: 12px;
+    line-height: 17px;
+    white-space: pre-line;
+}
+
+.octane-abusive-alert__actions {
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
+}

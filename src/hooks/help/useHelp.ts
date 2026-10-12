@@ -96,7 +96,7 @@ const useHelpState = () => {
                 simpleAlert(LocalizeText('help.cfh.error.pending'), NotificationAlertType.MODERATION, null, null, LocalizeText('help.cfh.error.title'));
                 break;
             case CallForHelpResult.HAS_ABUSIVE_CALL_CODE:
-                simpleAlert(LocalizeText('help.cfh.error.abusive'), NotificationAlertType.MODERATION, null, null, LocalizeText('help.cfh.error.title'));
+                simpleAlert(LocalizeText('help.cfh.error.abusive'), NotificationAlertType.ABUSIVE, null, null, LocalizeText('help.cfh.error.title'));
                 break;
             default:
                 if (message.trim().length === 0) {
