@@ -48,6 +48,7 @@ import './css/groups/GroupView.css';
 
 import './css/game-center/GameCenterView.css';
 
+import './css/help/MyReports.css';
 import './css/help/HelpView.css';
 import './css/housekeeping/HousekeepingView.css';
 
