@@ -1,8 +1,21 @@
 import { FC } from 'react';
 import { FaArrowCircleRight } from 'react-icons/fa';
-import { CreateLinkEvent, LocalizeText } from '../../../api';
+import { CreateLinkEvent, localizeWithFallback, LocalizeText } from '../../../api';
 import { OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../common';
 import { useHelp } from '../../../hooks';
+
+const SERVER_DATE = /^\w{3} (\w{3}) (\d{1,2}) (\d{2}:\d{2}:\d{2}) [A-Z]{2,5} (\d{4})$/;
+
+/** The server sends a date as its own text ("Fri Oct 09 21:30:58 CEST 2026"); a text of another shape is left as it came. */
+export const formatServerDate = (text: string): string => {
+    const match = SERVER_DATE.exec((text ?? '').trim());
+
+    if (!match) return text;
+
+    const date = new Date(`${match[1]} ${match[2]} ${match[4]} ${match[3]}`);
+
+    return Number.isNaN(date.getTime()) ? text : date.toLocaleString();
+};
 
 export const SanctionSatusView: FC<{}> = (props) => {
     const { sanctionInfo = null, setSanctionInfo = null } = useHelp();
@@ -34,7 +47,7 @@ export const SanctionSatusView: FC<{}> = (props) => {
     if (!sanctionInfo) return null;
 
     return (
-        <OctaneCardView className="octane-help min-w-0 w-[min(420px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]" theme="primary-slim">
+        <OctaneCardView className="octane-help min-w-0 w-[min(450px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]" theme="primary-slim">
             <OctaneCardHeaderView headerText={LocalizeText('help.sanction.info.title')} onCloseClick={() => setSanctionInfo(null)} />
             <OctaneCardContentView className="text-black">
                 <div className="flex min-h-[170px] flex-col">
@@ -51,7 +64,7 @@ export const SanctionSatusView: FC<{}> = (props) => {
                                     {sanctionLocalization('current', sanctionInfo.sanctionName, sanctionInfo.sanctionLengthHours)}
                                 </div>
                                 <div>
-                                    {LocalizeText('generic.start.time')} {sanctionInfo.sanctionCreationTime}
+                                    {LocalizeText('generic.start.time')} {formatServerDate(sanctionInfo.sanctionCreationTime)}
                                 </div>
                                 <div>
                                     {LocalizeText('generic.reason')} {sanctionInfo.sanctionReason}
@@ -66,7 +79,7 @@ export const SanctionSatusView: FC<{}> = (props) => {
                         )}
                         {sanctionInfo.tradeLockExpiryTime && sanctionInfo.tradeLockExpiryTime.length > 0 && (
                             <div className="font-bold">
-                                {LocalizeText('trade.locked.until')} {sanctionInfo.tradeLockExpiryTime}
+                                {LocalizeText('trade.locked.until')} {formatServerDate(sanctionInfo.tradeLockExpiryTime)}
                             </div>
                         )}
                         {sanctionInfo.sanctionReason !== 'cfh.reason.EMPTY' && (
@@ -79,7 +92,7 @@ export const SanctionSatusView: FC<{}> = (props) => {
                             {LocalizeText('help.main.faq.link.text')}
                         </button>
                         <button type="button" className="habbo-btn-green habbo-btn-green--auto" onClick={() => setSanctionInfo(null)}>
-                            {LocalizeText('habbo.way.ok.button')}
+                            {localizeWithFallback('generic.got.it', 'Got it')}
                         </button>
                     </div>
                 </div>
