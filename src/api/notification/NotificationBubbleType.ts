@@ -17,6 +17,8 @@ export class NotificationBubbleType {
     public static VIP: string = 'vip';
     public static ROOMMESSAGESPOSTED: string = 'roommessagesposted';
     public static MENTION: string = 'mention';
+    public static LTD: string = 'ltd';
+    public static EARNING: string = 'earning';
     public static WIRED: string = 'wired';
     public static TREASURE_HUNT: string = 'treasure_hunt';
     public static NFT_OPENING: string = 'nft_opening';
