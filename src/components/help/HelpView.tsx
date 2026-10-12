@@ -65,6 +65,9 @@ export const HelpView: FC<{}> = (props) => {
         setIsVisible(true);
     }, [activeReport]);
 
+    // "Back" on the first step leaves the report, so only a step of the report takes the two columns.
+    const isReporting = !!activeReport && activeReport.currentStep >= ReportState.SELECT_USER;
+
     const CurrentStepView = () => {
         if (activeReport) {
             switch (activeReport.currentStep) {
@@ -88,12 +91,12 @@ export const HelpView: FC<{}> = (props) => {
         <>
             {isVisible && (
                 <OctaneCardView
-                    className={`octane-help min-w-0 ${activeReport ? 'w-[min(560px,calc(100vw-16px))]' : 'w-[min(420px,calc(100vw-16px))]'} max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]`}
+                    className={`octane-help min-w-0 ${isReporting ? 'w-[min(560px,calc(100vw-16px))]' : 'w-[min(420px,calc(100vw-16px))]'} max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]`}
                     theme="primary-slim"
                 >
                     <OctaneCardHeaderView headerText={LocalizeText('help.button.cfh')} onCloseClick={onClose} />
                     <OctaneCardContentView className="text-black">
-                        {activeReport ? (
+                        {isReporting ? (
                             <Grid>
                                 <Column center overflow="hidden" size={5}>
                                     <div className="index-image" />
