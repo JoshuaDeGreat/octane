@@ -269,8 +269,63 @@
 }
 
 .octane-widget-doorbell {
-    width: 300px;
-    height: 200px;
+    width: 249px;
+    min-height: 165px;
+}
+
+.octane-doorbell-info {
+    color: #c30000;
+    font-size: 12px;
+    line-height: 14px;
+}
+
+.octane-doorbell-list {
+    max-height: 100px;
+    overflow-y: auto;
+    border: 1px solid #919191;
+    background: #ffffff;
+}
+
+.octane-doorbell-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 20px;
+    padding: 0 4px;
+    color: #000000;
+    font-size: 12px;
+}
+
+.octane-doorbell-row:nth-child(even) {
+    background: #eeeeee;
+}
+
+.octane-doorbell-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.octane-doorbell-row button {
+    width: 20px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 18px;
+    cursor: pointer;
+}
+
+.octane-doorbell-accept {
+    color: #0aa000;
+}
+
+.octane-doorbell-deny {
+    color: #c30000;
 }
 
 .octane-widget-rent-confirm {
