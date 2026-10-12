@@ -1,4 +1,24 @@
-/* The clear cross of the search box and the amount line of the user and furni choosers. */
+/* The user and furni choosers of the official client: the search box and a menu on top, a framed
+   table with its column heads, the number found at the foot. */
+.octane-chooser-bar {
+    display: flex;
+    flex: none;
+    gap: 8px;
+    align-items: center;
+}
+
+.octane-chooser-filter {
+    flex: none;
+    width: 100px;
+    height: 25px;
+    padding: 0 4px;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #000000;
+    font-size: 12px;
+}
+
 .octane-chooser-clear {
     position: absolute;
     top: 50%;
@@ -17,6 +37,63 @@
 
 .octane-chooser-clear:hover {
     color: #000000;
+}
+
+.octane-chooser-table {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+    border: 1px solid #000000;
+    border-radius: 6px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.octane-chooser-body {
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.octane-chooser-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 20px;
+    padding: 0 6px;
+    color: #000000;
+    font-size: 12px;
+}
+
+.octane-chooser-head {
+    flex: none;
+    height: 24px;
+    font-weight: 700;
+}
+
+.octane-chooser-item {
+    cursor: pointer;
+}
+
+.octane-chooser-item:nth-child(even) {
+    background: #eeeeee;
+}
+
+.octane-chooser-item.is-selected {
+    background: #c9dfea;
+}
+
+.octane-chooser-cell {
+    flex: none;
+    min-width: 0;
+}
+
+.octane-chooser-cell.grow {
+    flex: 1 1 0;
+}
+
+.octane-chooser-check {
+    flex: none;
 }
 
 .octane-chooser-amount {

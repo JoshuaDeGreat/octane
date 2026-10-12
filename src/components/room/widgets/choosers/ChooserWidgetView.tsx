@@ -1,11 +1,12 @@
 import { FurniturePickupAllComposer, RoomObjectCategory } from '@octane/renderer';
 import { FC, useEffect, useEffectEvent, useMemo, useState } from 'react';
 import { chooserSelectionVisualizer, localizeWithFallback, LocalizeText, RoomObjectItem, SendMessageComposer } from '../../../../api';
-import { Button, Flex, InfiniteScroll, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../../common';
-import { useFurniPickupGuard, useHasPermission } from '../../../../hooks';
+import { Button, InfiniteScroll, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
+import { useFurniPickupGuard } from '../../../../hooks';
 import { classNames, OctaneInput } from '../../../../layout';
 
 const LIMIT_FURNI_PICKALL = 100;
+const FILTER_ALL = 'all';
 
 interface ChooserWidgetViewProps {
     title: string;
@@ -16,28 +17,22 @@ interface ChooserWidgetViewProps {
     type?: 'furni' | 'users';
 }
 
+/* The user and furni choosers of the official client: a search box and a menu on top, a table with
+   its column heads, and the number found at the foot. The users are told apart by their type, the
+   furni by their owner. */
 export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
     const { title = null, items = [], selectItem = null, onClose = null, pickallFurni = false, type = 'furni' } = props;
     const [selectedItems, setSelectedItems] = useState<RoomObjectItem[]>([]);
     const [searchValue, setSearchValue] = useState('');
     const [checkAll, setCheckAll] = useState(false);
     const [checkedIds, setCheckedIds] = useState<number[]>([]);
-    const canSeeId = useHasPermission('acc_supporttool');
+    const [selectedFilter, setSelectedFilter] = useState(FILTER_ALL);
     const { confirmIfWebApiBox } = useFurniPickupGuard();
+    const isUsers = type === 'users';
 
-    const ownerNames = useMemo(() => {
-        const names = Array.from(new Set(items.map((item) => item.ownerName || 'Unknown')));
-        return names.sort();
-    }, [items]);
+    const filterValueOf = (item: RoomObjectItem) => (isUsers ? item.type : item.ownerName || 'Unknown');
 
-    const [selectedFilter, setSelectedFilter] = useState(() => {
-        if (pickallFurni) return 'all';
-        return ownerNames.length > 0 ? ownerNames[0] : '';
-    });
-
-    useEffect(() => {
-        if (!pickallFurni && ownerNames.length > 0 && !selectedFilter) setSelectedFilter(ownerNames[0]);
-    }, [pickallFurni, ownerNames, selectedFilter]);
+    const filterValues = useMemo(() => Array.from(new Set(items.map((item) => (isUsers ? item.type : item.ownerName || 'Unknown')))).sort(), [items, isUsers]);
 
     const checkedId = (id?: number) => {
         if (id) {
@@ -78,15 +73,12 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
         return items
             .filter((item) => {
                 const matchesSearch = item.name?.toLocaleLowerCase().includes(value);
-                const matchesFilter = !pickallFurni
-                    ? selectedFilter
-                        ? item.ownerName === selectedFilter
-                        : true
-                    : selectedFilter === 'all' || item.ownerName === selectedFilter;
+                const matchesFilter = selectedFilter === FILTER_ALL || (isUsers ? item.type : item.ownerName || 'Unknown') === selectedFilter;
+
                 return matchesSearch && matchesFilter;
             })
             .sort((a, b) => a.name.localeCompare(b.name));
-    }, [items, searchValue, selectedFilter, pickallFurni]);
+    }, [items, searchValue, selectedFilter, isUsers]);
 
     const notifySelectionChange = useEffectEvent((items: RoomObjectItem[]) => {
         selectItem(items[items.length - 1]);
@@ -120,11 +112,15 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
         onClose();
     };
 
+    const foundText = isUsers
+        ? localizeWithFallback('widget.chooser.found.users', '${count} users found', ['count'], [String(filteredItems.length)])
+        : localizeWithFallback('widget.chooser.found.furni', '${count} items found', ['count'], [String(filteredItems.length)]);
+
     return (
-        <OctaneCardView className={type === 'users' ? 'w-[290px] h-[357px]' : 'w-[413px] h-[354px]'} theme="primary-slim">
+        <OctaneCardView className={isUsers ? 'w-[290px] h-[357px]' : 'w-[413px] h-[354px]'} theme="primary-slim">
             <OctaneCardHeaderView headerText={title} onCloseClick={handleClose} />
             <OctaneCardContentView overflow="hidden" gap={1}>
-                <Flex gap={2}>
+                <div className="octane-chooser-bar">
                     <div className="relative grow">
                         <OctaneInput
                             type="text"
@@ -143,67 +139,78 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
                             </button>
                         )}
                     </div>
-                    {pickallFurni && (
-                        <select className="form-control form-control-sm" value={selectedFilter} onChange={(event) => setSelectedFilter(event.target.value)}>
-                            <option value="all">{LocalizeText('roomsettings.access_rights.anyone')}</option>
-                            {ownerNames.length > 0 ? (
-                                ownerNames.map((value, index) => (
-                                    <option key={index} value={value}>
-                                        {value}
-                                    </option>
-                                ))
-                            ) : (
-                                <option disabled>No owners found</option>
-                            )}
-                        </select>
-                    )}
-                </Flex>
-                {pickallFurni && (
-                    <Flex gap={2}>
-                        <input className="form-check-input" type="checkbox" checked={checkAll} onChange={() => checkedId()} />
-                        <Text>{LocalizeText('widget.chooser.checkall')}</Text>
-                    </Flex>
-                )}
-                <InfiniteScroll
-                    rows={filteredItems}
-                    rowRender={(row) => (
-                        <Flex
-                            alignItems="center"
-                            className={classNames('rounded p-1', selectedItems.some((item) => item.id === row.id) && 'bg-muted')}
-                            pointer
-                            onClick={() => {
-                                toggleItemSelection(row);
-                                if (pickallFurni) checkedId(row.id);
-                            }}
-                        >
-                            {pickallFurni && (
-                                <input
-                                    className="shrink-0 mx-1 form-check-input"
-                                    type="checkbox"
-                                    checked={isChecked(row.id)}
-                                    onChange={() => checkedId(row.id)}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
+                    <select
+                        aria-label={isUsers ? localizeWithFallback('widget.chooser.filter.type', 'Type') : localizeWithFallback('widget.chooser.filter.owner', 'Owner')}
+                        className="octane-chooser-filter"
+                        value={selectedFilter}
+                        onChange={(event) => setSelectedFilter(event.target.value)}
+                    >
+                        <option value={FILTER_ALL}>
+                            {isUsers ? localizeWithFallback('new_user_chooser.usertype.all', 'All types') : localizeWithFallback('widget.chooser.owner.all', 'All owners')}
+                        </option>
+                        {filterValues.map((value) => (
+                            <option key={value} value={value}>
+                                {value}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="octane-chooser-table">
+                    <div className="octane-chooser-row octane-chooser-head">
+                        {pickallFurni && (
+                            <input
+                                aria-label={LocalizeText('widget.chooser.checkall')}
+                                checked={checkAll}
+                                className="octane-chooser-check form-check-input"
+                                type="checkbox"
+                                onChange={() => checkedId()}
+                            />
+                        )}
+                        <span className="octane-chooser-cell grow">{localizeWithFallback('widget.chooser.column.name', 'Name')}</span>
+                        <span className={classNames('octane-chooser-cell', isUsers ? 'w-[90px]' : 'w-[120px]')}>
+                            {isUsers ? localizeWithFallback('widget.chooser.column.type', 'Type') : localizeWithFallback('widget.chooser.column.owner', 'Owner')}
+                        </span>
+                        {!isUsers && <span className="octane-chooser-cell w-[90px]">ID</span>}
+                    </div>
+                    <div className="octane-chooser-body">
+                        <InfiniteScroll
+                            rows={filteredItems}
+                            rowRender={(row) => (
+                                <div
+                                    className={classNames('octane-chooser-row octane-chooser-item', selectedItems.some((item) => item.id === row.id) && 'is-selected')}
+                                    onClick={() => {
                                         toggleItemSelection(row);
+                                        if (pickallFurni) checkedId(row.id);
                                     }}
-                                />
+                                >
+                                    {pickallFurni && (
+                                        <input
+                                            checked={isChecked(row.id)}
+                                            className="octane-chooser-check form-check-input"
+                                            type="checkbox"
+                                            onChange={() => checkedId(row.id)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleItemSelection(row);
+                                            }}
+                                        />
+                                    )}
+                                    <span className="octane-chooser-cell grow truncate">{row.name}</span>
+                                    <span className={classNames('octane-chooser-cell truncate', isUsers ? 'w-[90px]' : 'w-[120px]')}>
+                                        {isUsers ? filterValueOf(row) : row.ownerName && row.ownerName !== '-' ? row.ownerName : ''}
+                                    </span>
+                                    {!isUsers && <span className="octane-chooser-cell w-[90px] truncate">{row.id}</span>}
+                                </div>
                             )}
-                            <Text truncate>
-                                {row.name}
-                                {canSeeId && ' - ' + row.id}
-                                {type === 'furni' && row.ownerName && row.ownerName !== '-' && ` (Owner: ${row.ownerName})`}
-                            </Text>
-                        </Flex>
-                    )}
-                />
-                <Text className="octane-chooser-amount">
-                    {localizeWithFallback('widget.chooser.amount', 'Shown')}: {filteredItems.length}/{items.length}
-                </Text>
+                        />
+                    </div>
+                </div>
                 {pickallFurni && (
                     <Button variant="secondary" onClick={onClickPickAll} disabled={!checkedIds.length}>
                         {LocalizeText('widget.chooser.btn.pickall')}
                     </Button>
                 )}
+                <div className="octane-chooser-amount">{foundText}</div>
             </OctaneCardContentView>
         </OctaneCardView>
     );
