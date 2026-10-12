@@ -112,19 +112,17 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
         onClose();
     };
 
-    const foundText = isUsers
-        ? localizeWithFallback('widget.chooser.found.users', '${count} users found', ['count'], [String(filteredItems.length)])
-        : localizeWithFallback('widget.chooser.found.furni', '${count} items found', ['count'], [String(filteredItems.length)]);
+    const foundText = (isUsers ? localizeWithFallback('new_user_chooser.amount_indicator', '%amount% users found') : localizeWithFallback('new_furni_chooser.amount_indicator', '%amount% items found')).replace(/%amount%/g, String(filteredItems.length));
 
     return (
-        <OctaneCardView className={isUsers ? 'w-[290px] h-[357px]' : 'w-[413px] h-[354px]'} theme="primary-slim">
+        <OctaneCardView className={classNames('octane-chooser', isUsers ? 'w-[290px] h-[357px]' : 'w-[413px] h-[354px]')} theme="primary-slim">
             <OctaneCardHeaderView headerText={title} onCloseClick={handleClose} />
             <OctaneCardContentView overflow="hidden" gap={1}>
                 <div className="octane-chooser-bar">
                     <div className="relative grow">
                         <OctaneInput
                             type="text"
-                            placeholder={LocalizeText('generic.search')}
+                            placeholder={localizeWithFallback('new_chooser.search', 'Search')}
                             value={searchValue}
                             onChange={(event) => setSearchValue(event.target.value)}
                         />
@@ -141,12 +139,12 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
                     </div>
                     <select
                         aria-label={isUsers ? localizeWithFallback('widget.chooser.filter.type', 'Type') : localizeWithFallback('widget.chooser.filter.owner', 'Owner')}
-                        className="octane-chooser-filter"
+                        className={classNames('octane-chooser-filter', !isUsers && 'octane-chooser-filter-wide')}
                         value={selectedFilter}
                         onChange={(event) => setSelectedFilter(event.target.value)}
                     >
                         <option value={FILTER_ALL}>
-                            {isUsers ? localizeWithFallback('new_user_chooser.usertype.all', 'All types') : localizeWithFallback('widget.chooser.owner.all', 'All owners')}
+                            {isUsers ? localizeWithFallback('new_user_chooser.usertype.all', 'All types') : localizeWithFallback('new_furni_chooser.owner_selector.default', 'All owners')}
                         </option>
                         {filterValues.map((value) => (
                             <option key={value} value={value}>
@@ -166,11 +164,11 @@ export const ChooserWidgetView: FC<ChooserWidgetViewProps> = (props) => {
                                 onChange={() => checkedId()}
                             />
                         )}
-                        <span className="octane-chooser-cell grow">{localizeWithFallback('widget.chooser.column.name', 'Name')}</span>
+                        <span className="octane-chooser-cell grow">{isUsers ? localizeWithFallback('new_user_chooser.col.name', 'Name') : localizeWithFallback('new_furni_chooser.col.name', 'Name')}</span>
                         <span className={classNames('octane-chooser-cell', isUsers ? 'w-[90px]' : 'w-[120px]')}>
-                            {isUsers ? localizeWithFallback('widget.chooser.column.type', 'Type') : localizeWithFallback('widget.chooser.column.owner', 'Owner')}
+                            {isUsers ? localizeWithFallback('new_user_chooser.col.type', 'Type') : localizeWithFallback('new_furni_chooser.col.owner', 'Owner')}
                         </span>
-                        {!isUsers && <span className="octane-chooser-cell w-[90px]">ID</span>}
+                        {!isUsers && <span className="octane-chooser-cell w-[90px]">{localizeWithFallback('new_furni_chooser.col.id', 'ID')}</span>}
                     </div>
                     <div className="octane-chooser-body">
                         <InfiniteScroll

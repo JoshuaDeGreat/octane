@@ -58,7 +58,7 @@ describe('ChooserWidgetView', () => {
         expect(screen.getByText('2 users found')).toBeTruthy();
         expect(screen.getAllByText('Habbo').length).toBeGreaterThan(0);
 
-        fireEvent.change(screen.getByPlaceholderText('generic.search'), { target: { value: 'ali' } });
+        fireEvent.change(screen.getByPlaceholderText('Search'), { target: { value: 'ali' } });
         expect(screen.getByText('1 users found')).toBeTruthy();
 
         fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
