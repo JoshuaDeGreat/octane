@@ -1499,5 +1499,10 @@
     "builder.recolor.error.not_found": "That furniture is not in this room anymore.",
     "builder.recolor.error.not_recolorable": "This furniture does not come in other colors.",
     "builder.recolor.error.not_builders_club": "Only Builders Club furniture can be recolored.",
-    "builder.recolor.error.no_such_color": "This furniture is not available in that color."
+    "builder.recolor.error.no_such_color": "This furniture is not available in that color.",
+
+    // --- Wired variable leaderboard (2026-10-13) ---
+    "wiredfurni.params.variable_leaderboard.filter.operand.literal": "Number",
+    "wiredfurni.params.variable_leaderboard.filter.operand.global": "Global variable",
+    "wiredfurni.variable_leaderboard.untitled": "Leaderboard"
 }

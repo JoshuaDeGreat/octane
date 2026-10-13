@@ -1684,5 +1684,10 @@
     "builder.recolor.error.not_found": "Quel furni non è più in questa stanza.",
     "builder.recolor.error.not_recolorable": "Questo furni non esiste in altri colori.",
     "builder.recolor.error.not_builders_club": "Solo i furni del Builders Club possono essere ricolorati.",
-    "builder.recolor.error.no_such_color": "Questo furni non esiste in quel colore."
+    "builder.recolor.error.no_such_color": "Questo furni non esiste in quel colore.",
+
+    // --- Wired variable leaderboard (2026-10-13) ---
+    "wiredfurni.params.variable_leaderboard.filter.operand.literal": "Numero",
+    "wiredfurni.params.variable_leaderboard.filter.operand.global": "Variabile globale",
+    "wiredfurni.variable_leaderboard.untitled": "Classifica"
 }

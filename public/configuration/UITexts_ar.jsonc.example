@@ -1494,5 +1494,10 @@
     "builder.recolor.error.not_found": "هذا الأثاث لم يعد في هذه الغرفة.",
     "builder.recolor.error.not_recolorable": "هذا الأثاث غير متوفر بألوان أخرى.",
     "builder.recolor.error.not_builders_club": "يمكن تغيير لون أثاث Builders Club فقط.",
-    "builder.recolor.error.no_such_color": "هذا الأثاث غير متوفر بهذا اللون."
+    "builder.recolor.error.no_such_color": "هذا الأثاث غير متوفر بهذا اللون.",
+
+    // --- Wired variable leaderboard (2026-10-13) ---
+    "wiredfurni.params.variable_leaderboard.filter.operand.literal": "رقم",
+    "wiredfurni.params.variable_leaderboard.filter.operand.global": "متغير عام",
+    "wiredfurni.variable_leaderboard.untitled": "لوحة الصدارة"
 }

@@ -42,7 +42,13 @@ import { useWiredTools } from '../wired-tools/useWiredTools';
 
 /** English for server error keys a hotel's texts may not have yet. */
 const WIRED_ERROR_FALLBACKS: Record<string, string> = {
-    'wiredfurni.error.invalid_api_keys': 'Invalid Web API keys'
+    'wiredfurni.error.invalid_api_keys': 'Invalid Web API keys',
+    'wiredfurni.error.variable_leaderboard.invalid_configuration': 'Invalid leaderboard configuration.',
+    'wiredfurni.error.variable_leaderboard.missing_context': 'Leaderboard information is unavailable. Close and reopen this Wired box.',
+    'wiredfurni.error.variable_leaderboard.title_required': 'Enter a leaderboard title.',
+    'wiredfurni.error.variable_leaderboard.column_name_length': 'Column names must contain at least two characters.',
+    'wiredfurni.error.variable_leaderboard.filter_required': 'Select a filtering variable.',
+    'wiredfurni.error.variable_leaderboard.global_operand_required': 'Select a global comparison variable.'
 };
 
 /** Whether a clicked floor furni may be picked, from its room object and furnidata. */

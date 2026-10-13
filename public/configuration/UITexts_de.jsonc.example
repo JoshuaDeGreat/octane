@@ -1501,5 +1501,10 @@
     "builder.recolor.error.not_found": "Dieses Möbel ist nicht mehr in diesem Raum.",
     "builder.recolor.error.not_recolorable": "Dieses Möbel gibt es nicht in anderen Farben.",
     "builder.recolor.error.not_builders_club": "Nur Builders Club Möbel können umgefärbt werden.",
-    "builder.recolor.error.no_such_color": "Dieses Möbel gibt es nicht in dieser Farbe."
+    "builder.recolor.error.no_such_color": "Dieses Möbel gibt es nicht in dieser Farbe.",
+
+    // --- Wired variable leaderboard (2026-10-13) ---
+    "wiredfurni.params.variable_leaderboard.filter.operand.literal": "Zahl",
+    "wiredfurni.params.variable_leaderboard.filter.operand.global": "Globale Variable",
+    "wiredfurni.variable_leaderboard.untitled": "Bestenliste"
 }

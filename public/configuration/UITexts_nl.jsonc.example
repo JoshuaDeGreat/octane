@@ -1494,5 +1494,10 @@
     "builder.recolor.error.not_found": "Dit meubel staat niet meer in deze kamer.",
     "builder.recolor.error.not_recolorable": "Dit meubel bestaat niet in andere kleuren.",
     "builder.recolor.error.not_builders_club": "Alleen Builders Club meubels kunnen een andere kleur krijgen.",
-    "builder.recolor.error.no_such_color": "Dit meubel bestaat niet in die kleur."
+    "builder.recolor.error.no_such_color": "Dit meubel bestaat niet in die kleur.",
+
+    // --- Wired variable leaderboard (2026-10-13) ---
+    "wiredfurni.params.variable_leaderboard.filter.operand.literal": "Getal",
+    "wiredfurni.params.variable_leaderboard.filter.operand.global": "Globale variabele",
+    "wiredfurni.variable_leaderboard.untitled": "Scorebord"
 }

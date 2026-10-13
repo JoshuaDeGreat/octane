@@ -1494,5 +1494,10 @@
     "builder.recolor.error.not_found": "Ce mobi n'est plus dans cet appart.",
     "builder.recolor.error.not_recolorable": "Ce mobi n'existe pas en d'autres couleurs.",
     "builder.recolor.error.not_builders_club": "Seuls les mobis Builders Club peuvent être recolorés.",
-    "builder.recolor.error.no_such_color": "Ce mobi n'existe pas dans cette couleur."
+    "builder.recolor.error.no_such_color": "Ce mobi n'existe pas dans cette couleur.",
+
+    // --- Wired variable leaderboard (2026-10-13) ---
+    "wiredfurni.params.variable_leaderboard.filter.operand.literal": "Nombre",
+    "wiredfurni.params.variable_leaderboard.filter.operand.global": "Variable globale",
+    "wiredfurni.variable_leaderboard.untitled": "Classement"
 }

@@ -40,6 +40,7 @@ import { WiredExtraUserVariableView } from '../extras/WiredExtraUserVariableView
 import { WiredExtraVariableEchoView } from '../extras/WiredExtraVariableEchoView';
 import { WiredExtraVariableLevelUpSystemView } from '../extras/WiredExtraVariableLevelUpSystemView';
 import { WiredExtraVariableReferenceView } from '../extras/WiredExtraVariableReferenceView';
+import { WiredExtraVariableLeaderboardView } from '../extras/WiredExtraVariableLeaderboardView';
 import { WiredExtraVariableTextConnectorView } from '../extras/WiredExtraVariableTextConnectorView';
 import { WiredActionFurniAreaView } from '../selectors/WiredActionFurniAreaView';
 import { WiredSelectorFurniAltitudeView } from '../selectors/WiredSelectorFurniAltitudeView';
@@ -313,6 +314,8 @@ export const WiredActionLayoutView = (code: number) => {
             return <WiredExtraTextOutputUsernameView />;
         case WiredActionLayoutCode.TEXT_OUTPUT_FURNI_NAME_EXTRA:
             return <WiredExtraTextOutputFurniNameView />;
+        case WiredActionLayoutCode.VARIABLE_LEADERBOARD_EXTRA:
+            return <WiredExtraVariableLeaderboardView />;
         case WiredActionLayoutCode.VARIABLE_TEXT_CONNECTOR_EXTRA:
             return <WiredExtraVariableTextConnectorView />;
         case WiredActionLayoutCode.TEXT_OUTPUT_VARIABLE_EXTRA:

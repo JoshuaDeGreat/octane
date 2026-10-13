@@ -5,6 +5,7 @@ export * from './WiredArrays';
 export * from './WiredConditionLayoutCode';
 export * from './WiredDailyTask';
 export * from './WiredGlobalPlaceholder';
+export * from './WiredLeaderboard';
 export * from './WiredProjectile';
 export * from './WiredDateToString';
 export * from './WiredFurniType';
