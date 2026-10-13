@@ -1069,13 +1069,14 @@
   will-change: transform;
 }
 
-/* AIR Arctic Island room-ad background. Register its painted pond against the
-   50x50 isometric map instead of cover-cropping it to the world: the latter
-   shifted the visible ice away from the heightmap's blocked moat. */
+/* AIR Arctic Island room-ad background, drawn 1:1 with its painted moat on
+   the heightmap's moat instead of cover-cropping it; left/top/width/height
+   are set inline (SnowWarArenaView, ARCTIC_BACKDROP_*), and the stage is
+   sized to the artwork so no unpainted strip shows at its edges. */
 .snowwar-official-arctic-backdrop {
   position: absolute;
-  left: 1.8%;
-  top: -14.3%;
+  left: 0;
+  top: 0;
   width: 100%;
   height: auto;
   max-width: none;
@@ -1249,13 +1250,16 @@
   position: absolute;
   left: -45px;
   top: -110px;
-  transform-origin: bottom center;
+  /* Scale around the feet (45,110 in the 90x130 render), so they stay on the
+     avatar's tile; scaling around the box bottom dropped them 15px below it. */
+  transform-origin: 45px 110px;
 }
 .snowwar-avatar--stunned .avatar-image {
   left: -96px;
   top: -100px;
   width: 192px;
   height: 120px;
+  transform-origin: 96px 100px;
 }
 /* Zero-size positioned box at the avatar's feet: keeps the absolutely-placed
    avatar image in the same spot while letting us pivot it for the throw. */
@@ -1267,9 +1271,9 @@
 .snowwar-avatar__name {
   position: absolute;
   left: 50%;
-  /* Pre-zoom coordinate: live geometry places the label 2-3 screen pixels
-     above the rendered avatar instead of leaving a 30px floating gap. */
-  top: -22px;
+  /* Pre-zoom coordinate: 2-3 screen pixels above the rendered avatar, whose
+     feet sit on the anchor and whose head is ~27px (110 x 0.25) above it. */
+  top: -37px;
   transform: translateX(-50%);
   white-space: nowrap;
   font-size: 5.5px;

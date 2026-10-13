@@ -323,6 +323,20 @@ const snowballRise = (height: number): number => height * SNOWWAR_WORLD_Z_TO_PX;
 const DESIGN_W = 1920;
 const DESIGN_H = 1080;
 
+// AIR Arctic Island room-ad backdrop (snst_bg_1_a_big). Drawn 2000 stage px
+// wide - the scale at which its painted tiles are exactly 32px, like the AIR
+// scale-32 floor here - whatever the resolution of the file the hotel serves
+// (hi-res copies exist), with the centre of its painted frozen moat pinned to
+// the centre of the heightmap's moat (tiles x 20..32, y 19..30 of the original
+// Arctic Island floor; its four planks then land on the four plank tiles).
+// The moat is off-centre in the artwork, so the stage is built around the
+// artwork instead of centring a 1920x1080 stage on the floor - that left
+// empty strips on the left and at the bottom.
+const ARCTIC_BACKDROP_WIDTH = 2000;
+const ARCTIC_BACKDROP_DEFAULT_RATIO = 1222 / 2000;
+const ARCTIC_BACKDROP_MOAT_CENTRE = { fx: 1011 / 2000, fy: 647 / 1222 };
+const ARCTIC_MOAT_CENTRE_TILE = { x: 26.5, y: 25 };
+
 // Camera dead zone: the avatar roams the central (1 - 2*DEADZONE) of the
 // viewport with the camera held still; only when it pushes into the outer
 // DEADZONE band near an edge does the camera ease back to re-centre it. This
@@ -516,6 +530,7 @@ export const SnowWarArenaView: FC = () =>
     const [frameNow, setFrameNow] = useState(0);
     const [chatInput, setChatInput] = useState('');
     const zoom = ZOOM;
+    const [arcticBackdropRatio, setArcticBackdropRatio] = useState(ARCTIC_BACKDROP_DEFAULT_RATIO);
     const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
     // Set when a throw is blocked for being out of range; shows a short hint.
     const [rangeWarningAt, setRangeWarningAt] = useState(0);
@@ -741,8 +756,12 @@ export const SnowWarArenaView: FC = () =>
 
     const worldToScreen = useCallback((worldX: number, worldY: number) =>
     {
-        const tx = worldX / TILE_SIZE_WORLD;
-        const ty = worldY / TILE_SIZE_WORLD;
+        // AIR/server tile t is centred on world t * 3200 (worldToTile rounds
+        // with +1600), while floor tile t is drawn from toScreen(t, t) - its
+        // top corner. Shift half a tile so a world position lands on the same
+        // tile centre the props, the clicks and the painted backdrop use.
+        const tx = (worldX / TILE_SIZE_WORLD) + 0.5;
+        const ty = (worldY / TILE_SIZE_WORLD) + 0.5;
         return {
             x: originX + (tx - ty) * TILE_HALF_W,
             y: (tx + ty) * TILE_HALF_H,
@@ -1384,10 +1403,30 @@ export const SnowWarArenaView: FC = () =>
     // pan together. The stage grows past the base only if a map is larger.
     const floorW = canvasWidth * zoom;
     const floorH = canvasHeight * zoom;
-    const stageW = Math.max(DESIGN_W, floorW);
-    const stageH = Math.max(DESIGN_H, floorH);
-    const floorOffsetX = (stageW - floorW) / 2;
-    const floorOffsetY = (stageH - floorH) / 2;
+    let stageW = Math.max(DESIGN_W, floorW);
+    let stageH = Math.max(DESIGN_H, floorH);
+    let floorOffsetX = (stageW - floorW) / 2;
+    let floorOffsetY = (stageH - floorH) / 2;
+    let arcticBackdropRect: { left: number; top: number; width: number; height: number } | null = null;
+
+    if (officialArcticBackdrop)
+    {
+        // Stage = artwork (plus the floor, should a map ever stick out of it),
+        // so the camera can never pan onto an area the artwork doesn't paint.
+        const backdropW = ARCTIC_BACKDROP_WIDTH;
+        const backdropH = ARCTIC_BACKDROP_WIDTH * arcticBackdropRatio;
+        const moat = toScreen(ARCTIC_MOAT_CENTRE_TILE.x, ARCTIC_MOAT_CENTRE_TILE.y);
+        // Whole pixels, so neither the artwork nor the floor lands on a half pixel.
+        const backdropX = Math.round((moat.x * zoom) - (ARCTIC_BACKDROP_MOAT_CENTRE.fx * backdropW));
+        const backdropY = Math.round((moat.y * zoom) - (ARCTIC_BACKDROP_MOAT_CENTRE.fy * backdropH));
+        const minX = Math.min(0, backdropX);
+        const minY = Math.min(0, backdropY);
+        stageW = Math.max(floorW, backdropX + backdropW) - minX;
+        stageH = Math.max(floorH, backdropY + backdropH) - minY;
+        floorOffsetX = -minX;
+        floorOffsetY = -minY;
+        arcticBackdropRect = { left: backdropX - minX, top: backdropY - minY, width: backdropW, height: backdropH };
+    }
 
     // Camera as a GPU translate on the stage. Instead of hard-locking the
     // avatar to centre (which scrolls the background on every step and makes
@@ -1846,6 +1885,12 @@ export const SnowWarArenaView: FC = () =>
                             className="snowwar-official-arctic-backdrop"
                             draggable={false}
                             src={getOfficialSnowWarAssetUrl('snst_bg_1_a_big.png')}
+                            style={arcticBackdropRect ?? undefined}
+                            onLoad={event =>
+                            {
+                                const { naturalWidth, naturalHeight } = event.currentTarget;
+                                if (naturalWidth > 0 && naturalHeight > 0) setArcticBackdropRatio(naturalHeight / naturalWidth);
+                            }}
                         />
                     )}
                     {arenaBackdrop && !officialArcticBackdrop && !backdropOverlay && (
@@ -2312,7 +2357,7 @@ export const SnowWarArenaView: FC = () =>
                         // Client-side preview avatar shown only in the editor (the
                         // game simulation is empty here). Anchored the same way as an
                         // in-game avatar so it lines up with the tiles it walks.
-                        const { x, y } = toScreen(editorWalker.x, editorWalker.y);
+                        const { x, y } = toScreen(editorWalker.x + 0.5, editorWalker.y + 0.5);
                         return (
                             <div
                                 className="snowwar-avatar snowwar-avatar--preview"
