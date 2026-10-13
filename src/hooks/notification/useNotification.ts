@@ -213,7 +213,7 @@ const useNotificationStore = () => {
         const autoCloseSeconds = getAutoCloseSeconds(options);
 
         if (options.get('display') === 'BUBBLE') {
-            showSingleBubble(LocalizeText(message), NotificationBubbleType.INFO, image, linkUrl);
+            showSingleBubble(LocalizeText(message), NotificationBubbleType.resolve(options.get('bubble'), type), image, linkUrl);
         } else {
             simpleAlert(LocalizeText(message), type, linkUrl, linkTitle, title, image, autoCloseSeconds, options);
         }
