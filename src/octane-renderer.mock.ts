@@ -996,6 +996,9 @@ export class WiredWebApiKeyResultEvent extends StubClass {}
 export class WiredClickSettingsEvent extends StubClass {}
 export class WiredVariableFxConfigsEvent extends StubClass {}
 export class WiredVariableFxConfigsRemovedEvent extends StubClass {}
+export class WiredLeaderboardSnapshotEvent extends StubClass {}
+export class WiredLeaderboardChunkEvent extends StubClass {}
+export class WiredLeaderboardSubscribeComposer extends RecordingComposer {}
 export class WiredVariableFxStatusEvent extends StubClass {}
 export class WiredVariableFxStatusRemovedEvent extends StubClass {}
 export const wiredVariableFxStatusKey = (status: { configId: number; variableId: string; userEntity: boolean; entityId: number }) =>

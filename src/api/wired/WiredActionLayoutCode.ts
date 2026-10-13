@@ -143,6 +143,8 @@ export class WiredActionLayoutCode {
     public static WRITE_TO_LOGS: number = 137;
     /** Habbo's "teleport to room": a typed room, or the room a picked room link or teleporter leads to. */
     public static TELEPORT_TO_ROOM: number = 138;
+    /** Habbo's variable leaderboard addon (wf_xtra_var_leaderboard), official addon code 1005. */
+    public static VARIABLE_LEADERBOARD_EXTRA: number = 1005;
 
     /** Habbo's achievement and reward-track boxes; hotel-wide rewards, gated by the hotel. */
     public static PROGRESS_ACHIEVEMENT: number = 150;
