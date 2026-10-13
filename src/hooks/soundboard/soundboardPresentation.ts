@@ -1,4 +1,4 @@
-import { ISoundboardSound } from '@octane/renderer';
+import { ISoundboardPlayOptions, ISoundboardSound } from '@octane/renderer';
 import { EMPTY_SOUNDBOARD_MANIFEST, SoundboardManifest } from './soundboardManifest';
 
 export const SOUNDBOARD_TONES = ['blue', 'green', 'gold', 'purple'] as const;
@@ -27,7 +27,13 @@ export interface DisplaySoundboardSound extends ISoundboardSound {
     categoryId: string | null;
     tone: SoundboardTone;
     keywords: string[];
+    group?: string;
+    gain?: number;
 }
+
+/** What the sound manager needs to know about a pad besides where its file is. */
+export const soundboardPlayOptions = (pad: { group?: string; gain?: number } | null | undefined): ISoundboardPlayOptions | undefined =>
+    pad ? { group: pad.group || undefined, gain: pad.gain } : undefined;
 
 const isRecord = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 
@@ -44,7 +50,7 @@ export const normalizeSoundboardLayout = (input: unknown): SoundboardLayout => {
 
             const id = candidate.id.trim();
             const label = candidate.label.trim();
-            if (!id || !label || id === 'all' || id === 'recent' || categoryIds.has(id)) continue;
+            if (!id || !label || id === 'all' || id === 'recent' || id === 'favorites' || categoryIds.has(id)) continue;
 
             categoryIds.add(id);
             categories.push({ id, label });
@@ -113,7 +119,9 @@ export const mergeSoundboardPresentation = (
             classname,
             categoryId: override?.categoryId ?? asset?.categoryId ?? null,
             tone: override?.tone ?? asset?.tone ?? 'blue',
-            keywords: override?.keywords?.length ? override.keywords : (asset?.keywords ?? [])
+            keywords: override?.keywords?.length ? override.keywords : (asset?.keywords ?? []),
+            group: asset?.group ?? '',
+            gain: asset?.gain ?? 1
         };
     });
 };
@@ -122,15 +130,16 @@ export const filterSoundboardSounds = (
     sounds: DisplaySoundboardSound[],
     query: string,
     categoryId: string,
-    recentIds: number[]
+    recentIds: number[],
+    favoriteIds: number[] = []
 ): DisplaySoundboardSound[] => {
     const normalizedQuery = normalizeText(query.trim());
     const matchesQuery = (sound: DisplaySoundboardSound) => !normalizedQuery ||
         normalizeText([sound.name, ...sound.keywords].join(' ')).includes(normalizedQuery);
 
-    if (categoryId === 'recent') {
+    if (categoryId === 'recent' || categoryId === 'favorites') {
         const soundsById = new Map(sounds.map((sound) => [sound.id, sound]));
-        return recentIds.map((id) => soundsById.get(id)).filter((sound): sound is DisplaySoundboardSound => !!sound && matchesQuery(sound));
+        return (categoryId === 'recent' ? recentIds : favoriteIds).map((id) => soundsById.get(id)).filter((sound): sound is DisplaySoundboardSound => !!sound && matchesQuery(sound));
     }
 
     return sounds.filter((sound) => (categoryId === 'all' || sound.categoryId === categoryId) && matchesQuery(sound));

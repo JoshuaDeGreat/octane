@@ -1,60 +1,105 @@
-import { GetCfhStatusMessageComposer } from '@octane/renderer';
-import { FC } from 'react';
-import { FaArrowCircleRight } from 'react-icons/fa';
-import { CreateLinkEvent, DispatchUiEvent, GetConfigurationValue, LocalizeText, ReportState, ReportType, SendMessageComposer } from '../../../api';
-import helpDuck from '../../../assets/images/help/help-duck.png';
-import { Text } from '../../../common';
+import { GetCfhStatusMessageComposer, GetMyReportsStatusMessageComposer } from '@octane/renderer';
+import { FC, useState } from 'react';
+import { CreateLinkEvent, DispatchUiEvent, GetConfigurationValue, localizeWithFallback, ReportState, ReportType, SendMessageComposer } from '../../../api';
+import bullyImage from '../../../assets/images/help/help-bully.png';
+import confusedImage from '../../../assets/images/help/help-confused.png';
+import needHelpImage from '../../../assets/images/help/help-need-help.png';
 import { GuideToolEvent } from '../../../events';
 import { useHelp } from '../../../hooks';
 
-export const HelpIndexView: FC<{}> = (props) => {
+/* Official main_help: a 420 px page of sections, each headed by its title: the help of the guides,
+   the report of a bully, the self-help links, and the emergency box with its way out of the room. */
+export const HelpIndexView: FC<{}> = () => {
     const { setActiveReport = null } = useHelp();
+    const [leaveRoom, setLeaveRoom] = useState(false);
 
-    const onReportClick = () => {
-        setActiveReport((prevValue) => {
-            const currentStep = ReportState.SELECT_USER;
-            const reportType = ReportType.BULLY;
-
-            return { ...prevValue, currentStep, reportType };
-        });
+    const startReport = (reportType: number) => {
+        setActiveReport((prevValue) => ({
+            ...prevValue,
+            currentStep: ReportState.SELECT_USER,
+            reportType,
+            leaveRoom: reportType === ReportType.EMERGENCY && leaveRoom
+        }));
     };
 
+    const openFaq = () => CreateLinkEvent('habbopages/help');
+
     return (
-        <div className="flex flex-col gap-2 py-1">
-            <Text bold fontSize={3}>
-                {LocalizeText('help.main.frame.title')}
-            </Text>
-            <Text center className="text-[#5c5c5c]">
-                {LocalizeText('help.main.frame.description')}
-            </Text>
-            <div className="flex justify-center py-1">
-                <img src={helpDuck} alt="" className="h-[105px] w-auto image-rendering-pixelated" />
+        <div className="octane-help-index">
+            <div className="octane-help-index__section-title">{localizeWithFallback('help.main.help.section.title', 'DO YOU NEED HELP?')}</div>
+            <div className="octane-help-index__row">
+                <img alt="" className="octane-help-index__image" src={needHelpImage} draggable={false} />
+                <div className="octane-help-index__copy">
+                    <div className="octane-help-index__heading">{localizeWithFallback('help.main.help.title', 'I need help using something')}</div>
+                    <div className="octane-help-index__text">{localizeWithFallback('help.main.help.content', 'The Habbo helpers are here to give you assistance.')}</div>
+                    <button
+                        className="octane-help-index__button"
+                        disabled={!GetConfigurationValue('guides.enabled')}
+                        type="button"
+                        onClick={() => DispatchUiEvent(new GuideToolEvent(GuideToolEvent.CREATE_HELP_REQUEST))}
+                    >
+                        {localizeWithFallback('help.main.help.button', 'Ask for instructions')}
+                    </button>
+                </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-                <button type="button" className="habbo-btn-green" onClick={onReportClick}>
-                    {LocalizeText('help.main.bully.subtitle')}
-                </button>
-                <button
-                    type="button"
-                    className="habbo-btn-green"
-                    disabled={!GetConfigurationValue('guides.enabled')}
-                    onClick={() => DispatchUiEvent(new GuideToolEvent(GuideToolEvent.CREATE_HELP_REQUEST))}
-                >
-                    {LocalizeText('help.main.help.title')}
-                </button>
+
+            <div className="octane-help-index__section-title">{localizeWithFallback('help.main2.bully.title', 'SOMEONE IS BEHAVING BADLY')}</div>
+            <div className="octane-help-index__row">
+                <div className="octane-help-index__pictures">
+                    <img alt="" className="octane-help-index__image is-confused" src={confusedImage} draggable={false} />
+                    <img alt="" className="octane-help-index__image is-bully" src={bullyImage} draggable={false} />
+                </div>
+                <div className="octane-help-index__copy">
+                    <div className="octane-help-index__heading">{localizeWithFallback('help.main2.bully.subtitle', 'Report a case of bullying')}</div>
+                    <div className="octane-help-index__text">{localizeWithFallback('help.main2.bully.description', 'If you see others behaving badly, report it.')}</div>
+                    <button className="octane-help-index__button" type="button" onClick={() => startReport(ReportType.BULLY)}>
+                        {localizeWithFallback('help.main2.bully.button', 'Report a case of bullying')}
+                    </button>
+                </div>
             </div>
-            <div className="flex flex-col gap-1 pt-1">
-                <button type="button" className="help-link" onClick={() => CreateLinkEvent('habbopages/help')}>
-                    <FaArrowCircleRight className="help-link__icon" />
-                    {LocalizeText('help.main.faq.link.text')}
+
+            <div className="octane-help-index__section-title is-left">{localizeWithFallback('help.main.self.section.title', 'SELF-HELP')}</div>
+            <div className="octane-help-index__self">
+                <div className="octane-help-index__self-column">
+                    <button className="octane-help-index__link" type="button" onClick={openFaq}>
+                        {localizeWithFallback('help.main.self.tips.title', 'Player support')}
+                    </button>
+                    <button className="octane-help-index__link is-plain" type="button" onClick={openFaq}>
+                        {localizeWithFallback('help.main.self.tips.content', 'Find answers in the FAQ.')}
+                    </button>
+                </div>
+                <div className="octane-help-index__self-column">
+                    <button className="octane-help-index__link" type="button" onClick={openFaq}>
+                        {localizeWithFallback('help.main.self.habboway.title', 'The Habbo Way')}
+                    </button>
+                    <button className="octane-help-index__link" type="button" onClick={openFaq}>
+                        {localizeWithFallback('help.main.self.safetybooklet.title', 'Safety rules')}
+                    </button>
+                </div>
+            </div>
+
+            <div className="octane-help-index__emergency">
+                <div className="octane-help-index__emergency-copy">
+                    <div className="octane-help-index__emergency-title">{localizeWithFallback('help.main2.emergency.title', 'This is an emergency!')}</div>
+                    <div className="octane-help-index__emergency-sub">{localizeWithFallback('help.main2.emergency.subtitle', '(URGENT MATTERS ONLY)')}</div>
+                </div>
+                <div className="octane-help-index__emergency-actions">
+                    <button className="octane-help-index__button is-red" type="button" onClick={() => startReport(ReportType.EMERGENCY)}>
+                        {localizeWithFallback('help.main2.emergency.button', 'Get help now!')}
+                    </button>
+                    <label className="octane-help-index__leave">
+                        <input checked={leaveRoom} type="checkbox" onChange={(event) => setLeaveRoom(event.target.checked)} />
+                        <span>{localizeWithFallback('help.main2.emergency.leave', 'I want to leave the room')}</span>
+                    </label>
+                </div>
+            </div>
+
+            <div className="octane-help-index__status">
+                <button className="octane-help-index__link" type="button" onClick={() => SendMessageComposer(new GetCfhStatusMessageComposer(false))}>
+                    {localizeWithFallback('help.main.my.sanction.status', 'My sanction status')}
                 </button>
-                <button type="button" className="help-link" onClick={() => SendMessageComposer(new GetCfhStatusMessageComposer(false))}>
-                    <FaArrowCircleRight className="help-link__icon" />
-                    {LocalizeText('help.main.my.sanction.status')}
-                </button>
-                <button type="button" className="help-link" onClick={() => SendMessageComposer(new GetCfhStatusMessageComposer(true))}>
-                    <FaArrowCircleRight className="help-link__icon" />
-                    {LocalizeText('help.main.my.reports.status')}
+                <button className="octane-help-index__link" type="button" onClick={() => SendMessageComposer(new GetMyReportsStatusMessageComposer())}>
+                    {localizeWithFallback('help.main.my.reports.status', 'My reports')}
                 </button>
             </div>
         </div>

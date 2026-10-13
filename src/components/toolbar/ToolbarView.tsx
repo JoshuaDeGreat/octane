@@ -502,9 +502,7 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
                     { !rightCollapsed && (<>
                     { mentionsEnabled &&
                         <motion.div variants={ itemVariants } className="relative tb-slot">
-                            <ToolbarItemView icon="mentions" onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
-                            { (mentionsUnread > 0) &&
-                                <LayoutItemCountView count={ mentionsUnread } className="absolute -right-2 -top-1" /> }
+                            <ToolbarItemView icon={ mentionsUnread > 0 ? 'mentions-unread' : 'mentions' } onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
                         </motion.div> }
                     <div className={ `h-full shrink-0 ${ desktopBlockClasses }` } id="toolbar-friend-bar-container-desktop" />
                     </>) }
@@ -607,9 +605,7 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
                         </motion.div> }
                     { (!socialInSideStack && mentionsEnabled) &&
                         <motion.div variants={ itemVariants } className="relative">
-                            <ToolbarItemView icon="mentions" onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
-                            { (mentionsUnread > 0) &&
-                                <LayoutItemCountView count={ mentionsUnread } className="absolute -right-2 -top-1" /> }
+                            <ToolbarItemView icon={ mentionsUnread > 0 ? 'mentions-unread' : 'mentions' } onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
                         </motion.div> }
                 </motion.div>
             </motion.div>
@@ -658,9 +654,7 @@ export const ToolbarView: FC<{ isInRoom: boolean }> = props =>
                     </motion.div> }
                 { (socialInSideStack && mentionsEnabled) &&
                     <motion.div variants={ itemVariants } className="relative">
-                        <ToolbarItemView icon="mentions" onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
-                        { (mentionsUnread > 0) &&
-                            <LayoutItemCountView count={ mentionsUnread } className="pointer-events-none absolute -right-1 -top-1 z-10" /> }
+                        <ToolbarItemView icon={ mentionsUnread > 0 ? 'mentions-unread' : 'mentions' } onClick={ () => CreateLinkEvent('mentions/toggle') } className="tb-icon" />
                     </motion.div> }
                 { (socialInSideStack && ((iconState === MessengerIconState.SHOW) || (iconState === MessengerIconState.UNREAD))) &&
                     <motion.div variants={ itemVariants }>

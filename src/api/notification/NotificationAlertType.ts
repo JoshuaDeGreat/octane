@@ -2,6 +2,7 @@ export class NotificationAlertType {
     public static DEFAULT: string = 'default';
     public static MOTD: string = 'motd';
     public static MODERATION: string = 'moderation';
+    public static ABUSIVE: string = 'abusive';
     public static EVENT: string = 'event';
     public static OCTANE: string = 'octane';
     public static OCTANE_INFO: string = 'octane-info';

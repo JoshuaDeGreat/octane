@@ -67,6 +67,7 @@ const TEXT_TRANSLATION_LOCALES: ITranslationTextLocale[] = [
     { code: 'en', name: 'English', file: 'en' },
     { code: 'it', name: 'Italian', file: 'it' },
     { code: 'nl', name: 'Dutch', file: 'nl' },
+    { code: 'de', name: 'German', file: 'de' },
     { code: 'fr', name: 'French', file: 'fr' },
     { code: 'es', name: 'Spanish', file: 'es' },
     { code: 'ar', name: 'Arabic', file: 'ar' }

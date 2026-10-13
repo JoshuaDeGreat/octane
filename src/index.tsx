@@ -33,7 +33,9 @@ import './css/chat/ChatHistoryView.css';
 import './css/chat/ChatInputMentionSelectorView.css';
 import './css/chat/ChatInputHabbiconSelectorView.css';
 import './css/mentions/MentionToasts.css';
+import './css/room/FriendRequest.css';
 import './css/mentions/MentionsPanel.css';
+import './css/soundboard/Soundboard.css';
 
 import './css/common/Buttons.css';
 import './css/habbo/HabboSkin.css';
@@ -47,7 +49,9 @@ import './css/groups/GroupView.css';
 
 import './css/game-center/GameCenterView.css';
 
+import './css/help/MyReports.css';
 import './css/help/HelpView.css';
+import './css/help/HelpIndex.css';
 import './css/housekeeping/HousekeepingView.css';
 
 import './css/hotelview/HotelView.css';
@@ -58,6 +62,7 @@ import './css/icons/icons.css';
 
 import './css/inventory/InventoryView.css';
 import './css/inventory/InventoryAnimals.css';
+import './css/inventory/InventoryPrefixes.css';
 import './css/inventory/InventoryBadges.css';
 import './css/inventory/InventoryFilters.css';
 
@@ -68,6 +73,7 @@ import './css/achievements/AchievementsView.css';
 
 import './css/notification/NotificationCenterView.css';
 import './css/notification/HotelAlertToast.css';
+import './css/notification/CaptionNotification.css';
 
 import './css/purse/PurseView.css';
 import './css/radio/RadioView.css';
@@ -76,6 +82,7 @@ import './css/room/InfoStand.css';
 import './css/room/NavigatorRoomInfo.css';
 import './css/room/NavigatorRoomSettings.css';
 import './css/room/RoomWidgets.css';
+import './css/room/Chooser.css';
 import './css/room/WiredVariableFx.css';
 
 import './css/slider.css';

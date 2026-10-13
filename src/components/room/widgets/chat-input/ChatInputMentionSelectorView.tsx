@@ -1,4 +1,5 @@
 import { FC, useEffect, useRef } from 'react';
+import { localizeWithFallback } from '../../../../api';
 import { LayoutAvatarImageView } from '../../../../common';
 import { MentionSuggestion } from '../../../../hooks/rooms/widgets/useChatMentions.helpers';
 
@@ -32,15 +33,26 @@ export const ChatInputMentionSelectorView: FC<ChatInputMentionSelectorViewProps>
         <div className="chat-input-mention-popover">
             <div className="chat-input-mention-popover-header">
                 <span className="chat-input-mention-popover-header-dot" aria-hidden />
-                <span>@ Mention</span>
+                <span>{localizeWithFallback('mentions.selector.title', '@ Mention')}</span>
             </div>
-            <div ref={listRef} className="chat-input-mention-popover-list has-classic-scrollbar">
+            <div ref={listRef} className="chat-input-mention-popover-list has-classic-scrollbar" role="listbox" aria-label={localizeWithFallback('mentions.selector.title', '@ Mention')}>
                 {suggestions.map((suggestion, index) => {
                     const isSelected = index === selectedIndex;
                     const rowClass = ['chat-input-mention-row', isSelected ? 'is-selected' : ''].filter(Boolean).join(' ');
 
                     return (
-                        <div key={suggestion.key} className={rowClass} onClick={() => onSelect(suggestion)} onMouseEnter={() => onHover(index)}>
+                        // mousedown, not click: the chat input must keep its focus while the pick is made.
+                        <div
+                            key={suggestion.key}
+                            className={rowClass}
+                            role="option"
+                            aria-selected={isSelected}
+                            onMouseDown={(event) => {
+                                event.preventDefault();
+                                onSelect(suggestion);
+                            }}
+                            onMouseEnter={() => onHover(index)}
+                        >
                             {suggestion.kind === 'user' && suggestion.figure ? (
                                 <div className="chat-input-mention-row-tile">
                                     <LayoutAvatarImageView figure={suggestion.figure} direction={2} headOnly />
@@ -53,7 +65,7 @@ export const ChatInputMentionSelectorView: FC<ChatInputMentionSelectorViewProps>
                                 {suggestion.description && <span className="chat-input-mention-row-desc">{suggestion.description}</span>}
                             </div>
                             <span className={`chat-input-mention-row-kind ${suggestion.kind === 'alias' ? 'is-alias' : ''}`}>
-                                {suggestion.kind === 'alias' ? 'Broadcast' : 'User'}
+                                {suggestion.kind === 'alias' ? localizeWithFallback('mentions.selector.kind.alias', 'Broadcast') : localizeWithFallback('mentions.selector.kind.user', 'User')}
                             </span>
                         </div>
                     );

@@ -1,8 +1,10 @@
 import { FC, useState } from 'react';
-import { LocalizeText } from '../../../../api';
-import { Button, Column, Grid, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
+import { localizeWithFallback, LocalizeText } from '../../../../api';
+import { OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useDoorbellActions, useDoorbellState } from '../../../../hooks';
 
+/* Official doorbell: the information in red, then a list of 20 px rows, each with the name and two
+   icon buttons, a green check to let the visitor in and a red cross to turn them away. */
 export const DoorbellWidgetView: FC = () => {
     const users = useDoorbellState();
     const { answer } = useDoorbellActions();
@@ -14,31 +16,34 @@ export const DoorbellWidgetView: FC = () => {
 
     return (
         <OctaneCardView className="octane-widget-doorbell" theme="primary-slim">
-            <OctaneCardHeaderView headerText={LocalizeText('navigator.doorbell.title')} onCloseClick={() => setDismissed(true)} />
-            <OctaneCardContentView gap={0} overflow="hidden">
-                <Column gap={2}>
-                    <Grid className="text-black font-bold	 border-bottom px-1 pb-1" gap={1}>
-                        <div className="col-span-6">{LocalizeText('generic.username')}</div>
-                        <div className="col-span-6" />
-                    </Grid>
-                </Column>
-                <Column className="striped-children" gap={0} overflow="auto">
+            <OctaneCardHeaderView headerText={localizeWithFallback('widgets.doorbell.title', LocalizeText('navigator.doorbell.title'))} onCloseClick={() => setDismissed(true)} />
+            <OctaneCardContentView gap={2} overflow="hidden">
+                <div className="octane-doorbell-info">{localizeWithFallback('widgets.doorbell.info', 'These visitors are waiting at the door.')}</div>
+                <div className="octane-doorbell-list">
                     {users.map((userName) => (
-                        <Grid key={userName} alignItems="center" className="text-black border-bottom p-1" gap={1}>
-                            <div className="col-span-6">{userName}</div>
-                            <div className="col-span-6">
-                                <div className="flex items-center gap-1 justify-end">
-                                    <Button variant="success" onClick={() => answer(userName, true)}>
-                                        {LocalizeText('generic.accept')}
-                                    </Button>
-                                    <Button variant="danger" onClick={() => answer(userName, false)}>
-                                        {LocalizeText('generic.deny')}
-                                    </Button>
-                                </div>
-                            </div>
-                        </Grid>
+                        <div key={userName} className="octane-doorbell-row">
+                            <span className="octane-doorbell-name">{userName}</span>
+                            <button
+                                aria-label={`${LocalizeText('generic.accept')} ${userName}`}
+                                className="octane-doorbell-accept"
+                                title={LocalizeText('generic.accept')}
+                                type="button"
+                                onClick={() => answer(userName, true)}
+                            >
+                                ✓
+                            </button>
+                            <button
+                                aria-label={`${LocalizeText('generic.deny')} ${userName}`}
+                                className="octane-doorbell-deny"
+                                title={LocalizeText('generic.deny')}
+                                type="button"
+                                onClick={() => answer(userName, false)}
+                            >
+                                ✕
+                            </button>
+                        </div>
                     ))}
-                </Column>
+                </div>
             </OctaneCardContentView>
         </OctaneCardView>
     );

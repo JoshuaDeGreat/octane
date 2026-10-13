@@ -119,3 +119,11 @@
         }
     }
 }
+
+/* Five tabs share 341 px: less padding and an 11 px label, so Access and Moderation are not cut. */
+.octane-room-settings .octane-card-tabs .octane-card-tab-item,
+.octane-room-settings .octane-card-tabs-shell .octane-card-tab-item {
+    min-width: 0;
+    padding: 5px 9px 0 !important;
+    font-size: 11px;
+}

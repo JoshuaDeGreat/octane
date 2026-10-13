@@ -48,6 +48,7 @@ import {
     ProductImageUtility,
     TradingNotificationType
 } from '../../api';
+import { rememberReceivedBadgeRarity } from '../../api/badges/badgeRarity';
 import { AchievementNotificationBubbleItem } from '../../api/notification/AchievementNotificationBubbleItem';
 import { localizeWithFallback } from '../../api/utils/localizeWithFallback';
 import { useMessageEvent } from '../events';
@@ -56,6 +57,9 @@ import { useHotelAlertToastStore } from './hotelAlertToastStore';
 const cleanText = (text: string) => (text && text.length ? text.replace(/\\r/g, '\r') : '');
 
 const HOTEL_ALERT_TOAST_MAX_LENGTH = 240;
+
+/** Mention toasts on screen at once; a burst replaces the oldest instead of piling up. */
+const MAX_MENTION_BUBBLES = 3;
 
 const getTimeZeroPadded = (time: number) => {
     const text = '0' + time;
@@ -90,10 +94,11 @@ export const prependSingleAlert = (alerts: NotificationAlertItem[], item: Notifi
     return [item, ...(group ? alerts.filter((value) => !group.includes(value.alertType)) : alerts)];
 };
 
-export const prependSingleBubble = (alerts: NotificationBubbleItem[], item: NotificationBubbleItem): NotificationBubbleItem[] => {
+// Like the official client, a new item goes below the ones already shown.
+export const addSingleBubble = (alerts: NotificationBubbleItem[], item: NotificationBubbleItem): NotificationBubbleItem[] => {
     const shouldReplace = item.notificationType === NotificationBubbleType.CLUBGIFT || item.notificationType === NotificationBubbleType.SOUNDBOARD;
 
-    return [item, ...(shouldReplace ? alerts.filter((value) => value.notificationType !== item.notificationType) : alerts)];
+    return [...(shouldReplace ? alerts.filter((value) => value.notificationType !== item.notificationType) : alerts), item];
 };
 
 const useNotificationStore = () => {
@@ -172,16 +177,24 @@ const useNotificationStore = () => {
 
             const notificationItem = new NotificationBubbleItem(message, type, imageUrl, internalLink, senderName);
 
-            setBubbleAlerts((prevValue) => prependSingleBubble(prevValue, notificationItem));
+            setBubbleAlerts((prevValue) => addSingleBubble(prevValue, notificationItem));
         },
         [bubblesDisabled]
     );
 
     const showMentionBubble = useCallback((mention: IMentionEntry) => {
+        if (bubblesDisabled) return;
+
         const item = new MentionNotificationBubbleItem(mention);
 
-        setBubbleAlerts((prevValue) => [item, ...prevValue]);
-    }, []);
+        // A burst of mentions keeps the latest few on screen instead of stacking one toast for each.
+        setBubbleAlerts((prevValue) => {
+            const shown = prevValue.filter((bubble) => bubble instanceof MentionNotificationBubbleItem);
+            const kept = shown.length >= MAX_MENTION_BUBBLES ? prevValue.filter((bubble) => bubble !== shown[0]) : prevValue;
+
+            return [...kept, item];
+        });
+    }, [bubblesDisabled]);
 
     const showNotification = (type: string, options: Map<string, string> = null) => {
         if (!options) options = new Map();
@@ -200,7 +213,7 @@ const useNotificationStore = () => {
         const autoCloseSeconds = getAutoCloseSeconds(options);
 
         if (options.get('display') === 'BUBBLE') {
-            showSingleBubble(LocalizeText(message), NotificationBubbleType.INFO, image, linkUrl);
+            showSingleBubble(LocalizeText(message), NotificationBubbleType.resolve(options.get('bubble'), type), image, linkUrl);
         } else {
             simpleAlert(LocalizeText(message), type, linkUrl, linkTitle, title, image, autoCloseSeconds, options);
         }
@@ -360,9 +373,9 @@ const useNotificationStore = () => {
             badgeImage
         );
 
-        setBubbleAlerts((previous) => [notification, ...previous.filter((item) => item instanceof AchievementNotificationBubbleItem
+        setBubbleAlerts((previous) => [...previous.filter((item) => item instanceof AchievementNotificationBubbleItem
             ? item.badgeCode !== parser.data.badgeCode
-            : item.notificationType !== NotificationBubbleType.BADGE_RECEIVED || item.linkUrl !== parser.data.badgeCode)]);
+            : item.notificationType !== NotificationBubbleType.BADGE_RECEIVED || item.linkUrl !== parser.data.badgeCode), notification]);
     });
 
     useMessageEvent<ChestNotificationEvent>(ChestNotificationEvent, (event) => {
@@ -391,6 +404,7 @@ const useNotificationStore = () => {
         if (recentBadgeNotifications.has(parser.badgeCode)) return;
 
         recentBadgeNotifications.add(parser.badgeCode);
+        rememberReceivedBadgeRarity(parser);
         setTimeout(() => recentBadgeNotifications.delete(parser.badgeCode), 3000);
 
         const badgeName = LocalizeBadgeName(parser.badgeCode);

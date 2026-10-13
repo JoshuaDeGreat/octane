@@ -8,6 +8,8 @@ import flagEs from '../../assets/images/flag_icon/flag_icon_es.png';
 import flagFr from '../../assets/images/flag_icon/flag_icon_fr.png';
 import flagIt from '../../assets/images/flag_icon/flag_icon_it.png';
 import flagNl from '../../assets/images/flag_icon/flag_icon_nl.png';
+import flagDe from '../../assets/images/flag_icon/flag_icon_de.png';
+import flagAr from '../../assets/images/flag_icon/flag_icon_ar.png';
 import { applyTextTranslationLocale } from '../../hooks/translation/useTranslation';
 import { configFileUrl } from '../../secure-assets';
 import { LoginModal } from './components/LoginModal';
@@ -77,7 +79,9 @@ const LOGIN_LOCALES: LoginLocale[] = [
     { code: 'en', file: 'com', label: 'English', flag: flagEn },
     { code: 'es', file: 'es', label: 'Español', flag: flagEs },
     { code: 'fr', file: 'fr', label: 'Français', flag: flagFr },
-    { code: 'nl', file: 'nl', label: 'Nederlands', flag: flagNl }
+    { code: 'nl', file: 'nl', label: 'Nederlands', flag: flagNl },
+    { code: 'de', file: 'de', label: 'Deutsch', flag: flagDe },
+    { code: 'ar', file: 'ar', label: 'العربية', flag: flagAr }
 ];
 
 type AttemptState = { attempts: number; firstAt: number; lockedUntil: number };

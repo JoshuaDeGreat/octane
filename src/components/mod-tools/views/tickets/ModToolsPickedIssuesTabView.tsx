@@ -1,6 +1,5 @@
 import { IssueMessageData } from '@octane/renderer';
 import { FC } from 'react';
-import { FaClock, FaInbox, FaUser, FaUserShield } from 'react-icons/fa';
 import { GetIssueCategoryName, LocalizeText } from '../../../../api';
 
 interface ModToolsPickedIssuesTabViewProps {
@@ -18,22 +17,22 @@ export const ModToolsPickedIssuesTabView: FC<ModToolsPickedIssuesTabViewProps> =
                     <div className="grid grid-cols-[100px_1fr_100px_120px] gap-2 text-[.7rem] uppercase tracking-wide opacity-60 font-semibold border-b border-zinc-200 pb-1 px-1">
                         <div>{LocalizeText('modtools.tickets.column.type')}</div>
                         <div className="flex items-center gap-1">
-                            <FaUser size={10} /> {LocalizeText('modtools.tickets.column.reported')}
+                            {LocalizeText('modtools.tickets.column.reported')}
                         </div>
                         <div className="flex items-center gap-1">
-                            <FaClock size={10} /> {LocalizeText('modtools.tickets.column.opened')}
+                            {LocalizeText('modtools.tickets.column.opened')}
                         </div>
                         <div className="flex items-center gap-1">
-                            <FaUserShield size={10} /> {LocalizeText('modtools.tickets.column.picker')}
+                            {LocalizeText('modtools.tickets.column.picker')}
                         </div>
                     </div>
                     {isEmpty ? (
                         <div className="flex flex-col items-center justify-center gap-1 py-8 opacity-50 text-sm">
-                            <FaInbox size={22} />
+                            
                             <span>{LocalizeText('modtools.tickets.empty.picked')}</span>
                         </div>
                     ) : (
-                        <div className="flex flex-col overflow-auto">
+                        <div className="flex flex-col overflow-auto octane-mod-tools-list-auto">
                             {pickedIssues.map((issue) => (
                                 <div
                                     key={issue.issueId}

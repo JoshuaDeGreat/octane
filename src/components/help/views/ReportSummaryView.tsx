@@ -6,7 +6,7 @@ import {
     CallForHelpMessageComposer
 } from '@octane/renderer';
 import { FC } from 'react';
-import { LocalizeText, ReportType, SendMessageComposer } from '../../../api';
+import { GoToDesktop, LocalizeText, ReportType, SendMessageComposer } from '../../../api';
 import { Button, Text } from '../../../common';
 import { useHelp } from '../../../hooks';
 
@@ -62,6 +62,8 @@ export const ReportSummaryView: FC<{}> = (props) => {
                 );
                 break;
         }
+
+        if (activeReport.leaveRoom) GoToDesktop();
 
         setActiveReport(null);
     };

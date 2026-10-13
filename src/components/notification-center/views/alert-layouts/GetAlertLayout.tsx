@@ -1,6 +1,7 @@
 import { NotificationAlertItem, NotificationAlertType } from '../../../../api';
 import { OctaneInfoAlertView } from './OctaneInfoAlertView';
 import { OctaneSystemAlertView } from './OctaneSystemAlertView';
+import { NotificationAbusiveAlertView } from './NotificationAbusiveAlertView';
 import { NotificationDefaultAlertView } from './NotificationDefaultAlertView';
 import { EVENT_ALERT_TYPES, NotificationEventAlertView } from './NotificationEventAlertView';
 import { isFurniDataAlert, NotificationFurniDataAlertView } from './NotificationFurniDataAlertView';
@@ -19,6 +20,8 @@ export const GetAlertLayout = (item: NotificationAlertItem, onClose: () => void)
             return <OctaneSystemAlertView key={key} {...props} />;
         case NotificationAlertType.OCTANE_INFO:
             return <OctaneInfoAlertView key={key} {...props} />;
+        case NotificationAlertType.ABUSIVE:
+            return <NotificationAbusiveAlertView key={key} {...props} />;
         case NotificationAlertType.SEARCH:
             return <NotificationSeachAlertView key={key} {...props} />;
         default:

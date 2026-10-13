@@ -1,0 +1,70 @@
+/* Official notification_wired, notification_treasurehunt and notification_nft_opening: a 190 px box
+   with a coloured caption strip over the body. The modifier sets the two colours. */
+.octane-swf-notification-bubble.octane-caption-notification {
+    --caption-body: #355477;
+    --caption-strip: #1e3044;
+
+    display: block;
+    width: 190px;
+    max-width: 190px;
+    min-height: 60px;
+    padding: 0 !important;
+    border: 1px solid #000000;
+    border-radius: 4px !important;
+    background: var(--caption-body) !important;
+    box-shadow: none !important;
+    color: #ffffff;
+    font-family: Ubuntu, sans-serif;
+    font-size: 11px !important;
+    line-height: 14px;
+    text-shadow: none;
+    cursor: pointer;
+}
+
+.octane-caption-notification--treasure_hunt {
+    --caption-body: #664e16;
+    --caption-strip: #382b0c;
+}
+
+.octane-caption-notification--nft_opening {
+    --caption-body: #006154;
+    --caption-strip: #012723;
+}
+
+.octane-caption-notification__caption {
+    height: 24px;
+    padding: 4px 7px 0;
+    background: var(--caption-strip);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 17px;
+}
+
+.octane-caption-notification--wired .octane-caption-notification__caption {
+    text-align: center;
+}
+
+.octane-caption-notification__row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 7px 8px 9px;
+}
+
+.octane-caption-notification__icon {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    image-rendering: var(--octane-pixel-art, pixelated);
+}
+
+.octane-caption-notification__text {
+    min-width: 0;
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+
+.octane-caption-notification--wired .octane-caption-notification__text {
+    text-align: center;
+}

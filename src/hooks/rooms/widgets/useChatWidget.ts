@@ -14,7 +14,10 @@ import {
     SystemChatStyleEnum
 } from '@octane/renderer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useUserChatPreferencesStore } from '@/state/userChatPreferences';
 import {
+    applyUserChatPreferences,
+    CHAT_MODE_FREE_FLOW,
     ChatBubbleMessage,
     ChatBubbleUtilities,
     ChatEntryType,
@@ -25,12 +28,12 @@ import {
     loadEmojiShortcodes,
     LocalizeText,
     PlaySound,
+    resolveChatMode,
     RoomChatFormatter
 } from '../../../api';
 import { getStoredChatTextSize } from '../../../components/room/widgets/chat-input/chatTextSize';
-import { SoundboardRoomMessageEvent } from '../../../events';
 import { useChatHistory } from './../../chat-history';
-import { useMessageEvent, useOctaneEvent, useUiEvent } from '../../events';
+import { useMessageEvent, useOctaneEvent } from '../../events';
 import { useUserDataSnapshot } from '../../session/useSessionSnapshots';
 import { useTranslation } from '../../translation';
 import { useRoom } from '../useRoom';
@@ -107,10 +110,19 @@ const useChatWidgetState = () => {
         [applyTranslationToBubble, buildTranslatedEntryPatch, updateChatEntry]
     );
 
-    const getScrollSpeed = useMemo(() => {
-        if (!chatSettings) return 6000;
+    const userBubbleWidth = useUserChatPreferencesStore((state) => state.bubbleWidth);
+    const userScrollSpeed = useUserChatPreferencesStore((state) => state.scrollSpeed);
+    const userChatMode = useUserChatPreferencesStore((state) => state.chatMode);
+    const chatMode = resolveChatMode(chatSettings?.mode ?? CHAT_MODE_FREE_FLOW, userChatMode);
+    const effectiveChatSettings = useMemo(
+        () => applyUserChatPreferences(chatSettings, userBubbleWidth, userScrollSpeed),
+        [chatSettings, userBubbleWidth, userScrollSpeed]
+    );
 
-        switch (chatSettings.speed) {
+    const getScrollSpeed = useMemo(() => {
+        if (!effectiveChatSettings) return 6000;
+
+        switch (effectiveChatSettings.speed) {
             case RoomChatSettings.CHAT_SCROLL_SPEED_FAST:
                 return 3000;
             case RoomChatSettings.CHAT_SCROLL_SPEED_NORMAL:
@@ -118,7 +130,7 @@ const useChatWidgetState = () => {
             case RoomChatSettings.CHAT_SCROLL_SPEED_SLOW:
                 return 12000;
         }
-    }, [chatSettings]);
+    }, [effectiveChatSettings]);
 
     useOctaneEvent<RoomSessionChatEvent>(RoomSessionChatEvent.CHAT_EVENT, async (event) => {
         const roomObject = GetRoomEngine().getRoomObject(roomSession.roomId, event.objectId, RoomObjectCategory.UNIT);
@@ -311,47 +323,6 @@ const useChatWidgetState = () => {
         });
     });
 
-    useUiEvent<SoundboardRoomMessageEvent>(SoundboardRoomMessageEvent.ROOM_MESSAGE, (event) => {
-        if (!roomSession) return;
-
-        const roomObject = GetRoomEngine().getRoomObject(roomSession.roomId, event.actorRoomIndex, RoomObjectCategory.UNIT);
-        const bubbleLocation = roomObject ? GetRoomObjectScreenLocation(roomSession.roomId, roomObject.id, RoomObjectCategory.UNIT) : { x: 0, y: 0 };
-        const message = LocalizeText('soundboard.room.played', ['user', 'sound'], [event.username, event.soundName]);
-        const bubble = new ChatBubbleMessage(
-            -1,
-            -1,
-            roomSession.roomId,
-            message,
-            RoomChatFormatter(message),
-            '',
-            bubbleLocation,
-            1,
-            SystemChatStyleEnum.BOT,
-            null,
-            null
-        );
-        bubble.textSize = getStoredChatTextSize();
-
-        setChatMessages((previous) => {
-            const next = [...previous, bubble];
-
-            if (next.length > CHAT_MESSAGES_MAX) next.shift();
-
-            return next;
-        });
-
-        addChatEntry({
-            id: -1,
-            webId: -1,
-            entityId: event.actorRoomIndex,
-            name: LocalizeText('soundboard.title'),
-            message,
-            roomId: roomSession.roomId,
-            timestamp: ChatHistoryCurrentDate(),
-            type: ChatEntryType.TYPE_ROOM_INFO
-        });
-    });
-
     useOctaneEvent<RoomDragEvent>(RoomDragEvent.ROOM_DRAG, (event) => {
         if (!chatMessages.length || event.roomId !== roomSession.roomId) return;
 
@@ -390,7 +361,7 @@ const useChatWidgetState = () => {
         };
     }, []);
 
-    return { chatMessages, setChatMessages, chatSettings, getScrollSpeed };
+    return { chatMessages, setChatMessages, chatSettings: effectiveChatSettings, getScrollSpeed, chatMode };
 };
 
 export const useChatWidget = useChatWidgetState;

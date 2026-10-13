@@ -1,7 +1,7 @@
 import { RoomDeleteComposer, RoomSettingsSaveErrorEvent, RoomSettingsSaveErrorParser, YouTubeRoomSettingsComposer, YouTubeRoomSettingsEvent } from '@octane/renderer';
 import { FC, useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { CreateLinkEvent, GetMaxVisitorsList, getYoutubeRoomEnabled, IRoomData, LocalizeText, SendMessageComposer, setYoutubeRoomEnabled } from '../../../../api';
+import { CreateLinkEvent, GetMaxVisitorsList, getYoutubeRoomEnabled, IRoomData, LocalizeText, localizeWithFallback, SendMessageComposer, setYoutubeRoomEnabled } from '../../../../api';
 import { Column, Flex, Text } from '../../../../common';
 import { useMessageEvent, useNavigatorData, useNotification, useSoundboard } from '../../../../hooks';
 
@@ -25,9 +25,9 @@ export const NavigatorRoomSettingsBasicTabView: FC<NavigatorRoomSettingsTabViewP
     const [tagIndex, setTagIndex] = useState(0);
     const [typeError, setTypeError] = useState<string>('');
     const [youtubeEnabled, setYoutubeEnabled] = useState(getYoutubeRoomEnabled());
-    const { showConfirm = null } = useNotification();
-    const { categories } = useNavigatorData();
-    const { enabled: soundboardEnabled, setRoomEnabled: setSoundboardEnabled } = useSoundboard();
+    const { showConfirm = null, simpleAlert = null } = useNotification();
+    const { categories, navigatorData } = useNavigatorData();
+    const { roomMode: soundboardRoomMode, setRoomMode: setSoundboardRoomMode } = useSoundboard();
 
     useMessageEvent<YouTubeRoomSettingsEvent>(YouTubeRoomSettingsEvent, (event) => {
         setYoutubeEnabled(event.getParser().youtubeEnabled);
@@ -58,8 +58,25 @@ export const NavigatorRoomSettingsBasicTabView: FC<NavigatorRoomSettingsTabViewP
     });
 
     const deleteRoom = () => {
+        // The server ignores deleting your home room, which looked like it worked.
+        if (navigatorData?.homeRoomId && roomData.roomId === navigatorData.homeRoomId) {
+            simpleAlert(
+                localizeWithFallback('navigator.delete.homeroom.body', 'This is your home room. Pick another home room before you delete it.'),
+                null,
+                null,
+                null,
+                localizeWithFallback('navigator.delete.homeroom.title', 'Home room')
+            );
+            return;
+        }
+
+        const enteredRoom = navigatorData?.enteredGuestRoom;
+        const isGroupBase = !!enteredRoom && enteredRoom.roomId === roomData.roomId && enteredRoom.habboGroupId > 0;
+        const confirmMessage = LocalizeText('navigator.roomsettings.deleteroom.confirm.message', ['room_name'], [roomData.roomName]);
+
         showConfirm(
-            LocalizeText('navigator.roomsettings.deleteroom.confirm.message', ['room_name'], [roomData.roomName]),
+            // Deleting a group's room deletes the group with it.
+            isGroupBase ? `${confirmMessage}\n\n${localizeWithFallback('group.deletebase.body', 'This room is the home of a group: the group will be deleted too.')}` : confirmMessage,
             () => {
                 SendMessageComposer(new RoomDeleteComposer(roomData.roomId));
 
@@ -243,16 +260,19 @@ export const NavigatorRoomSettingsBasicTabView: FC<NavigatorRoomSettingsTabViewP
                 />
                 <Text>{LocalizeText('widget.room.youtube.shared')}</Text>
             </Flex>
-            <Flex alignItems="center" gap={1}>
-                <input
+            <Column gap={1}>
+                <Text bold>{LocalizeText('soundboard.room.allow')}</Text>
+                <select
                     aria-label={LocalizeText('soundboard.room.allow')}
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={soundboardEnabled}
-                    onChange={(event) => setSoundboardEnabled(event.target.checked)}
-                />
-                <Text>{LocalizeText('soundboard.room.allow')}</Text>
-            </Flex>
+                    className="form-select form-select-sm"
+                    value={soundboardRoomMode}
+                    onChange={(event) => setSoundboardRoomMode(Number(event.target.value))}
+                >
+                    <option value="0">{LocalizeText('soundboard.room.mode.off')}</option>
+                    <option value="1">{LocalizeText('soundboard.room.mode.everyone')}</option>
+                    <option value="2">{LocalizeText('soundboard.room.mode.rights')}</option>
+                </select>
+            </Column>
             <Flex pointer alignItems="center" justifyContent="center" gap={1} onClick={deleteRoom}>
                 <FaTimes className="fa-icon shrink-0 text-[#a81a12]" />
                 <Text variant="danger" underline bold className="whitespace-nowrap">

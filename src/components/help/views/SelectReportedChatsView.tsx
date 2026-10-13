@@ -1,7 +1,7 @@
 import { RoomObjectType } from '@octane/renderer';
 import { FC, useMemo, useState } from 'react';
-import { ChatEntryType, IChatEntry, LocalizeText, ReportState, ReportType } from '../../../api';
-import { AutoGrid, Button, Column, Flex, LayoutGridItem, Text } from '../../../common';
+import { ChatEntryType, IChatEntry, localizeWithFallback, LocalizeText, ReportState, ReportType } from '../../../api';
+import { AutoGrid, Button, Column, Flex, LayoutAvatarImageView, LayoutGridItem, Text } from '../../../common';
 import { useChatHistory, useHelp } from '../../../hooks';
 
 export const SelectReportedChatsView: FC<{}> = (props) => {
@@ -43,6 +43,15 @@ export const SelectReportedChatsView: FC<{}> = (props) => {
         });
     };
 
+    // The user picked in the step before, shown over the list with a way to pick another.
+    const reportedUser = userChats[0] ?? null;
+
+    const changeUser = () => {
+        setActiveReport((prevValue) => {
+            return { ...prevValue, reportedUserId: -1, currentStep: ReportState.SELECT_USER };
+        });
+    };
+
     const back = () => {
         setActiveReport((prevValue) => {
             return { ...prevValue, currentStep: prevValue.currentStep - 1 };
@@ -55,6 +64,20 @@ export const SelectReportedChatsView: FC<{}> = (props) => {
                 <Text fontSize={4}>{LocalizeText('help.emergency.chat_report.subtitle')}</Text>
                 <Text>{LocalizeText('help.emergency.chat_report.description')}</Text>
             </div>
+            {reportedUser && activeReport.reportType !== ReportType.IM && (
+                <div className="octane-help-selected-user">
+                    <span className="octane-help-user__avatar">
+                        <LayoutAvatarImageView headOnly compactHead compactHeadSize={30} compactHeadPadding={0} direction={2} figure={reportedUser.look ?? ''} />
+                    </span>
+                    <span className="octane-help-selected-user__text">
+                        <span>{localizeWithFallback('help.cfh.selected_user.title', 'Selected user')}</span>
+                        <b>{reportedUser.name}</b>
+                    </span>
+                    <button className="help-link" type="button" onClick={changeUser}>
+                        {localizeWithFallback('help.cfh.selected_user.change', 'Select another user')}
+                    </button>
+                </div>
+            )}
             <Column gap={1} overflow="hidden">
                 {!userChats || (!userChats.length && <Text>{LocalizeText('help.cfh.error.no_user_data')}</Text>)}
                 {userChats.length > 0 && (

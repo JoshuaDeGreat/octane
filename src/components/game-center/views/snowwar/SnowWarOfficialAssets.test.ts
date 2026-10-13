@@ -56,7 +56,7 @@ describe('SnowWar official arena artwork', () => {
     });
 
     it('positions avatar names in the pre-zoom coordinate space', () => {
-        expect(css).toMatch(/\.snowwar-avatar__name\s*\{[^}]*top: -22px;/s);
+        expect(css).toMatch(/\.snowwar-avatar__name\s*\{[^}]*top: -37px;/s);
     });
 
     it('builds the weekly and all-time leaderboard from the official AIR artwork', () => {

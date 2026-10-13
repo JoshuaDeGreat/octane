@@ -5,15 +5,13 @@ import {
     GetRoomSessionManager,
     HabboWebTools,
     ILinkEventTracker,
-    MarkMentionsReadComposer,
     RemoveLinkEventTracker,
     RoomSessionEvent
 } from '@octane/renderer';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FC, useEffect, useState } from 'react';
-import { GetConfigurationValue, IsTouchDevice, SendMessageComposer } from '../api';
+import { GetConfigurationValue, IsTouchDevice } from '../api';
 import { useMentionMessages, useOctaneEventReducer } from '../hooks';
-import { markAllRead } from '../hooks/mentions/mentionsStore';
 import { AchievementsView } from './achievements/AchievementsView';
 import { GoogleAdsView } from './ads/GoogleAdsView';
 import { AvatarEditorView } from './avatar-editor';
@@ -139,12 +137,6 @@ export const MainView: FC<{}> = (props) =>
 
     useEffect(() =>
     {
-        const clearMentionsBadge = () =>
-        {
-            markAllRead();
-            SendMessageComposer(new MarkMentionsReadComposer(0, 0));
-        };
-
         const linkTracker: ILinkEventTracker = {
             linkReceived: (url: string) =>
             {
@@ -156,19 +148,12 @@ export const MainView: FC<{}> = (props) =>
                 {
                     case 'show':
                         setMentionsVisible(true);
-                        clearMentionsBadge();
                         return;
                     case 'hide':
                         setMentionsVisible(false);
                         return;
                     case 'toggle':
-                        setMentionsVisible((prevValue) =>
-                        {
-                            if (prevValue) return false;
-
-                            queueMicrotask(clearMentionsBadge);
-                            return true;
-                        });
+                        setMentionsVisible((prevValue) => !prevValue);
                         return;
                 }
             },
