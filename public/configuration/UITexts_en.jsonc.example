@@ -20,6 +20,7 @@
     "widget.buildheight.reset": "Reset (off)",
     "widget.buildheight.underpass": "Allow walking underneath placed furni",
     "widget.buildheight.underpass.min_height": "Raise the height to at least %height% to allow walking underneath.",
+    "navigator.roomsettings.allow_underpass": "Allow walking underneath furni placed in build mode",
     "gamecenter.players": "Players",
     "gamecenter.players.2to6": "2 to 6 players",
     "gamecenter.players.2to8": "2 to 8 players",
