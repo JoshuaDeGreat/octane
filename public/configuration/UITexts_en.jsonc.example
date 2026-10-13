@@ -1,6 +1,6 @@
 {
     // ------------------------------------------------------------------
-    // UITexts — English (en). Full UI text set (1481 keys),
+    // UITexts — English (en). Full UI text set (1483 keys),
     // parallel to UITexts_it.jsonc. Placeholders (%...%) kept verbatim.
     // ------------------------------------------------------------------
     "infostand.plant.rewater": "Re-water in",
@@ -1457,6 +1457,8 @@
     "snowwar.error.not_enough_players": "Not enough players to start.",
     "snowwar.error.no_tickets": "You have no games left.",
     "snowwar.error.internal": "Something went wrong, try again.",
+    "snowwar.error.idle_warning": "Are you still there? Move or throw a snowball, or you will be removed from the match.",
+    "snowwar.error.idle_removed": "You were removed from the match because you did nothing for too long.",
     "image.position.editor.title": "Image position",
     "image.position.editor.button": "Edit position",
     "image.position.editor.hint": "Drag the dot to move the image.",

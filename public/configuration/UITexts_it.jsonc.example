@@ -1642,6 +1642,8 @@
     "snowwar.error.not_enough_players": "Non ci sono abbastanza giocatori.",
     "snowwar.error.no_tickets": "Non hai più partite disponibili.",
     "snowwar.error.internal": "Qualcosa è andato storto, riprova.",
+    "snowwar.error.idle_warning": "Ci sei ancora? Muoviti o lancia una palla di neve, altrimenti verrai rimosso dalla partita.",
+    "snowwar.error.idle_removed": "Sei stato rimosso dalla partita perché sei rimasto inattivo troppo a lungo.",
     "image.position.editor.title": "Posizione immagine",
     "image.position.editor.button": "Modifica posizione",
     "image.position.editor.hint": "Trascina il punto per spostare la foto.",

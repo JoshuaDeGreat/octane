@@ -1459,6 +1459,8 @@
     "snowwar.error.not_enough_players": "Nicht genügend Spieler zum Starten.",
     "snowwar.error.no_tickets": "Du hast keine Spiele mehr übrig.",
     "snowwar.error.internal": "Etwas ist schiefgelaufen, versuch es erneut.",
+    "snowwar.error.idle_warning": "Bist du noch da? Lauf oder wirf einen Schneeball, sonst wirst du aus dem Spiel entfernt.",
+    "snowwar.error.idle_removed": "Du wurdest aus dem Spiel entfernt, weil du zu lange nichts getan hast.",
     "image.position.editor.title": "Bildposition",
     "image.position.editor.button": "Position bearbeiten",
     "image.position.editor.hint": "Ziehe den Punkt, um das Bild zu verschieben.",

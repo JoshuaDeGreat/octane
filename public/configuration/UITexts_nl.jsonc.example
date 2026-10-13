@@ -1,5 +1,5 @@
 {
-    // UITexts — Dutch (nl). Full UI text set (1481 keys), parallel to UITexts_it.jsonc. Placeholders (%...%) kept verbatim.
+    // UITexts — Dutch (nl). Full UI text set (1483 keys), parallel to UITexts_it.jsonc. Placeholders (%...%) kept verbatim.
     "infostand.plant.rewater": "Opnieuw water over",
     "infostand.plant.dies": "Sterft over",
     "infostand.plant.ready": "Klaar",
@@ -1452,6 +1452,8 @@
     "snowwar.error.not_enough_players": "Niet genoeg spelers om te starten.",
     "snowwar.error.no_tickets": "Je hebt geen spellen meer over.",
     "snowwar.error.internal": "Er ging iets mis, probeer het opnieuw.",
+    "snowwar.error.idle_warning": "Ben je er nog? Loop of gooi een sneeuwbal, anders word je uit de wedstrijd gehaald.",
+    "snowwar.error.idle_removed": "Je bent uit de wedstrijd gehaald omdat je te lang niets deed.",
     "image.position.editor.title": "Afbeeldingspositie",
     "image.position.editor.button": "Positie bewerken",
     "image.position.editor.hint": "Sleep de stip om de afbeelding te verplaatsen.",

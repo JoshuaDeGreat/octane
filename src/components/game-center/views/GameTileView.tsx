@@ -1,22 +1,9 @@
 import { GameConfigurationData, JoinQueueMessageComposer } from '@octane/renderer';
 import { FC } from 'react';
-import { ColorUtils, GetConfigurationValue, LocalizeText, SendMessageComposer } from '../../../api';
+import { ColorUtils, GetConfigurationValue, SendMessageComposer } from '../../../api';
 import snowStormLogo from '../../../assets/images/snowstorm/snowstorm.png';
 import { useGameCenter, useSnowWar } from '../../../hooks';
-
-const localizeWithFallback = (key: string, fallback: string) =>
-{
-    const text = LocalizeText(key);
-    return text && text !== key ? text : fallback;
-};
-
-const ERROR_TEXTS: Record<number, [string, string]> = {
-    1: ['snowwar.error.queue_full', 'The queue is full, try again soon!'],
-    2: ['snowwar.error.already_in_game', 'You are already in a game.'],
-    3: ['snowwar.error.not_enough_players', 'Not enough players to start.'],
-    4: ['snowwar.error.no_tickets', 'You have no games left.'],
-    5: ['snowwar.error.internal', 'Something went wrong, try again.'],
-};
+import { localizeWithFallback, snowWarErrorText } from './snowwar/SnowWarErrorTexts';
 
 /**
  * One 275x250 game card in the game center hub. Play joins the game's queue
@@ -46,7 +33,7 @@ export const GameTileView: FC<{ game: GameConfigurationData }> = ({ game }) =>
 
     const title = localizeWithFallback(`gamecenter.${game.gameNameId}.description_title`, game.gameNameId);
     const description = localizeWithFallback(`gamecenter.${game.gameNameId}.description_content`, '');
-    const errorEntry = (isSnowWar && (phase === 'idle') && errorCode) ? (ERROR_TEXTS[errorCode] ?? ERROR_TEXTS[5]) : null;
+    const errorText = (isSnowWar && (phase === 'idle') && errorCode) ? snowWarErrorText(errorCode) : null;
 
     return (
         <div className="game-tile">
@@ -101,7 +88,7 @@ export const GameTileView: FC<{ game: GameConfigurationData }> = ({ game }) =>
                         )}
                     </div>
                 )}
-                {errorEntry && <div className="game-tile__error">{localizeWithFallback(errorEntry[0], errorEntry[1])}</div>}
+                {errorText && <div className="game-tile__error">{errorText}</div>}
             </div>
         </div>
     );

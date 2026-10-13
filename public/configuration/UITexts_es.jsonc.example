@@ -1,5 +1,5 @@
 {
-    // UITexts — Spanish (es). Full UI text set (1481 keys), parallel to UITexts_it.jsonc. Placeholders (%...%) kept verbatim.
+    // UITexts — Spanish (es). Full UI text set (1483 keys), parallel to UITexts_it.jsonc. Placeholders (%...%) kept verbatim.
     "infostand.plant.rewater": "Regar de nuevo en",
     "infostand.plant.dies": "Muere en",
     "infostand.plant.ready": "Listo",
@@ -1452,6 +1452,8 @@
     "snowwar.error.not_enough_players": "No hay suficientes jugadores para empezar.",
     "snowwar.error.no_tickets": "No te quedan partidas.",
     "snowwar.error.internal": "Algo salió mal, inténtalo de nuevo.",
+    "snowwar.error.idle_warning": "¿Sigues ahí? Muévete o lanza una bola de nieve, o serás expulsado de la partida.",
+    "snowwar.error.idle_removed": "Has sido expulsado de la partida por no hacer nada durante demasiado tiempo.",
     "image.position.editor.title": "Posición de la imagen",
     "image.position.editor.button": "Editar posición",
     "image.position.editor.hint": "Arrastra el punto para mover la imagen.",

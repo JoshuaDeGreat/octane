@@ -1,5 +1,5 @@
 {
-    // UITexts — Arabic (ar). Full UI text set (1481 keys), parallel to UITexts_it.jsonc. Placeholders (%...%) kept verbatim.
+    // UITexts — Arabic (ar). Full UI text set (1483 keys), parallel to UITexts_it.jsonc. Placeholders (%...%) kept verbatim.
     "infostand.plant.rewater": "الري مجددًا خلال",
     "infostand.plant.dies": "تموت خلال",
     "infostand.plant.ready": "جاهز",
@@ -1452,6 +1452,8 @@
     "snowwar.error.not_enough_players": "لا يوجد لاعبون كافون للبدء.",
     "snowwar.error.no_tickets": "لم تعد لديك ألعاب متبقية.",
     "snowwar.error.internal": "حدث خطأ ما، حاول مجدداً.",
+    "snowwar.error.idle_warning": "هل ما زلت هنا؟ تحرّك أو ارمِ كرة ثلج، وإلا فستتم إزالتك من المباراة.",
+    "snowwar.error.idle_removed": "تمت إزالتك من المباراة لأنك لم تفعل شيئاً لفترة طويلة.",
     "image.position.editor.title": "موضع الصورة",
     "image.position.editor.button": "تعديل الموضع",
     "image.position.editor.hint": "اسحب النقطة لتحريك الصورة.",
