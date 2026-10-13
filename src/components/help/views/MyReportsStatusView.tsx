@@ -11,21 +11,18 @@ const formatTime = (time: number): string => (time > 0 ? new Date(time).toLocale
 const canAppeal = (report: MyReportStatusData): boolean =>
     report.closeTime > 0 && !report.sanctioned && report.appealStatus === MyReportStatusData.APPEAL_NONE;
 
-const statusText = (report: MyReportStatusData): string => {
-    switch (report.appealStatus) {
-        case MyReportStatusData.APPEAL_PENDING:
-            return localizeWithFallback('help.myreports.status.appeal.pending', 'Appeal waiting for a moderator');
-        case MyReportStatusData.APPEAL_ACTION:
-            return localizeWithFallback('help.myreports.status.appeal.action', 'Appeal reviewed: action taken');
-        case MyReportStatusData.APPEAL_NO_ACTION:
-            return localizeWithFallback('help.myreports.status.appeal.noaction', 'Appeal reviewed: no action');
+/** The state of a report and, once it is decided, what came of it: the texts of the official table. */
+const statusText = (report: MyReportStatusData): { state: string; outcome: string } => {
+    if (report.appealStatus !== MyReportStatusData.APPEAL_NONE) {
+        return { state: localizeWithFallback('report.status.state.appealed', 'Appealed'), outcome: '' };
     }
 
-    if (report.closeTime <= 0) return localizeWithFallback('help.myreports.status.pending', 'Waiting for a moderator');
+    if (report.closeTime <= 0) return { state: localizeWithFallback('report.status.state.pending', 'Pending'), outcome: '' };
 
-    return report.sanctioned
-        ? localizeWithFallback('help.myreports.status.sanctioned', 'Action taken')
-        : localizeWithFallback('help.myreports.status.noaction', 'No action taken');
+    return {
+        state: localizeWithFallback('report.status.state.decided', 'Decided'),
+        outcome: report.sanctioned ? localizeWithFallback('report.status.info.action', 'Action taken') : localizeWithFallback('report.status.info.no_action', 'No action taken')
+    };
 };
 
 /** The reports this player filed and what became of them, with an appeal for the ones closed without action. */
@@ -37,39 +34,46 @@ export const MyReportsStatusView: FC<{}> = () => {
     if (!reports) return null;
 
     return (
-        <OctaneCardView className="octane-help min-w-0 w-[min(520px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]" theme="primary-slim" uniqueKey="help-my-reports">
-            <OctaneCardHeaderView headerText={localizeWithFallback('help.main.my.reports.status', 'My reports')} onCloseClick={() => setReports(null)} />
+        <OctaneCardView
+            className="octane-help octane-my-reports min-w-0 w-[min(538px,calc(100vw-16px))] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]"
+            theme="primary-slim"
+            uniqueKey="help-my-reports"
+        >
+            <OctaneCardHeaderView headerText={localizeWithFallback('report.status.title', 'My reports')} onCloseClick={() => setReports(null)} />
             <OctaneCardContentView className="text-black">
-                {!reports.length && <div>{localizeWithFallback('help.myreports.empty', 'You have not reported anything yet.')}</div>}
+                {!reports.length && <div>{localizeWithFallback('report.status.no_reports', 'Nothing to show')}</div>}
                 {reports.length > 0 && (
-                    <div className="max-h-[360px] overflow-y-auto">
-                        <table className="w-full text-sm">
+                    <div className="octane-my-reports__scroll">
+                        <table className="octane-my-reports__table">
                             <thead>
-                                <tr className="text-left">
-                                    <th>{localizeWithFallback('help.myreports.date', 'Date')}</th>
-                                    <th>{localizeWithFallback('help.myreports.reported', 'Reported')}</th>
-                                    <th>{localizeWithFallback('help.myreports.status', 'Status')}</th>
-                                    <th />
+                                <tr>
+                                    <th className="is-date">{localizeWithFallback('report.status.col.report_date', 'Report date')}</th>
+                                    <th className="is-account">{localizeWithFallback('report.status.col.reported_account', 'Account')}</th>
+                                    <th>{localizeWithFallback('report.status.col.report_reason', 'Reason')}</th>
+                                    <th className="is-status">{localizeWithFallback('report.status.col.report_status', 'Status')}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {reports.map((report) => (
-                                    <tr key={report.id} className="border-t border-black/10 align-top">
-                                        <td className="whitespace-nowrap pr-2">{formatTime(report.creationTime)}</td>
-                                        <td className="pr-2">
-                                            <div className="font-bold">{report.reportedAccountName || '-'}</div>
-                                            {report.userMessage && <div className="break-words text-xs text-[#595959]">{report.userMessage}</div>}
-                                        </td>
-                                        <td className="pr-2">{statusText(report)}</td>
-                                        <td className="text-right">
-                                            {canAppeal(report) && (
-                                                <OctaneButton className="text-xs" onClick={() => SendMessageComposer(new AppealReportMessageComposer(report.id))}>
-                                                    {localizeWithFallback('help.myreports.appeal', 'Appeal')}
-                                                </OctaneButton>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                {reports.map((report) => {
+                                    const status = statusText(report);
+
+                                    return (
+                                        <tr key={report.id}>
+                                            <td className="is-date">{formatTime(report.creationTime)}</td>
+                                            <td className="is-account">{report.reportedAccountName || '-'}</td>
+                                            <td className="is-reason">{report.userMessage}</td>
+                                            <td className="is-status">
+                                                <div className="font-bold">{status.state}</div>
+                                                {status.outcome && <div>{status.outcome}</div>}
+                                                {canAppeal(report) && (
+                                                    <OctaneButton className="octane-my-reports__appeal" onClick={() => SendMessageComposer(new AppealReportMessageComposer(report.id))}>
+                                                        {localizeWithFallback('report.status.button.appeal', 'Appeal')}
+                                                    </OctaneButton>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
