@@ -1,10 +1,12 @@
 import { RoomObjectCategory } from '@octane/renderer';
 import { FC } from 'react';
-import { FaTimes } from 'react-icons/fa';
 import { LocalizeText, MessengerRequest } from '../../../../api';
-import { Button, Text } from '../../../../common';
 import { ObjectLocationView } from '../object-location/ObjectLocationView';
 
+/**
+ * The friend request over the head of the sender, drawn like the classic instant request: a yellow
+ * bubble with the name, a close cross, "decline" as an underlined link and a green accept button.
+ */
 export const FriendRequestDialogView: FC<{
     roomIndex: number;
     request: MessengerRequest;
@@ -15,22 +17,30 @@ export const FriendRequestDialogView: FC<{
 
     return (
         <ObjectLocationView category={RoomObjectCategory.UNIT} objectId={roomIndex}>
-            <div className="octane-friend-request-dialog octane-context-menu p-2 bg-[#1C323F] border-2 border-white/50 rounded-[10px] max-w-[200px]">
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-2 justify-between">
-                        <Text fontSize={6} variant="white">
-                            {LocalizeText('widget.friendrequest.from', ['username'], [request.name])}
-                        </Text>
-                        <FaTimes className="cursor-pointer fa-icon" onClick={(event) => hideFriendRequest(request.requesterUserId)} />
-                    </div>
-                    <div className="flex justify-end gap-1">
-                        <Button variant="danger" onClick={(event) => requestResponse(request.requesterUserId, false)}>
-                            {LocalizeText('widget.friendrequest.decline')}
-                        </Button>
-                        <Button variant="success" onClick={(event) => requestResponse(request.requesterUserId, true)}>
-                            {LocalizeText('widget.friendrequest.accept')}
-                        </Button>
-                    </div>
+            <div className="octane-friend-request">
+                <svg className="octane-friend-request__icon" viewBox="0 0 15 15" aria-hidden="true">
+                    <circle cx="7.5" cy="4.5" r="3" />
+                    <path d="M1.5 14c0-3.4 2.7-5.5 6-5.5s6 2.1 6 5.5z" />
+                </svg>
+                <div className="octane-friend-request__text">{LocalizeText('widget.friendrequest.from', ['username'], [request.name])}</div>
+                <button
+                    aria-label={LocalizeText('generic.close')}
+                    className="octane-friend-request__close"
+                    type="button"
+                    onClick={() => hideFriendRequest(request.requesterUserId)}
+                >
+                    ×
+                </button>
+                <div className="octane-friend-request__actions">
+                    <button className="octane-friend-request__decline" type="button" onClick={() => requestResponse(request.requesterUserId, false)}>
+                        {LocalizeText('widget.friendrequest.decline')}
+                    </button>
+                    <button className="octane-friend-request__accept" type="button" onClick={() => requestResponse(request.requesterUserId, true)}>
+                        <span aria-hidden="true" className="octane-friend-request__check">
+                            ✓
+                        </span>
+                        {LocalizeText('widget.friendrequest.accept')}
+                    </button>
                 </div>
             </div>
         </ObjectLocationView>

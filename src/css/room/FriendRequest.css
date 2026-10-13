@@ -1,0 +1,98 @@
+/* The friend request over the head of a user, in the classic instant request: a yellow bubble, the
+   name in bold white, "decline" as an underlined link and an accept button with a green check. */
+.octane-friend-request {
+    position: absolute;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: 15px 1fr 19px;
+    column-gap: 5px;
+    width: 197px;
+    padding: 5px 6px 7px 5px;
+    border: 1px solid #b88b00;
+    border-radius: 6px;
+    background: #fac919;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+    color: #ffffff;
+    font-family: Ubuntu, sans-serif;
+    font-size: 12px;
+    line-height: 14px;
+}
+
+.octane-friend-request__icon {
+    width: 15px;
+    height: 15px;
+    margin-top: 5px;
+    fill: #ffffff;
+}
+
+.octane-friend-request__text {
+    min-width: 0;
+    padding-top: 5px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.octane-friend-request .octane-friend-request__close {
+    width: 19px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #ffffff;
+    font-size: 18px;
+    line-height: 18px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+}
+
+.octane-friend-request__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+}
+
+.octane-friend-request .octane-friend-request__decline {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #ffffff;
+    font-family: Ubuntu, sans-serif;
+    font-size: 11px;
+    text-decoration: underline;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+}
+
+.octane-friend-request .octane-friend-request__accept {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 90px;
+    height: 24px;
+    padding: 0 6px;
+    border: 5px solid transparent;
+    border-image: url("@/assets/images/habbicons/slices/button-shiny-black-default.png") 5 fill / 5px stretch;
+    background: transparent;
+    color: #ffffff;
+    font-family: Ubuntu, sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    image-rendering: var(--octane-pixel-art, pixelated);
+}
+
+.octane-friend-request .octane-friend-request__accept:hover {
+    border-image-source: url("@/assets/images/habbicons/slices/button-shiny-black-hover.png");
+}
+
+.octane-friend-request .octane-friend-request__accept:active {
+    border-image-source: url("@/assets/images/habbicons/slices/button-shiny-black-pressed.png");
+}
+
+.octane-friend-request__check {
+    color: #0aa000;
+    font-weight: 700;
+}
