@@ -6,6 +6,7 @@ import { useRoom, useRoomKeyboardMovement } from '../../hooks';
 import { classNames } from '../../layout';
 import { RoomSpectatorView } from './spectator/RoomSpectatorView';
 import { RoomWidgetsView } from './widgets/RoomWidgetsView';
+import { WiredLabelOverlayView } from './widgets/wired-label/WiredLabelOverlayView';
 import { WiredLeaderboardOverlayView } from './widgets/wired-leaderboard/WiredLeaderboardOverlayView';
 import { WiredVariableFxOverlayView } from './widgets/wired-fx/WiredVariableFxOverlayView';
 
@@ -143,6 +144,7 @@ export const RoomView: FC<{}> = (props) => {
                 <motion.div className="w-full h-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <div ref={elementRef} className="w-full h-full">
                         <WiredLeaderboardOverlayView />
+                        <WiredLabelOverlayView />
                         <WiredVariableFxOverlayView />
                         {roomSession instanceof RoomSession && (
                             <>

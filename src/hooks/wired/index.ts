@@ -3,3 +3,5 @@ export * from './useWiredVariableFxEvents';
 export * from './wiredVariableFxStore';
 export * from './useWiredLeaderboardEvents';
 export * from './wiredLeaderboardStore';
+export * from './useWiredLabelEvents';
+export * from './wiredLabelStore';

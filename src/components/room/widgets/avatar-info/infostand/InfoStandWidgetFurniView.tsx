@@ -48,7 +48,7 @@ import {
     Text,
     UserProfileIconView
 } from '../../../../../common';
-import { useFurniPickupGuard, useFurnitureRecolorWidget, useHasPermission, useMessageEvent, useOctaneEvent, useRareValues, useRoom, useWiredTools } from '../../../../../hooks';
+import { useFurniPickupGuard, useFurnitureRecolorWidget, useHasPermission, useMessageEvent, useOctaneEvent, useRareValues, useRoom, useWiredLabelStore, useWiredTools } from '../../../../../hooks';
 import { OctaneInput } from '../../../../../layout';
 import statHeightIcon from '../../../../../assets/images/infostand/stat-height.png';
 import statIdIcon from '../../../../../assets/images/infostand/stat-id.png';
@@ -169,7 +169,9 @@ function getValidRoomObjectDirection(roomObject: any, isPositive: boolean) {
 export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = (props) => {
     const { avatarInfo = null, onClose = null } = props;
     const { roomSession = null } = useRoom();
-    const { openInspectionForFurni, showInspectButton } = useWiredTools();
+    const { openInspectionForFurni, showInspectButton, roomSettings = null } = useWiredTools();
+    const hasLabel = useWiredLabelStore((state) => !!avatarInfo && !avatarInfo.isWallItem && !!state.labels[avatarInfo.id]);
+    const openLabelSettings = useWiredLabelStore((state) => state.openSettings);
     const isModerator = useHasPermission('acc_anyroomowner');
     const { getValue: getRareValue } = useRareValues();
     const rareValue = useMemo(() => (avatarInfo ? getRareValue(avatarInfo.spriteId) : null), [avatarInfo, getRareValue]);
@@ -1202,6 +1204,11 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = (prop
                 {canRotate && (
                     <Button variant="dark" onClick={(event) => processButtonAction('rotate')}>
                         {LocalizeText('infostand.button.rotate')}
+                    </Button>
+                )}
+                {hasLabel && !!roomSettings?.canModify && (
+                    <Button variant="dark" onClick={() => openLabelSettings(avatarInfo.id)}>
+                        {localizeWithFallback('infostand.button.label_settings', 'Settings')}
                     </Button>
                 )}
                 {canRecolor && (

@@ -999,6 +999,13 @@ export class WiredVariableFxConfigsRemovedEvent extends StubClass {}
 export class WiredLeaderboardSnapshotEvent extends StubClass {}
 export class WiredLeaderboardChunkEvent extends StubClass {}
 export class WiredLeaderboardSubscribeComposer extends RecordingComposer {}
+export class WiredLabelsEvent extends StubClass {}
+export class WiredLabelsUpdateEvent extends StubClass {}
+export class WiredLabelSaveTextComposer extends RecordingComposer {}
+export class WiredLabelSaveSettingsComposer extends RecordingComposer {}
+export const WIRED_LABEL_COLORS = [ 4278912, 2651759, 4157508, 8416562, 8409402, 8404554, 6834048, 5592405 ];
+export const WIRED_LABEL_VISIBILITY_EVERYONE = 0;
+export const WIRED_LABEL_VISIBILITY_WIRED_INSPECTORS = 1;
 export class WiredVariableFxStatusEvent extends StubClass {}
 export class WiredVariableFxStatusRemovedEvent extends StubClass {}
 export const wiredVariableFxStatusKey = (status: { configId: number; variableId: string; userEntity: boolean; entityId: number }) =>
