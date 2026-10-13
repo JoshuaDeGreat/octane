@@ -17,6 +17,8 @@ import {
     filterFurnitureGroupItems,
     FURNI_MAIN_FILTER,
     FurniMainFilter,
+    FurnitureSection,
+    inFurnitureSection,
     getCachedBadgeRarityStat,
     isObjectMoverRequested,
     LocalizeBadgeName,
@@ -50,10 +52,21 @@ const TAB_BOTS = 'inventory.bots';
 const TAB_PETS = 'inventory.furni.tab.pets';
 const TAB_BADGES = 'inventory.badges';
 const TAB_PREFIXES = 'inventory.prefixes';
-const TABS = [TAB_FURNITURE, TAB_PETS, TAB_BADGES, TAB_BOTS, TAB_PREFIXES];
+const TAB_COLLECTIBLES = 'inventory.collectibles';
+const TAB_RENTABLES = 'inventory.rentables';
+// The order of the official inventory, with the prefixes of this client last.
+const TABS = [TAB_FURNITURE, TAB_COLLECTIBLES, TAB_RENTABLES, TAB_PETS, TAB_BADGES, TAB_BOTS, TAB_PREFIXES];
+
+const SECTION_BY_TAB: Record<string, FurnitureSection> = {
+    [TAB_FURNITURE]: 'furni',
+    [TAB_COLLECTIBLES]: 'collectibles',
+    [TAB_RENTABLES]: 'rentables'
+};
 
 const TAB_LABEL_FALLBACK: Record<string, string> = {
     [TAB_FURNITURE]: 'Furniture',
+    [TAB_COLLECTIBLES]: 'Collectibles',
+    [TAB_RENTABLES]: 'Rentables',
     [TAB_PETS]: 'Pets',
     [TAB_BADGES]: 'Badges',
     [TAB_BOTS]: 'Bots',
@@ -71,6 +84,8 @@ const tabLabel = (name: string) => {
 const TAB_BY_CODE: Record<string, string> = {
     furni: TAB_FURNITURE,
     furniture: TAB_FURNITURE,
+    collectibles: TAB_COLLECTIBLES,
+    rentables: TAB_RENTABLES,
     pets: TAB_PETS,
     badges: TAB_BADGES,
     prefixes: TAB_PREFIXES,
@@ -79,17 +94,17 @@ const TAB_BY_CODE: Record<string, string> = {
 
 const UNSEEN_BY_TAB: Record<string, number> = {
     [TAB_FURNITURE]: UnseenItemCategory.FURNI,
+    [TAB_RENTABLES]: UnseenItemCategory.RENTABLE,
     [TAB_PETS]: UnseenItemCategory.PET,
     [TAB_BADGES]: UnseenItemCategory.BADGE,
     [TAB_BOTS]: UnseenItemCategory.BOT,
     [TAB_PREFIXES]: UnseenItemCategory.PREFIX
 };
 
-// AIR 13 keeps rented furni in the furni tab, so their unseen counter lands with owned furni.
 const getTabUnseenCount = (name: string, getCount: (category: number) => number) => {
     const category = UNSEEN_BY_TAB[name];
-    const count = getCount(category);
-    return category === UnseenItemCategory.FURNI ? count + getCount(UnseenItemCategory.RENTABLE) : count;
+
+    return category === undefined ? 0 : getCount(category);
 };
 
 const RARITY_TO_ID: Record<string, number> = {
@@ -133,16 +148,18 @@ export const InventoryView: FC<{}> = () => {
         }
     }, [currentTab]);
 
+    const section = SECTION_BY_TAB[currentTab] ?? null;
+
     useEffect(() => {
-        if (currentTab !== TAB_FURNITURE) return;
+        if (!section) return;
         setTypeFilter('any');
-    }, [mainFilter, currentTab]);
+    }, [mainFilter, section]);
 
     const filteredGroupItems = useMemo(() => {
-        if (currentTab !== TAB_FURNITURE) return groupItems;
+        if (!section) return groupItems;
 
-        return filterFurnitureGroupItems(groupItems, appliedSearch, mainFilter as FurniMainFilter, typeFilter);
-    }, [groupItems, appliedSearch, mainFilter, typeFilter, currentTab]);
+        return filterFurnitureGroupItems(inFurnitureSection(groupItems, section), appliedSearch, mainFilter as FurniMainFilter, typeFilter);
+    }, [groupItems, appliedSearch, mainFilter, typeFilter, section]);
 
     const filteredBadgeCodes = useMemo(() => {
         const comparison = appliedSearch.toLocaleLowerCase().trim();
@@ -249,7 +266,7 @@ export const InventoryView: FC<{}> = () => {
 
     if (!isVisible) return null;
 
-    const showFilter = !isTrading && !isWiredTrading && ((currentTab === TAB_FURNITURE && groupItems.length > 0) || currentTab === TAB_BADGES);
+    const showFilter = !isTrading && !isWiredTrading && ((section !== null && groupItems.length > 0) || currentTab === TAB_BADGES);
 
     return (
         <>
@@ -293,8 +310,8 @@ export const InventoryView: FC<{}> = () => {
                                     onSearchApply={setAppliedSearch}
                                 />
                             )}
-                            <div className={`octane-inventory-content ${currentTab === TAB_FURNITURE ? 'is-furniture' : ''}`}>
-                                {currentTab === TAB_FURNITURE && (
+                            <div className={`octane-inventory-content ${section ? 'is-furniture' : ''}`}>
+                                {section && (
                                     <InventoryFurnitureView filteredGroupItems={filteredGroupItems} roomPreviewer={roomPreviewer} roomSession={roomSession} />
                                 )}
                                 {currentTab === TAB_PETS && <InventoryPetView roomPreviewer={roomPreviewer} roomSession={roomSession} />}

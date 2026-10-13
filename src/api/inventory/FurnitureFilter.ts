@@ -159,3 +159,22 @@ export const filterFurnitureGroupItems = (groupItems: GroupItem[], searchValue: 
         return [name, description, chestName].some((value) => value.toLowerCase().includes(comparison));
     });
 };
+
+/** The three furniture sections of the official inventory: owned furni, collectibles and rentables. */
+export type FurnitureSection = 'furni' | 'collectibles' | 'rentables';
+
+const isRentableGroup = (item: GroupItem): boolean => !!item.getLastItem()?.rentable;
+
+const isCollectibleGroup = (item: GroupItem): boolean => !isRentableGroup(item) && (item.getLastItem()?.stuffData?.uniqueNumber ?? 0) > 0;
+
+/** What a furniture section holds: a rented item is only a rentable, a numbered one only a collectible. */
+export const inFurnitureSection = (groupItems: GroupItem[], section: FurnitureSection): GroupItem[] => {
+    switch (section) {
+        case 'rentables':
+            return groupItems.filter(isRentableGroup);
+        case 'collectibles':
+            return groupItems.filter(isCollectibleGroup);
+        default:
+            return groupItems.filter((item) => !isRentableGroup(item) && !isCollectibleGroup(item));
+    }
+};

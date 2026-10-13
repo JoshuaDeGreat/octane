@@ -12,9 +12,9 @@
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
-    width: 490px !important;
-    min-width: 490px !important;
-    max-width: 490px !important;
+    width: 560px !important;
+    min-width: 560px !important;
+    max-width: 560px !important;
     height: 342px !important;
     min-height: 300px !important;
     max-height: min(90vh, 720px) !important;
@@ -80,13 +80,13 @@
 
 .octane-inventory-window .octane-inventory-tabs-shell .octane-card-tab-item {
     min-width: 0 !important;
-    flex: 0 0 auto;
+    flex: 0 1 auto; /* seven tabs share the width: the labels give way only when even this is short */
     height: 32px !important;
     min-height: 32px !important;
     max-height: 32px !important;
     /* 9px of the side padding is the tab's cap bitmap. */
-    padding: 7px 12px 10px !important;
-    font-size: 12px !important;
+    padding: 7px 10px 10px !important;
+    font-size: 11px !important;
     line-height: 17px !important;
     overflow: hidden;
     border-radius: 0 !important;
