@@ -1064,6 +1064,15 @@ export class WiredActionDefinition extends Triggerable {
         return this._delayInPulses;
     }
 }
+export class WiredAddonDefinition extends Triggerable {}
+export class WiredSelectorDefinition extends Triggerable {}
+export class WiredVariableDefinition extends Triggerable {}
+export class WiredFurniAddonEvent extends StubClass {}
+export class WiredFurniSelectorEvent extends StubClass {}
+export class WiredFurniVariableEvent extends StubClass {}
+export class UpdateAddonMessageComposer extends StubClass {}
+export class UpdateSelectorMessageComposer extends StubClass {}
+export class UpdateVariableMessageComposer extends StubClass {}
 export class TriggerDefinition extends Triggerable {
     _triggerConf = 0;
     get code() {

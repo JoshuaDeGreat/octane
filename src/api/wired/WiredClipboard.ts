@@ -1,7 +1,7 @@
-import { ConditionDefinition, Triggerable, TriggerDefinition, WiredActionDefinition } from '@octane/renderer';
+import { ConditionDefinition, TriggerDefinition, Triggerable, WiredActionDefinition, WiredAddonDefinition, WiredSelectorDefinition, WiredVariableDefinition } from '@octane/renderer';
 
 /** Which of the three holders a box belongs to; a clipboard entry only pastes into the same holder and code. */
-export type WiredHolder = 'action' | 'condition' | 'trigger' | 'unknown';
+export type WiredHolder = 'action' | 'condition' | 'trigger' | 'addon' | 'selector' | 'variable' | 'unknown';
 
 /** What a box's settings look like off the box: the same four things the save packet carries. */
 export interface WiredClipboardEntry {
@@ -20,6 +20,9 @@ export interface WiredTriggerableData {
 }
 
 export const wiredHolderOf = (triggerable: Triggerable): WiredHolder => {
+    if (triggerable instanceof WiredAddonDefinition) return 'addon';
+    if (triggerable instanceof WiredSelectorDefinition) return 'selector';
+    if (triggerable instanceof WiredVariableDefinition) return 'variable';
     if (triggerable instanceof WiredActionDefinition) return 'action';
     if (triggerable instanceof TriggerDefinition) return 'trigger';
     if (triggerable instanceof ConditionDefinition) return 'condition';
@@ -42,7 +45,7 @@ export const withTriggerableData = <T extends Triggerable>(triggerable: T, data:
     if (data.intParams !== undefined) fields._intParams = [...data.intParams];
     if (data.stringParam !== undefined) fields._stringParam = data.stringParam;
     if (data.furniIds !== undefined) fields._stuffIds = [...data.furniIds];
-    if (data.delayInPulses !== undefined && triggerable instanceof WiredActionDefinition) fields._delayInPulses = data.delayInPulses;
+    if (data.delayInPulses !== undefined && wiredHolderOf(triggerable) === 'action') fields._delayInPulses = data.delayInPulses;
 
     return clone;
 };

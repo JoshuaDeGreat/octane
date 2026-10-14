@@ -10,13 +10,22 @@ import {
     Triggerable,
     TriggerDefinition,
     UpdateActionMessageComposer,
+    UpdateAddonMessageComposer,
     UpdateConditionMessageComposer,
+    UpdateSelectorMessageComposer,
     UpdateTriggerMessageComposer,
+    UpdateVariableMessageComposer,
     WiredActionDefinition,
+    WiredAddonDefinition,
     WiredFurniActionEvent,
+    WiredFurniAddonEvent,
     WiredFurniConditionEvent,
+    WiredFurniSelectorEvent,
     WiredFurniTriggerEvent,
+    WiredFurniVariableEvent,
     WiredOpenEvent,
+    WiredSelectorDefinition,
+    WiredVariableDefinition,
     WiredSaveSuccessEvent,
     WiredValidationErrorEvent
 } from '@octane/renderer';
@@ -92,7 +101,31 @@ const useWiredState = () => {
             const variableIds = trigger.variableIds ?? [];
             const furniIds2 = trigger.selectedItems2 ?? [];
 
-            if (trigger instanceof WiredActionDefinition) {
+            // Addons, selectors and variables have their own official save packets.
+            if (trigger instanceof WiredAddonDefinition) {
+                SendMessageComposer(
+                    new UpdateAddonMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                );
+            } else if (trigger instanceof WiredSelectorDefinition) {
+                SendMessageComposer(
+                    new UpdateSelectorMessageComposer(
+                        trigger.id,
+                        intParams,
+                        stringParam,
+                        furniIds,
+                        trigger.isFilter ?? false,
+                        trigger.isInvert ?? false,
+                        furniSources,
+                        userSources,
+                        variableIds,
+                        furniIds2
+                    )
+                );
+            } else if (trigger instanceof WiredVariableDefinition) {
+                SendMessageComposer(
+                    new UpdateVariableMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                );
+            } else if (trigger instanceof WiredActionDefinition) {
                 SendMessageComposer(
                     new UpdateActionMessageComposer(trigger.id, intParams, stringParam, furniIds, actionDelay, furniSources, userSources, variableIds, furniIds2)
                 );
@@ -420,6 +453,12 @@ const useWiredState = () => {
             simpleAlert(message, null, null, null, LocalizeText('wiredfurni.title'));
         }
     });
+
+    useMessageEvent<WiredFurniAddonEvent>(WiredFurniAddonEvent, (event) => setTrigger(event.getParser().definition));
+
+    useMessageEvent<WiredFurniSelectorEvent>(WiredFurniSelectorEvent, (event) => setTrigger(event.getParser().definition));
+
+    useMessageEvent<WiredFurniVariableEvent>(WiredFurniVariableEvent, (event) => setTrigger(event.getParser().definition));
 
     useMessageEvent<WiredFurniActionEvent>(WiredFurniActionEvent, (event) => {
         const parser = event.getParser();
