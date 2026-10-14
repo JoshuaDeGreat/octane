@@ -1098,6 +1098,19 @@ export class FurniturePlaceComposer extends StubClass {}
 export class GetCatalogIndexComposer extends StubClass {}
 export class GetCatalogPageComposer extends StubClass {}
 export class LegacyDataType extends StubClass {}
+export class MapDataType {
+    private _data: Record<string, string> = {};
+    public setValue(key: string, value: string): void {
+        this._data = { ...this._data, [key]: value };
+    }
+    public getValue(key: string): string {
+        return this._data[key];
+    }
+    public get data(): Record<string, string> {
+        return this._data;
+    }
+}
+export class RecolorFurniComposer extends StubClass {}
 export class LimitedEditionSoldOutEvent extends MessageEvent {}
 export class MarketplaceMakeOfferResult extends MessageEvent {}
 export class ProductOfferEvent extends MessageEvent {}

@@ -30,6 +30,8 @@ import {
     GetConfigurationValue,
     GetGroupInformation,
     IPhotoData,
+    isRecolorableClass,
+    recolorOfData,
     isSafeExternalUrl,
     LocalizeText,
     localizeWithFallback,
@@ -48,7 +50,18 @@ import {
     Text,
     UserProfileIconView
 } from '../../../../../common';
-import { useFurniPickupGuard, useFurnitureRecolorWidget, useHasPermission, useMessageEvent, useOctaneEvent, useRareValues, useRoom, useWiredLabelStore, useWiredTools } from '../../../../../hooks';
+import {
+    useFurniPickupGuard,
+    useFurnitureRecolorWidget,
+    useHasPermission,
+    useMessageEvent,
+    useOctaneEvent,
+    useRareValues,
+    useRecolorableColorStore,
+    useRoom,
+    useWiredLabelStore,
+    useWiredTools
+} from '../../../../../hooks';
 import { OctaneInput } from '../../../../../layout';
 import statHeightIcon from '../../../../../assets/images/infostand/stat-height.png';
 import statIdIcon from '../../../../../assets/images/infostand/stat-id.png';
@@ -499,9 +512,9 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = (prop
         setCanRotate(canRotate);
         const recolorTypeId = avatarInfo.isWallItem ? 0 : (roomObjForLocation?.model?.getValue<number>(RoomObjectVariable.FURNITURE_TYPE_ID) ?? 0);
         const recolorData = recolorTypeId > 0 ? GetSessionDataManager().getFloorItemData(recolorTypeId) : null;
-        setCanRecolor(
-            canMove && !!recolorData?.hasIndexedColor && (avatarInfo.availableForBuildersClub || avatarInfo.ownerName === 'Builders Club')
-        );
+        // Only placed recolourable furni (*_recolorable) can be recoloured; the old Builders Club colour
+        // variants (bc_x*N) keep the colour they were placed in.
+        setCanRecolor(canMove && isRecolorableClass(recolorData?.className));
         setCanUse(canUse);
         setCanRemoveBackground(removeBackgroundAllowed);
         setFurniKeys(furniKeyss);
@@ -672,9 +685,23 @@ export const InfoStandWidgetFurniView: FC<InfoStandWidgetFurniViewProps> = (prop
             let objectData: string = null;
 
             switch (action) {
-                case 'buy_one':
+                case 'buy_one': {
+                    // One more of a recolourable furni comes in the colour of this one.
+                    if (!avatarInfo.isWallItem) {
+                        const roomObject = GetRoomEngine().getRoomObject(GetRoomEngine().activeRoomId, avatarInfo.id, avatarInfo.category);
+                        const typeId = roomObject?.model?.getValue<number>(RoomObjectVariable.FURNITURE_TYPE_ID) ?? 0;
+                        const className = typeId > 0 ? GetSessionDataManager().getFloorItemData(typeId)?.className : null;
+
+                        if (isRecolorableClass(className)) {
+                            useRecolorableColorStore
+                                .getState()
+                                .setColor(className, recolorOfData(roomObject.model.getValue<{ [key: string]: string }>(RoomObjectVariable.FURNITURE_DATA)));
+                        }
+                    }
+
                     CreateLinkEvent(`catalog/open/offerId/${avatarInfo.purchaseOfferId}`);
                     return;
+                }
                 case 'move':
                     GetRoomEngine().processRoomObjectOperation(avatarInfo.id, avatarInfo.category, RoomObjectOperationType.OBJECT_MOVE);
                     break;

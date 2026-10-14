@@ -21,3 +21,4 @@ export * from './WiredWebApi';
 export * from './variablesWebApi';
 export * from './variablesExplorer';
 export * from './WiredWebApiConfig';
+export * from './WiredActionDelay';

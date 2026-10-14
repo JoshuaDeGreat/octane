@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GetWiredTimeLocale, LocalizeText, WiredFurniType, WiredSelectionVisualizer } from '../../../../api';
+import { GetWiredTimeLocale, WIRED_ACTION_DELAY_MAX_PULSES, LocalizeText, WiredFurniType, WiredSelectionVisualizer } from '../../../../api';
 import contextVariableIcon from '../../../../assets/images/wired/var/icon_source_context_clean.png';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import globalVariableIcon from '../../../../assets/images/wired/var/icon_source_global.png';
@@ -482,7 +482,7 @@ export const WiredActionChangeVariableValueView: FC<{}> = () => {
                     <div className="octane-wired__give-var-section-title">
                         {LocalizeText('wiredfurni.params.delay', ['seconds'], [GetWiredTimeLocale(actionDelay)])}
                     </div>
-                    <Slider max={20} min={0} value={actionDelay} onChange={(event) => setActionDelay(event)} />
+                    <Slider max={WIRED_ACTION_DELAY_MAX_PULSES} min={0} value={actionDelay} onChange={(event) => setActionDelay(event)} />
                 </div>
 
                 <div className="octane-wired__divider" />

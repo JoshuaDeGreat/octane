@@ -147,3 +147,15 @@
 .octane-furni-recolor {
     width: 320px;
 }
+
+/* recolorable_furniture page: the palette sits between the furni and the place button. */
+.octane-catalog-recolorable-palette {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.octane-catalog-recolorable-palette .octane-color-swatch-grid {
+    max-height: 96px;
+}

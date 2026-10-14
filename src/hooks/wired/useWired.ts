@@ -85,12 +85,35 @@ const useWiredState = () => {
             const furniIds = furniIdsRef.current;
             const actionDelay = actionDelayRef.current;
 
+            // Official save layout: the source types, variable ids and second picks go back as the box
+            // sent them until its editor sets them itself.
+            const furniSources = trigger.furniSourceTypes ?? [];
+            const userSources = trigger.userSourceTypes ?? [];
+            const variableIds = trigger.variableIds ?? [];
+            const furniIds2 = trigger.selectedItems2 ?? [];
+
             if (trigger instanceof WiredActionDefinition) {
-                SendMessageComposer(new UpdateActionMessageComposer(trigger.id, intParams, stringParam, furniIds, actionDelay, trigger.stuffTypeSelectionCode));
+                SendMessageComposer(
+                    new UpdateActionMessageComposer(trigger.id, intParams, stringParam, furniIds, actionDelay, furniSources, userSources, variableIds, furniIds2)
+                );
             } else if (trigger instanceof TriggerDefinition) {
-                SendMessageComposer(new UpdateTriggerMessageComposer(trigger.id, intParams, stringParam, furniIds, trigger.stuffTypeSelectionCode));
+                SendMessageComposer(
+                    new UpdateTriggerMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                );
             } else if (trigger instanceof ConditionDefinition) {
-                SendMessageComposer(new UpdateConditionMessageComposer(trigger.id, intParams, stringParam, furniIds, trigger.stuffTypeSelectionCode));
+                SendMessageComposer(
+                    new UpdateConditionMessageComposer(
+                        trigger.id,
+                        intParams,
+                        stringParam,
+                        furniIds,
+                        trigger.quantifierCode ?? 0,
+                        furniSources,
+                        userSources,
+                        variableIds,
+                        furniIds2
+                    )
+                );
             }
         };
 
@@ -415,6 +438,21 @@ const useWiredState = () => {
 
         setTrigger(parser.definition);
     });
+
+    // While an editor is open its picks stay highlighted, even when a furni's sprites are rebuilt
+    // (a state change, an animation); after it closes, late redraws are swept once more.
+    useEffect(() => {
+        if (!trigger) return;
+
+        const interval = setInterval(() => WiredSelectionVisualizer.refresh(), 250);
+
+        return () => {
+            clearInterval(interval);
+            setTimeout(() => {
+                if (!triggerRef.current) WiredSelectionVisualizer.clearAllSelectionShaders();
+            }, 300);
+        };
+    }, [trigger]);
 
     useEffect(() => {
         if (!trigger) return;

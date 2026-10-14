@@ -30,5 +30,7 @@ export * from './UseProductItem';
 export * from './VoteValue';
 export * from './YoutubeVideoPlaybackStateEnum';
 export * from './FurnitureRecolor';
+export * from './RecolorableBcVariables';
+export * from './RecolorableFurni';
 export * from './PollFlow';
 export * from './resolveChatMode';

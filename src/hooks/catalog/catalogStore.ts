@@ -24,6 +24,7 @@ import {
     RoomObjectCategory,
     RoomObjectType
 } from './useCatalog.helpers';
+import { recolorableObjectData, recolorablePlacementColor } from './recolorableColorStore';
 import { invalidateCatalogIndex, invalidateCatalogPage, readCatalogIndex, refetchCatalogPage } from './useCatalogQueries';
 
 export const DUMMY_PAGE_ID_FOR_OFFER_SEARCH = -12345678;
@@ -500,7 +501,10 @@ export const useCatalogStore = createOctaneStore<CatalogStoreState>((set, get) =
                 break;
         }
 
-        if (GetRoomEngine().processRoomObjectPlacement(RoomObjectPlacementSource.CATALOG, -offer.offerId, category, product.productClassId, product.extraParam)) {
+        // A recolourable furni follows the cursor in the colour it will be placed in.
+        const recolor = recolorablePlacementColor(product.furnitureData?.className);
+
+        if (GetRoomEngine().processRoomObjectPlacement(RoomObjectPlacementSource.CATALOG, -offer.offerId, category, product.productClassId, product.extraParam, recolorableObjectData(recolor))) {
             set({ purchasableOffer: offer, objectMoverRequested: true, isVisible: false });
         }
     },
