@@ -1,11 +1,10 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
+import { LocalizeText, localizeWithFallback, WiredFurniType, WIRED_CLOCK_FURNI_TYPES } from '../../../../api';
 import { Slider, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
-const COUNTER_INTERACTION_TYPES = ['game_upcounter'];
 const MINUTES_MIN = 0;
 const MINUTES_MAX = 99;
 const HALF_SECONDS_MIN = 0;
@@ -55,7 +54,7 @@ export const WiredActionAdjustClockView: FC<{}> = () => {
     }, [trigger]);
 
     useEffect(() => {
-        setAllowedInteractionTypes(COUNTER_INTERACTION_TYPES);
+        setAllowedInteractionTypes(WIRED_CLOCK_FURNI_TYPES);
         setAllowedInteractionErrorKey('wiredfurni.error.require_counter_furni');
 
         return () => {

@@ -1,4 +1,4 @@
-import { GetRoomEngine, IGetImageListener, IImageResult, ImageResult, Vector3d } from '@octane/renderer';
+import { GetRoomEngine, IGetImageListener, IImageResult, ImageResult, MapDataType, Vector3d } from '@octane/renderer';
 import { CSSProperties, FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ProductTypeEnum } from '../../api';
 import { Base, BaseProps } from '../Base';
@@ -15,10 +15,26 @@ interface LayoutFurniImageViewProps extends BaseProps<HTMLDivElement> {
     // the in-game appearance instead of only tweaking the extras string.
     state?: number;
     scale?: number;
+    // Colour (0xRRGGBB) of a recolourable furni (*_recolorable); -1 (default) draws it untinted.
+    recolor?: number;
 }
 
+const recolorData = (recolor: number, state: number): MapDataType =>
+{
+    if (recolor < 0) return null;
+
+    const data = new MapDataType();
+
+    data.setValue('state', String(Math.max(state, 0)));
+    data.setValue('r', String((recolor >> 16) & 0xff));
+    data.setValue('g', String((recolor >> 8) & 0xff));
+    data.setValue('b', String(recolor & 0xff));
+
+    return data;
+};
+
 export const LayoutFurniImageView: FC<LayoutFurniImageViewProps> = (props) => {
-    const { productType = 's', productClassId = -1, direction = 2, extraData = '', state = -1, scale = 1, style = {}, ...rest } = props;
+    const { productType = 's', productClassId = -1, direction = 2, extraData = '', state = -1, scale = 1, recolor = -1, style = {}, ...rest } = props;
     const [imageElement, setImageElement] = useState<HTMLImageElement>(null);
     const isMounted = useRef(true);
     const requestIdRef = useRef(0);
@@ -74,7 +90,7 @@ export const LayoutFurniImageView: FC<LayoutFurniImageViewProps> = (props) => {
 
         switch (productType.toLocaleLowerCase()) {
             case ProductTypeEnum.FLOOR:
-                imageResult = GetRoomEngine().getFurnitureFloorImage(productClassId, new Vector3d(direction), 64, listener, 0, extraData, state);
+                imageResult = GetRoomEngine().getFurnitureFloorImage(productClassId, new Vector3d(direction), 64, listener, 0, extraData, state, -1, recolorData(recolor, state));
                 break;
             case ProductTypeEnum.WALL:
                 imageResult = GetRoomEngine().getFurnitureWallImage(productClassId, new Vector3d(direction), 64, listener, 0, extraData, state);
@@ -82,7 +98,7 @@ export const LayoutFurniImageView: FC<LayoutFurniImageViewProps> = (props) => {
         }
 
         if (imageResult?.data) updateImage(imageResult, requestId);
-    }, [productType, productClassId, direction, extraData, state, updateImage]);
+    }, [productType, productClassId, direction, extraData, state, recolor, updateImage]);
 
     return <Base classNames={['furni-image']} style={getStyle} {...rest} />;
 };

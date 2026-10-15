@@ -1,11 +1,12 @@
 import { FC, useEffect, useState } from 'react';
-import { LocalizeText, WiredFurniType } from '../../../../api';
+import { LocalizeText, WiredFurniType, WIRED_CLOCK_FURNI_TYPES } from '../../../../api';
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
-const COUNTER_INTERACTION_TYPES = ['game_upcounter', 'game_timer', 'wf_game_upcounter*', 'fball_counter', 'bb_counter', 'es_counter'];
+// Game timers and the football, Banzai and Freeze counters as well as the clock counter.
+const CONTROLLABLE_CLOCK_TYPES = [...WIRED_CLOCK_FURNI_TYPES, 'game_timer', 'fball_counter', 'bb_counter', 'es_counter'];
 
 const CONTROL_OPTIONS = [
     { value: 0, label: 'wiredfurni.params.clock_control.0' },
@@ -41,7 +42,7 @@ export const WiredActionControlClockView: FC<{}> = () => {
     }, [trigger]);
 
     useEffect(() => {
-        setAllowedInteractionTypes(COUNTER_INTERACTION_TYPES);
+        setAllowedInteractionTypes(CONTROLLABLE_CLOCK_TYPES);
         setAllowedInteractionErrorKey('wiredfurni.error.require_counter_furni');
 
         return () => {

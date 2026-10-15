@@ -10,13 +10,22 @@ import {
     Triggerable,
     TriggerDefinition,
     UpdateActionMessageComposer,
+    UpdateAddonMessageComposer,
     UpdateConditionMessageComposer,
+    UpdateSelectorMessageComposer,
     UpdateTriggerMessageComposer,
+    UpdateVariableMessageComposer,
     WiredActionDefinition,
+    WiredAddonDefinition,
     WiredFurniActionEvent,
+    WiredFurniAddonEvent,
     WiredFurniConditionEvent,
+    WiredFurniSelectorEvent,
     WiredFurniTriggerEvent,
+    WiredFurniVariableEvent,
     WiredOpenEvent,
+    WiredSelectorDefinition,
+    WiredVariableDefinition,
     WiredSaveSuccessEvent,
     WiredValidationErrorEvent
 } from '@octane/renderer';
@@ -60,6 +69,10 @@ const useWiredState = () => {
     const [stringParam, setStringParam, stringParamRef] = useLiveState<string>('');
     const [furniIds, setFurniIds, furniIdsRef] = useLiveState<number[]>([]);
     const [actionDelay, setActionDelay, actionDelayRef] = useLiveState<number>(0);
+    // Set by an editor that writes the official source fields and selector switches itself; until then
+    // the save passes back what the box sent.
+    const [, setSourceTypes, sourceTypesRef] = useLiveState<{ furni: number[]; users: number[] } | null>(null);
+    const [, setSelectorOptions, selectorOptionsRef] = useLiveState<{ filter: boolean; invert: boolean } | null>(null);
     const [allowsFurni, setAllowsFurni] = useState<number>(WiredFurniType.STUFF_SELECTION_OPTION_NONE);
     const selectByType = false;
     const [neighborhoodTiles, setNeighborhoodTiles] = useState<{ x: number; y: number }[] | null>(null);
@@ -85,12 +98,59 @@ const useWiredState = () => {
             const furniIds = furniIdsRef.current;
             const actionDelay = actionDelayRef.current;
 
-            if (trigger instanceof WiredActionDefinition) {
-                SendMessageComposer(new UpdateActionMessageComposer(trigger.id, intParams, stringParam, furniIds, actionDelay, trigger.stuffTypeSelectionCode));
+            // Official save layout: the source types, variable ids and second picks go back as the box
+            // sent them until its editor sets them itself.
+            const furniSources = sourceTypesRef.current?.furni ?? trigger.furniSourceTypes ?? [];
+            const userSources = sourceTypesRef.current?.users ?? trigger.userSourceTypes ?? [];
+            const variableIds = trigger.variableIds ?? [];
+            const furniIds2 = trigger.selectedItems2 ?? [];
+
+            // Addons, selectors and variables have their own official save packets.
+            if (trigger instanceof WiredAddonDefinition) {
+                SendMessageComposer(
+                    new UpdateAddonMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                );
+            } else if (trigger instanceof WiredSelectorDefinition) {
+                SendMessageComposer(
+                    new UpdateSelectorMessageComposer(
+                        trigger.id,
+                        intParams,
+                        stringParam,
+                        furniIds,
+                        selectorOptionsRef.current?.filter ?? trigger.isFilter ?? false,
+                        selectorOptionsRef.current?.invert ?? trigger.isInvert ?? false,
+                        furniSources,
+                        userSources,
+                        variableIds,
+                        furniIds2
+                    )
+                );
+            } else if (trigger instanceof WiredVariableDefinition) {
+                SendMessageComposer(
+                    new UpdateVariableMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                );
+            } else if (trigger instanceof WiredActionDefinition) {
+                SendMessageComposer(
+                    new UpdateActionMessageComposer(trigger.id, intParams, stringParam, furniIds, actionDelay, furniSources, userSources, variableIds, furniIds2)
+                );
             } else if (trigger instanceof TriggerDefinition) {
-                SendMessageComposer(new UpdateTriggerMessageComposer(trigger.id, intParams, stringParam, furniIds, trigger.stuffTypeSelectionCode));
+                SendMessageComposer(
+                    new UpdateTriggerMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                );
             } else if (trigger instanceof ConditionDefinition) {
-                SendMessageComposer(new UpdateConditionMessageComposer(trigger.id, intParams, stringParam, furniIds, trigger.stuffTypeSelectionCode));
+                SendMessageComposer(
+                    new UpdateConditionMessageComposer(
+                        trigger.id,
+                        intParams,
+                        stringParam,
+                        furniIds,
+                        trigger.quantifierCode ?? 0,
+                        furniSources,
+                        userSources,
+                        variableIds,
+                        furniIds2
+                    )
+                );
             }
         };
 
@@ -398,6 +458,12 @@ const useWiredState = () => {
         }
     });
 
+    useMessageEvent<WiredFurniAddonEvent>(WiredFurniAddonEvent, (event) => setTrigger(event.getParser().definition));
+
+    useMessageEvent<WiredFurniSelectorEvent>(WiredFurniSelectorEvent, (event) => setTrigger(event.getParser().definition));
+
+    useMessageEvent<WiredFurniVariableEvent>(WiredFurniVariableEvent, (event) => setTrigger(event.getParser().definition));
+
     useMessageEvent<WiredFurniActionEvent>(WiredFurniActionEvent, (event) => {
         const parser = event.getParser();
 
@@ -416,6 +482,21 @@ const useWiredState = () => {
         setTrigger(parser.definition);
     });
 
+    // While an editor is open its picks stay highlighted, even when a furni's sprites are rebuilt
+    // (a state change, an animation); after it closes, late redraws are swept once more.
+    useEffect(() => {
+        if (!trigger) return;
+
+        const interval = setInterval(() => WiredSelectionVisualizer.refresh(), 250);
+
+        return () => {
+            clearInterval(interval);
+            setTimeout(() => {
+                if (!triggerRef.current) WiredSelectionVisualizer.clearAllSelectionShaders();
+            }, 300);
+        };
+    }, [trigger]);
+
     useEffect(() => {
         if (!trigger) return;
 
@@ -432,6 +513,8 @@ const useWiredState = () => {
             setAllowsFurni(WiredFurniType.STUFF_SELECTION_OPTION_NONE);
             setNeighborhoodTiles(null);
             setNeighborhoodInvert(false);
+            setSourceTypes(null);
+            setSelectorOptions(null);
             setAllowedInteractionTypes(null);
             setAllowedInteractionErrorKey(null);
             setAllowedFurniCheckState(null);
@@ -460,6 +543,8 @@ const useWiredState = () => {
         selectObjectForWired,
         setNeighborhoodTiles,
         setNeighborhoodInvert,
+        setSourceTypes,
+        setSelectorOptions,
         setAllowedInteractionTypes,
         setAllowedInteractionErrorKey,
         setAllowedFurniCheck

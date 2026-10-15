@@ -46,7 +46,8 @@ const expectedStudioCodes = [
     'niko',
     'mad_money',
     'productpage1',
-    'collectibles'
+    'collectibles',
+    'recolorable_furniture'
 ] as const;
 
 describe('catalog layout registry', () => {

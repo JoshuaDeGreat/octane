@@ -45,7 +45,11 @@ vi.mock('@octane/renderer', () => {
         }
     }
 
-    return { Triggerable, WiredActionDefinition, TriggerDefinition, ConditionDefinition };
+    class WiredAddonDefinition extends Triggerable {}
+    class WiredSelectorDefinition extends Triggerable {}
+    class WiredVariableDefinition extends Triggerable {}
+
+    return { Triggerable, WiredActionDefinition, TriggerDefinition, ConditionDefinition, WiredAddonDefinition, WiredSelectorDefinition, WiredVariableDefinition };
 });
 
 import { ConditionDefinition, TriggerDefinition, WiredActionDefinition } from '@octane/renderer';

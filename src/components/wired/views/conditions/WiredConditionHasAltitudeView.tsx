@@ -1,11 +1,11 @@
 import { FC, useEffect, useState } from 'react';
-import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
+import { LocalizeText, localizeWithFallback, WiredFurniType, WIRED_CLOCK_FURNI_TYPES } from '../../../../api';
 import { Slider, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
 import { WiredConditionBaseView } from './WiredConditionBaseView';
 
-const COUNTER_INTERACTION_TYPES = ['game_upcounter'];
+
 const MIN_ALTITUDE = 0;
 const MAX_ALTITUDE = 80;
 const ALTITUDE_STEP = 0.01;
@@ -52,7 +52,8 @@ const VARIANTS: Record<
     AltitudeVariant,
     { counterOnly: boolean; comparison: boolean; value: 'altitude' | 'radius' | null; users: boolean }
 > = {
-    altitude: { counterOnly: true, comparison: true, value: 'altitude', users: false },
+    // Any furni has an altitude, as in the official editor.
+    altitude: { counterOnly: false, comparison: true, value: 'altitude', users: false },
     userRange: { counterOnly: false, comparison: true, value: 'radius', users: true },
     furniRange: { counterOnly: false, comparison: true, value: 'radius', users: false },
     furniProperty: { counterOnly: false, comparison: false, value: null, users: false }
@@ -90,7 +91,7 @@ export const WiredConditionHasAltitudeView: FC<WiredConditionHasAltitudeViewProp
     useEffect(() => {
         if (!spec.counterOnly) return;
 
-        setAllowedInteractionTypes(COUNTER_INTERACTION_TYPES);
+        setAllowedInteractionTypes(WIRED_CLOCK_FURNI_TYPES);
         setAllowedInteractionErrorKey('wiredfurni.error.require_counter_furni');
 
         return () => {

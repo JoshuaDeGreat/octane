@@ -13,6 +13,7 @@ import { CatalogLayoutInformationView } from './CatalogLayoutInformationView';
 import { CatalogLayoutPetCustomizationView } from './CatalogLayoutPetCustomizationView';
 import { CatalogLayoutPets2View } from './CatalogLayoutPets2View';
 import { CatalogLayoutPets3View } from './CatalogLayoutPets3View';
+import { CatalogLayoutRecolorableFurnitureView } from './CatalogLayoutRecolorableFurnitureView';
 import { CatalogLayoutRoomAdsView } from './CatalogLayoutRoomAdsView';
 import { CatalogLayoutRoomBundleView } from './CatalogLayoutRoomBundleView';
 import { CatalogLayoutSingleBundleView } from './CatalogLayoutSingleBundleView';
@@ -49,6 +50,7 @@ const layoutRenderers: Record<CatalogLayoutRenderer, FC<CatalogLayoutProps>> = {
     pets: CatalogLayoutPetView,
     pets2: CatalogLayoutPets2View,
     pets3: CatalogLayoutPets3View,
+    recolorableFurniture: CatalogLayoutRecolorableFurnitureView,
     roomAds: CatalogLayoutRoomAdsView,
     roomBundle: CatalogLayoutRoomBundleView,
     recycler: CatalogLayoutRecyclerView,

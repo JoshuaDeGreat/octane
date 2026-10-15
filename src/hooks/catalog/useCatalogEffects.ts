@@ -31,9 +31,11 @@ import {
     CatalogPage,
     CatalogType,
     DispatchUiEvent,
+    formatRecolor,
     FurniCategory,
     ICatalogNode,
     LocalizeText,
+    NO_RECOLOR,
     NotificationAlertType,
     PageLocalization,
     PlacedObjectPurchaseData,
@@ -51,6 +53,7 @@ import {
 import { useConnectionState, useMessageEvent, useOctaneEvent, useUiEvent } from '../events';
 import { useNotification } from '../notification';
 import { DUMMY_PAGE_ID_FOR_OFFER_SEARCH, useCatalogStore } from './catalogStore';
+import { recolorablePlacementColor } from './recolorableColorStore';
 import { getNodesByOfferIdFromMap, restoreCatalogActivePath, RoomObjectCategory } from './useCatalog.helpers';
 import { useCatalogPlaceMultipleItems } from './useCatalogPlaceMultipleItems';
 import {
@@ -421,14 +424,18 @@ export const useCatalogEffects = (): void => {
 
                     if (builderPageId === DUMMY_PAGE_ID_FOR_OFFER_SEARCH) builderPageId = -1;
 
+                    // A recolourable furni is placed in the colour picked on its page, sent as "R,G,B".
+                    const recolor = recolorablePlacementColor(product.furnitureData?.className);
+                    const extraParam = recolor === NO_RECOLOR ? product.extraParam : formatRecolor(recolor);
+
                     switch (event.category) {
                         case RoomObjectCategory.FLOOR:
                             SendMessageComposer(
-                                new BuildersClubPlaceRoomItemMessageComposer(builderPageId, purchasableOffer.offerId, product.extraParam, event.x, event.y, event.direction)
+                                new BuildersClubPlaceRoomItemMessageComposer(builderPageId, purchasableOffer.offerId, extraParam, event.x, event.y, event.direction)
                             );
                             break;
                         case RoomObjectCategory.WALL:
-                            SendMessageComposer(new BuildersClubPlaceWallItemMessageComposer(builderPageId, purchasableOffer.offerId, product.extraParam, event.wallLocation));
+                            SendMessageComposer(new BuildersClubPlaceWallItemMessageComposer(builderPageId, purchasableOffer.offerId, extraParam, event.wallLocation));
                             break;
                     }
 

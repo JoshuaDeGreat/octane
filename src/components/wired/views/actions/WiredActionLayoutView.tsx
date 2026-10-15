@@ -1,4 +1,4 @@
-import { WiredActionLayoutCode, WIRED_FX_CATEGORY } from '../../../../api';
+import { WiredActionLayoutCode } from '../../../../api';
 import { WiredExtraAchievementEnablerView } from '../extras/WiredExtraAchievementEnablerView';
 import { WiredExtraArrayCaptureView } from '../extras/WiredExtraArrayCaptureView';
 import { WiredExtraDailyTaskView } from '../extras/WiredExtraDailyTaskView';
@@ -42,27 +42,6 @@ import { WiredExtraVariableLevelUpSystemView } from '../extras/WiredExtraVariabl
 import { WiredExtraVariableReferenceView } from '../extras/WiredExtraVariableReferenceView';
 import { WiredExtraVariableLeaderboardView } from '../extras/WiredExtraVariableLeaderboardView';
 import { WiredExtraVariableTextConnectorView } from '../extras/WiredExtraVariableTextConnectorView';
-import { WiredActionFurniAreaView } from '../selectors/WiredActionFurniAreaView';
-import { WiredSelectorFurniAltitudeView } from '../selectors/WiredSelectorFurniAltitudeView';
-import { WiredSelectorFurniByTypeView } from '../selectors/WiredSelectorFurniByTypeView';
-import { WiredSelectorFurniNeighborhoodView } from '../selectors/WiredSelectorFurniNeighborhoodView';
-import { WiredSelectorFurniOnFurniView } from '../selectors/WiredSelectorFurniOnFurniView';
-import { WiredSelectorFurniPicksView } from '../selectors/WiredSelectorFurniPicksView';
-import { WiredSelectorFurniSignalView } from '../selectors/WiredSelectorFurniSignalView';
-import { WiredSelectorFurniWithVariableView } from '../selectors/WiredSelectorFurniWithVariableView';
-import { WiredSelectorRemoteView } from '../selectors/WiredSelectorRemoteView';
-import { WiredSelectorScanChestFurniByType } from '../selectors/WiredSelectorScanChestFurniByType';
-import { WiredSelectorUsersAreaView } from '../selectors/WiredSelectorUsersAreaView';
-import { WiredSelectorUsersByActionView } from '../selectors/WiredSelectorUsersByActionView';
-import { WiredSelectorUsersByNameView } from '../selectors/WiredSelectorUsersByNameView';
-import { WiredSelectorUsersByTypeView } from '../selectors/WiredSelectorUsersByTypeView';
-import { WiredSelectorUsersGroupView } from '../selectors/WiredSelectorUsersGroupView';
-import { WiredSelectorUsersHandItemView } from '../selectors/WiredSelectorUsersHandItemView';
-import { WiredSelectorUsersNeighborhoodView } from '../selectors/WiredSelectorUsersNeighborhoodView';
-import { WiredSelectorUsersOnFurniView } from '../selectors/WiredSelectorUsersOnFurniView';
-import { WiredSelectorUsersSignalView } from '../selectors/WiredSelectorUsersSignalView';
-import { WiredSelectorUsersTeamView } from '../selectors/WiredSelectorUsersTeamView';
-import { WiredSelectorUsersWithVariableView } from '../selectors/WiredSelectorUsersWithVariableView';
 import { WiredActionAdjustClockView } from './WiredActionAdjustClockView';
 import { WiredActionBotChangeFigureView } from './WiredActionBotChangeFigureView';
 import { WiredActionBotDanceView } from './WiredActionBotDanceView';
@@ -95,6 +74,7 @@ import { WiredActionJoinTeamView } from './WiredActionJoinTeamView';
 import { WiredActionKickFromRoomView } from './WiredActionKickFromRoomView';
 import { WiredActionLeaveTeamView } from './WiredActionLeaveTeamView';
 import { WiredActionMoveAndRotateFurniView } from './WiredActionMoveAndRotateFurniView';
+import { WiredActionMoveAsGroupView } from './WiredActionMoveAsGroupView';
 import { WiredActionMoveFurniAsGroupView } from './WiredActionMoveFurniAsGroupView';
 import { WiredActionMoveFurniToView } from './WiredActionMoveFurniToView';
 import { WiredActionMoveFurniView } from './WiredActionMoveFurniView';
@@ -104,12 +84,14 @@ import { WiredActionModifyArrayView } from './WiredActionModifyArrayView';
 import { WiredActionMuteUserView } from './WiredActionMuteUserView';
 import { WiredActionNegativeCallAnotherStackView } from './WiredActionNegativeCallAnotherStackView';
 import { WiredActionPlaceFurniView } from './WiredActionPlaceFurniView';
+import { WiredActionPlaceTemporaryFurniView } from './WiredActionPlaceTemporaryFurniView';
 import { WiredActionPlayYoutubeView } from './WiredActionPlayYoutubeView';
 import { WiredActionProgressAchievementView } from './WiredActionProgressAchievementView';
 import { WiredActionProgressRewardTrackView } from './WiredActionProgressRewardTrackView';
 import { WiredActionQuickBopperView } from './WiredActionQuickBopperView';
 import { WiredActionRelativeMoveView } from './WiredActionRelativeMoveView';
 import { WiredActionRemoveFurniView } from './WiredActionRemoveFurniView';
+import { WiredActionRemoveTemporaryFurniView } from './WiredActionRemoveTemporaryFurniView';
 import { WiredActionRemoveVariableView } from './WiredActionRemoveVariableView';
 import { WiredActionResetRewardTrackView } from './WiredActionResetRewardTrackView';
 import { WiredActionResetView } from './WiredActionResetView';
@@ -210,26 +192,16 @@ export const WiredActionLayoutView = (code: number) => {
             return <WiredActionClickSettingsView />;
         case WiredActionLayoutCode.MODIFY_ARRAY:
             return <WiredActionModifyArrayView />;
-        case WiredActionLayoutCode.ARRAY_CAPTURE_VARIABLE_EXTRA:
-            return <WiredExtraArrayCaptureView />;
         case WiredActionLayoutCode.WRITE_TO_LOGS:
             return <WiredActionWriteToLogsView />;
         case WiredActionLayoutCode.TELEPORT_TO_ROOM:
             return <WiredActionTeleportToRoomView />;
-        case WiredActionLayoutCode.PROJECTILE_EXTRA:
-            return <WiredExtraProjectileView />;
         case WiredActionLayoutCode.PROGRESS_ACHIEVEMENT:
             return <WiredActionProgressAchievementView />;
-        case WiredActionLayoutCode.ACHIEVEMENT_ENABLER_EXTRA:
-            return <WiredExtraAchievementEnablerView />;
         case WiredActionLayoutCode.PROGRESS_REWARD_TRACK:
             return <WiredActionProgressRewardTrackView />;
         case WiredActionLayoutCode.RESET_REWARD_TRACK:
             return <WiredActionResetRewardTrackView />;
-        case WiredActionLayoutCode.GLOBAL_PLACEHOLDER_EXTRA:
-            return <WiredExtraGlobalPlaceholderView />;
-        case WiredActionLayoutCode.DAILY_TASK_EXTRA:
-            return <WiredExtraDailyTaskView />;
         case WiredActionLayoutCode.RELATIVE_MOVE:
             return <WiredActionRelativeMoveView />;
         case WiredActionLayoutCode.RESET:
@@ -246,110 +218,6 @@ export const WiredActionLayoutView = (code: number) => {
             return <WiredActionUnfreezeView />;
         case WiredActionLayoutCode.USER_TO_FURNI:
             return <WiredActionTeleportView />;
-        case WiredActionLayoutCode.FURNI_AREA_SELECTOR:
-            return <WiredActionFurniAreaView />;
-        case WiredActionLayoutCode.FURNI_NEIGHBORHOOD_SELECTOR:
-            return <WiredSelectorFurniNeighborhoodView />;
-        case WiredActionLayoutCode.FURNI_BYTYPE_SELECTOR:
-            return <WiredSelectorFurniByTypeView />;
-        case WiredActionLayoutCode.FURNI_ALTITUDE_SELECTOR:
-            return <WiredSelectorFurniAltitudeView />;
-        case WiredActionLayoutCode.FURNI_ON_FURNI_SELECTOR:
-            return <WiredSelectorFurniOnFurniView />;
-        case WiredActionLayoutCode.FURNI_PICKS_SELECTOR:
-            return <WiredSelectorFurniPicksView />;
-        case WiredActionLayoutCode.FURNI_SIGNAL_SELECTOR:
-            return <WiredSelectorFurniSignalView />;
-        case WiredActionLayoutCode.FURNI_WITH_VARIABLE_SELECTOR:
-            return <WiredSelectorFurniWithVariableView />;
-        case WiredActionLayoutCode.USERS_AREA_SELECTOR:
-            return <WiredSelectorUsersAreaView />;
-        case WiredActionLayoutCode.USERS_NEIGHBORHOOD_SELECTOR:
-            return <WiredSelectorUsersNeighborhoodView />;
-        case WiredActionLayoutCode.USERS_SIGNAL_SELECTOR:
-            return <WiredSelectorUsersSignalView />;
-        case WiredActionLayoutCode.USERS_BY_TYPE_SELECTOR:
-            return <WiredSelectorUsersByTypeView />;
-        case WiredActionLayoutCode.USERS_BY_ACTION_SELECTOR:
-            return <WiredSelectorUsersByActionView />;
-        case WiredActionLayoutCode.USERS_BY_NAME_SELECTOR:
-            return <WiredSelectorUsersByNameView />;
-        case WiredActionLayoutCode.USERS_ON_FURNI_SELECTOR:
-            return <WiredSelectorUsersOnFurniView />;
-        case WiredActionLayoutCode.USERS_GROUP_SELECTOR:
-            return <WiredSelectorUsersGroupView />;
-        case WiredActionLayoutCode.USERS_HANDITEM_SELECTOR:
-            return <WiredSelectorUsersHandItemView />;
-        case WiredActionLayoutCode.USERS_TEAM_SELECTOR:
-            return <WiredSelectorUsersTeamView />;
-        case WiredActionLayoutCode.USERS_WITH_VARIABLE_SELECTOR:
-            return <WiredSelectorUsersWithVariableView />;
-        case WiredActionLayoutCode.FILTER_FURNI_EXTRA:
-            return <WiredExtraFilterFurniView />;
-        case WiredActionLayoutCode.FILTER_USER_EXTRA:
-            return <WiredExtraFilterUserView />;
-        case WiredActionLayoutCode.FILTER_USERS_BY_VARIABLE_EXTRA:
-            return <WiredExtraFilterUsersByVariableView />;
-        case WiredActionLayoutCode.FILTER_FURNI_BY_VARIABLE_EXTRA:
-            return <WiredExtraFilterFurniByVariableView />;
-        case WiredActionLayoutCode.MOVE_CARRY_USERS_EXTRA:
-            return <WiredExtraMoveCarryUsersView />;
-        case WiredActionLayoutCode.MOVE_NO_ANIMATION_EXTRA:
-            return <WiredExtraMoveNoAnimationView />;
-        case WiredActionLayoutCode.ANIMATION_TIME_EXTRA:
-            return <WiredExtraAnimationTimeView />;
-        case WiredActionLayoutCode.MOVE_PHYSICS_EXTRA:
-            return <WiredExtraMovePhysicsView />;
-        case WiredActionLayoutCode.UNSEEN_EXTRA:
-            return <WiredExtraUnseenView />;
-        case WiredActionLayoutCode.RANDOM_EXTRA:
-            return <WiredExtraRandomView />;
-        case WiredActionLayoutCode.EXEC_IN_ORDER_EXTRA:
-            return <WiredExtraExecuteInOrderView />;
-        case WiredActionLayoutCode.EXECUTION_LIMIT_EXTRA:
-            return <WiredExtraExecutionLimitView />;
-        case WiredActionLayoutCode.OR_EVAL_EXTRA:
-            return <WiredExtraOrEvalView />;
-        case WiredActionLayoutCode.TEXT_OUTPUT_USERNAME_EXTRA:
-            return <WiredExtraTextOutputUsernameView />;
-        case WiredActionLayoutCode.TEXT_OUTPUT_FURNI_NAME_EXTRA:
-            return <WiredExtraTextOutputFurniNameView />;
-        case WiredActionLayoutCode.VARIABLE_LEADERBOARD_EXTRA:
-            return <WiredExtraVariableLeaderboardView />;
-        case WiredActionLayoutCode.VARIABLE_TEXT_CONNECTOR_EXTRA:
-            return <WiredExtraVariableTextConnectorView />;
-        case WiredActionLayoutCode.TEXT_OUTPUT_VARIABLE_EXTRA:
-            return <WiredExtraTextOutputVariableView />;
-        case WiredActionLayoutCode.VARIABLE_WEB_API_EXTRA:
-            return <WiredExtraVariableWebApiView />;
-        case WiredActionLayoutCode.VARIABLE_FX_HEALTH_POINTS_EXTRA:
-            return <WiredExtraVariableFxView category={WIRED_FX_CATEGORY.HEALTH_POINTS} />;
-        case WiredActionLayoutCode.VARIABLE_FX_PROGRESS_BAR_EXTRA:
-            return <WiredExtraVariableFxView category={WIRED_FX_CATEGORY.PROGRESS_BAR} />;
-        case WiredActionLayoutCode.VARIABLE_FX_LEVELLING_PROGRESS_EXTRA:
-            return <WiredExtraVariableFxView category={WIRED_FX_CATEGORY.LEVELLING_PROGRESS} />;
-        case WiredActionLayoutCode.VARIABLE_FX_STATUS_BAR_EXTRA:
-            return <WiredExtraVariableFxView category={WIRED_FX_CATEGORY.STATUS_BAR} />;
-        case WiredActionLayoutCode.VARIABLE_FX_BOSS_BAR_EXTRA:
-            return <WiredExtraVariableFxView category={WIRED_FX_CATEGORY.BOSS_BAR} />;
-        case WiredActionLayoutCode.VARIABLE_FX_NUMBER_DISPLAY_EXTRA:
-            return <WiredExtraVariableFxView category={WIRED_FX_CATEGORY.NUMBER_DISPLAY} />;
-        case WiredActionLayoutCode.USER_VARIABLE_EXTRA:
-            return <WiredExtraUserVariableView />;
-        case WiredActionLayoutCode.FURNI_VARIABLE_EXTRA:
-            return <WiredExtraFurniVariableView />;
-        case WiredActionLayoutCode.ROOM_VARIABLE_EXTRA:
-            return <WiredExtraRoomVariableView />;
-        case WiredActionLayoutCode.CONTEXT_VARIABLE_EXTRA:
-            return <WiredExtraContextVariableView />;
-        case WiredActionLayoutCode.VARIABLE_REFERENCE_EXTRA:
-            return <WiredExtraVariableReferenceView />;
-        case WiredActionLayoutCode.VARIABLE_LEVELUP_SYSTEM_EXTRA:
-            return <WiredExtraVariableLevelUpSystemView />;
-        case WiredActionLayoutCode.VARIABLE_ECHO_EXTRA:
-            return <WiredExtraVariableEchoView />;
-        case WiredActionLayoutCode.TEXT_INPUT_VARIABLE_EXTRA:
-            return <WiredExtraTextInputVariableView />;
         case WiredActionLayoutCode.SEND_SIGNAL:
             return <WiredActionSendSignalView />;
         case WiredActionLayoutCode.NEG_SEND_SIGNAL:
@@ -371,43 +239,25 @@ export const WiredActionLayoutView = (code: number) => {
         case WiredActionLayoutCode.SET_ROOM_AD:
             return <WiredActionSetRoomAdView />;
         case WiredActionLayoutCode.MOVE_FURNI_AS_GROUP:
+            return <WiredActionMoveAsGroupView />;
+        case WiredActionLayoutCode.MOVE_FURNI_GROUP_STEP:
             return <WiredActionMoveFurniAsGroupView />;
-        case WiredActionLayoutCode.REMOTE_SELECTOR:
-            return <WiredSelectorRemoteView />;
-        case WiredActionLayoutCode.MOVEMENT_CURVE_EXTRA:
-            return <WiredExtraMovementCurveView />;
-        case WiredActionLayoutCode.TIME_UTILITIES_EXTRA:
-            return <WiredExtraTimeUtilitiesView />;
         case WiredActionLayoutCode.GIVE_CURRENCY_FROM_CHEST:
             return <WiredActionGiveCurrencyFromChestView />;
-        case WiredActionLayoutCode.CURRENCY_CHEST:
-            return <WiredChestCurrencyView />;
         case WiredActionLayoutCode.GIVE_FURNI_FROM_CHEST:
             return <WiredActionGiveFurniFromChestView />;
-        case WiredActionLayoutCode.FURNI_CHEST:
-            return <WiredChestFurniView />;
-        case WiredActionLayoutCode.SCAN_CHEST_FURNI_BY_TYPE:
-            return <WiredSelectorScanChestFurniByType />;
         case WiredActionLayoutCode.INIT_TRANSACTION:
             return <WiredActionInitTransactionView />;
         case WiredActionLayoutCode.CANCEL_TRANSACTION:
             return <WiredActionCancelTransactionView />;
         case WiredActionLayoutCode.PLACE_FURNI:
+            return <WiredActionPlaceTemporaryFurniView />;
+        case WiredActionLayoutCode.SPAWN_FURNI:
             return <WiredActionPlaceFurniView />;
         case WiredActionLayoutCode.REMOVE_FURNI:
+            return <WiredActionRemoveTemporaryFurniView />;
+        case WiredActionLayoutCode.PICKUP_FURNI:
             return <WiredActionRemoveFurniView />;
-        case WiredActionLayoutCode.QUEST_EXTRA:
-            return <WiredExtraQuestView />;
-        case WiredActionLayoutCode.QUEST_CHAIN_EXTRA:
-            return <WiredExtraQuestChainView />;
-        case WiredActionLayoutCode.CONTRACT_PAYMENT:
-            return <WiredContractPaymentView />;
-        case WiredActionLayoutCode.CONTRACT_REWARD:
-            return <WiredContractRewardView />;
-        case WiredActionLayoutCode.CONTRACT_TRADE:
-            return <WiredContractTradeView />;
-        case WiredActionLayoutCode.CUSTOM_CONTRACT:
-            return <WiredCustomContractView />;
         case WiredActionLayoutCode.CHANGE_OPACITY:
             return <WiredActionChangeOpacityView />;
     }

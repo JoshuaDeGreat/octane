@@ -6,9 +6,14 @@ import { localizeWithFallback } from '../../../../api';
  * -1; "low" means a cleared bit, "high" a set bit; inclusive scans start at the operand position,
  * exclusive ones a position further on.
  */
-export const WIRED_VARIABLE_OPERATIONS: number[] = [
-    0, 1, 2, 3, 4, 5, 6, 40, 41, 50, 60, 100, 101, 102, 103, 104, 105, 110, 115, 116, 117, 118, 111, 112, 113, 114, 119, 120, 121, 122
+export const WIRED_VARIABLE_BASIC_OPERATIONS: number[] = [ 0, 1, 2, 3, 4, 5, 6 ];
+
+/** The official client's "advanced" group, in its order. */
+export const WIRED_VARIABLE_ADVANCED_OPERATIONS: number[] = [
+    40, 41, 50, 60, 100, 101, 102, 103, 104, 105, 110, 115, 116, 117, 118, 111, 112, 113, 114, 119, 120, 121, 122
 ];
+
+export const WIRED_VARIABLE_OPERATIONS: number[] = [ ...WIRED_VARIABLE_BASIC_OPERATIONS, ...WIRED_VARIABLE_ADVANCED_OPERATIONS ];
 
 /** Operations that ignore the reference value: the server reads only the destination. */
 export const WIRED_VARIABLE_UNARY_OPERATIONS: number[] = [60, 103, 110];
@@ -21,6 +26,7 @@ const OPERATION_FALLBACKS: Record<number, string> = {
     4: 'Divide',
     5: 'Power',
     6: 'Modulo',
+    // 40 keeps the value at least the operand (a floor), 41 at most (a ceiling).
     40: 'Set minimum',
     41: 'Set maximum',
     50: 'Random with upper bound',
@@ -30,7 +36,7 @@ const OPERATION_FALLBACKS: Record<number, string> = {
     102: 'Bitwise XOR',
     103: 'Bitwise NOT',
     104: 'Left shift (<<)',
-    105: 'Right shift (>>)',
+    105: 'Right shift (>>>)',
     110: 'Bit count',
     111: 'Next Low Bit (Inclusive)',
     112: 'Next High Bit (Inclusive)',

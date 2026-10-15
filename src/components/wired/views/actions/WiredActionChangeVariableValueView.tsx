@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GetWiredTimeLocale, LocalizeText, WiredFurniType, WiredSelectionVisualizer } from '../../../../api';
+import { GetWiredTimeLocale, WIRED_ACTION_DELAY_MAX_PULSES, LocalizeText, localizeWithFallback, WiredFurniType, WiredSelectionVisualizer } from '../../../../api';
 import contextVariableIcon from '../../../../assets/images/wired/var/icon_source_context_clean.png';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import globalVariableIcon from '../../../../assets/images/wired/var/icon_source_global.png';
@@ -17,7 +17,7 @@ import {
     normalizeVariableTokenFromWire
 } from '../WiredVariablePickerData';
 import { WiredActionBaseView } from './WiredActionBaseView';
-import { localizeWiredVariableOperation, WIRED_VARIABLE_OPERATIONS, WIRED_VARIABLE_UNARY_OPERATIONS } from './WiredVariableOperations';
+import { localizeWiredVariableOperation, WIRED_VARIABLE_ADVANCED_OPERATIONS, WIRED_VARIABLE_BASIC_OPERATIONS, WIRED_VARIABLE_UNARY_OPERATIONS } from './WiredVariableOperations';
 
 type VariableTargetType = 'user' | 'furni' | 'global' | 'context';
 type ReferenceMode = 'constant' | 'variable';
@@ -414,14 +414,22 @@ export const WiredActionChangeVariableValueView: FC<{}> = () => {
                     <div className="octane-wired__give-var-section-title">{LocalizeText('wiredfurni.params.variables.operation')}</div>
                     <select
                         className="form-select form-select-sm octane-wired__give-var-select"
+                        title={localizeWithFallback('wiredfurni.params.variables.operation.tooltip', '')}
                         value={operation}
                         onChange={(event) => setOperation(parseInt(event.target.value, 10))}
                     >
-                        {WIRED_VARIABLE_OPERATIONS.map((value) => (
+                        {WIRED_VARIABLE_BASIC_OPERATIONS.map((value) => (
                             <option key={value} value={value}>
                                 {localizeWiredVariableOperation(value)}
                             </option>
                         ))}
+                        <optgroup label={localizeWithFallback('wiredfurni.params.variables.operation.advanced', 'Advanced')}>
+                            {WIRED_VARIABLE_ADVANCED_OPERATIONS.map((value) => (
+                                <option key={value} value={value}>
+                                    {localizeWiredVariableOperation(value)}
+                                </option>
+                            ))}
+                        </optgroup>
                     </select>
                 </div>
 
@@ -482,7 +490,7 @@ export const WiredActionChangeVariableValueView: FC<{}> = () => {
                     <div className="octane-wired__give-var-section-title">
                         {LocalizeText('wiredfurni.params.delay', ['seconds'], [GetWiredTimeLocale(actionDelay)])}
                     </div>
-                    <Slider max={20} min={0} value={actionDelay} onChange={(event) => setActionDelay(event)} />
+                    <Slider max={WIRED_ACTION_DELAY_MAX_PULSES} min={0} value={actionDelay} onChange={(event) => setActionDelay(event)} />
                 </div>
 
                 <div className="octane-wired__divider" />

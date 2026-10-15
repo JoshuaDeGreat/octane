@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { WiredActionLayoutCode } from './WiredActionLayoutCode';
+import { WiredAddonLayoutCode } from './WiredAddonLayoutCode';
 import {
     defaultWiredVariableFxParams,
     formatWiredVariableFxValue,
@@ -47,9 +47,9 @@ const status = (overrides: Partial<Parameters<typeof resolveWiredVariableFxColor
 
 describe('WiredVariableFx helpers', () => {
     it('maps the six layout codes to their categories and nothing else', () => {
-        expect(wiredVariableFxCategoryOfCode(WiredActionLayoutCode.VARIABLE_FX_HEALTH_POINTS_EXTRA)).toBe(WIRED_FX_CATEGORY.HEALTH_POINTS);
-        expect(wiredVariableFxCategoryOfCode(WiredActionLayoutCode.VARIABLE_FX_NUMBER_DISPLAY_EXTRA)).toBe(WIRED_FX_CATEGORY.NUMBER_DISPLAY);
-        expect(wiredVariableFxCategoryOfCode(WiredActionLayoutCode.CLICK_SETTINGS)).toBe(-1);
+        expect(wiredVariableFxCategoryOfCode(WiredAddonLayoutCode.VARIABLE_FX_HEALTH_POINTS)).toBe(WIRED_FX_CATEGORY.HEALTH_POINTS);
+        expect(wiredVariableFxCategoryOfCode(WiredAddonLayoutCode.VARIABLE_FX_NUMBER_DISPLAY)).toBe(WIRED_FX_CATEGORY.NUMBER_DISPLAY);
+        expect(wiredVariableFxCategoryOfCode(WiredAddonLayoutCode.VARIABLE_LEADERBOARD)).toBe(-1);
     });
 
     it('mirrors the server style tables', () => {

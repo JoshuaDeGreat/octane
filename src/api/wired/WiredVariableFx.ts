@@ -1,4 +1,4 @@
-import { WiredActionLayoutCode } from './WiredActionLayoutCode';
+import { WiredAddonLayoutCode } from './WiredAddonLayoutCode';
 
 /**
  * The variable fx boxes, as the server numbers them. Everything here mirrors
@@ -235,17 +235,17 @@ export const WIRED_FX_TOKEN_SEPARATOR = '\t';
 
 export const wiredVariableFxCategoryOfCode = (code: number): number => {
     switch (code) {
-        case WiredActionLayoutCode.VARIABLE_FX_HEALTH_POINTS_EXTRA:
+        case WiredAddonLayoutCode.VARIABLE_FX_HEALTH_POINTS:
             return WIRED_FX_CATEGORY.HEALTH_POINTS;
-        case WiredActionLayoutCode.VARIABLE_FX_PROGRESS_BAR_EXTRA:
+        case WiredAddonLayoutCode.VARIABLE_FX_PROGRESS_BAR:
             return WIRED_FX_CATEGORY.PROGRESS_BAR;
-        case WiredActionLayoutCode.VARIABLE_FX_LEVELLING_PROGRESS_EXTRA:
+        case WiredAddonLayoutCode.VARIABLE_FX_LEVELLING_PROGRESS:
             return WIRED_FX_CATEGORY.LEVELLING_PROGRESS;
-        case WiredActionLayoutCode.VARIABLE_FX_STATUS_BAR_EXTRA:
+        case WiredAddonLayoutCode.VARIABLE_FX_STATUS_BAR:
             return WIRED_FX_CATEGORY.STATUS_BAR;
-        case WiredActionLayoutCode.VARIABLE_FX_BOSS_BAR_EXTRA:
+        case WiredAddonLayoutCode.VARIABLE_FX_BOSS_BAR:
             return WIRED_FX_CATEGORY.BOSS_BAR;
-        case WiredActionLayoutCode.VARIABLE_FX_NUMBER_DISPLAY_EXTRA:
+        case WiredAddonLayoutCode.VARIABLE_FX_NUMBER_DISPLAY:
             return WIRED_FX_CATEGORY.NUMBER_DISPLAY;
         default:
             return -1;

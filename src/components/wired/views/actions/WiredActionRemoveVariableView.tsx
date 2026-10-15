@@ -1,6 +1,6 @@
 import { FC, useEffect, useMemo, useState } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { GetWiredTimeLocale, LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
+import { GetWiredTimeLocale, WIRED_ACTION_DELAY_MAX_PULSES, LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
 import contextVariableIcon from '../../../../assets/images/wired/var/icon_source_context_clean.png';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import userVariableIcon from '../../../../assets/images/wired/var/icon_source_user.png';
@@ -211,7 +211,7 @@ export const WiredActionRemoveVariableView: FC<{}> = () => {
                     <div className="octane-wired__give-var-section-title">
                         {LocalizeText('wiredfurni.params.delay', ['seconds'], [GetWiredTimeLocale(actionDelay)])}
                     </div>
-                    <Slider max={20} min={0} value={actionDelay} onChange={(event) => setActionDelay(event)} />
+                    <Slider max={WIRED_ACTION_DELAY_MAX_PULSES} min={0} value={actionDelay} onChange={(event) => setActionDelay(event)} />
                 </div>
 
                 {selectedTargetType !== 'context' && (

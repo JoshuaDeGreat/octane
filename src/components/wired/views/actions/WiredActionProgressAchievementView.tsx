@@ -3,13 +3,17 @@ import { localizeWithFallback, WiredFurniType } from '../../../../api';
 import { Text } from '../../../../common';
 import { useAchievements, useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { getCustomVariableItemId } from '../WiredVariablePickerData';
+import { normalizeWiredValueTarget, variableTokenFromId, WiredValueOrVariableSection } from '../WiredValueOrVariableSection';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 /**
  * Habbo's progress-achievement action (`wf_act_progress_achievement`): progresses one of the room's
  * achievements for the chosen users. The list is the room's `WiredEnvironment.enabledAchievements`:
  * what its achievement enablers name and the hotel allows.
- * Server: WiredEffectProgressAchievement. String param the name, int params `[mode, amount, user source]`.
+ * Server: WiredEffectProgressAchievement, official layout. String param the name, then a tab and the
+ * value variable's id; int params `[mode, valueIsVariable, value, valueTarget]`; user sources
+ * `[users to progress, value user]`, furni sources `[value furni]`.
  */
 
 export const PROGRESS_ACHIEVEMENT_MODE_RAISE_TO = 0;
@@ -22,20 +26,32 @@ export const clampProgressAmount = (value: number): number =>
 const normalizeMode = (value: number): number => (value === PROGRESS_ACHIEVEMENT_MODE_RAISE_TO ? PROGRESS_ACHIEVEMENT_MODE_RAISE_TO : PROGRESS_ACHIEVEMENT_MODE_ADD);
 
 export const WiredActionProgressAchievementView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const { enabledWiredAchievements = [] } = useAchievements();
     const [achievement, setAchievement] = useState('');
     const [mode, setMode] = useState(PROGRESS_ACHIEVEMENT_MODE_ADD);
-    const [amount, setAmount] = useState(1);
+    const [amount, setAmount] = useState('1');
     const [userSource, setUserSource] = useState(0);
+    const [isVariable, setIsVariable] = useState(false);
+    const [valueTarget, setValueTarget] = useState(0);
+    const [valueToken, setValueToken] = useState('');
+    const [valueFurniSource, setValueFurniSource] = useState(0);
+    const [valueUserSource, setValueUserSource] = useState(0);
 
     useEffect(() => {
         if (!trigger) return;
 
-        setAchievement(trigger.stringData ?? '');
+        const [name = '', variableId = ''] = (trigger.stringData ?? '').split('\t');
+
+        setAchievement(name);
         setMode(normalizeMode(trigger.intData?.[0] ?? PROGRESS_ACHIEVEMENT_MODE_ADD));
-        setAmount(clampProgressAmount(trigger.intData?.[1] ?? 1));
-        setUserSource(trigger.intData?.[2] ?? 0);
+        setIsVariable(trigger.intData?.[1] === 1);
+        setAmount(String(clampProgressAmount(trigger.intData?.[2] ?? 1)));
+        setValueTarget(normalizeWiredValueTarget(trigger.intData?.[3] ?? 0));
+        setValueToken(variableTokenFromId(variableId));
+        setUserSource(trigger.userSourceTypes?.[0] ?? 0);
+        setValueUserSource(trigger.userSourceTypes?.[1] ?? 0);
+        setValueFurniSource(trigger.furniSourceTypes?.[0] ?? 0);
     }, [trigger]);
 
     const options = useMemo(() => {
@@ -47,9 +63,14 @@ export const WiredActionProgressAchievementView: FC<{}> = () => {
     }, [enabledWiredAchievements, achievement]);
 
     const save = () => {
-        setStringParam(achievement);
-        setIntParams([mode, clampProgressAmount(amount), userSource]);
+        const variableId = isVariable ? getCustomVariableItemId(valueToken) : 0;
+
+        setStringParam(`${achievement}\t${variableId}`);
+        setIntParams([mode, isVariable ? 1 : 0, clampProgressAmount(parseInt(amount, 10)), valueTarget]);
+        setSourceTypes({ furni: [valueFurniSource], users: [userSource, valueUserSource] });
     };
+
+    const validate = () => achievement.length > 0 && (!isVariable || getCustomVariableItemId(valueToken) > 0);
 
     return (
         <WiredActionBaseView
@@ -57,7 +78,7 @@ export const WiredActionProgressAchievementView: FC<{}> = () => {
             hasSpecialInput={true}
             requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE}
             save={save}
-            validate={() => achievement.length > 0}
+            validate={validate}
         >
             <div className="flex flex-col gap-1">
                 <Text bold>{localizeWithFallback('wiredfurni.params.progress_achievement.name', 'Achievement')}</Text>
@@ -95,14 +116,21 @@ export const WiredActionProgressAchievementView: FC<{}> = () => {
             </div>
             <div className="flex flex-col gap-1">
                 <Text bold>{localizeWithFallback('wiredfurni.params.progress_achievement.score', 'Amount')}</Text>
-                <input
-                    type="number"
-                    min={1}
-                    max={PROGRESS_ACHIEVEMENT_MAX_AMOUNT}
-                    className="form-control form-control-sm"
-                    style={{ maxWidth: 140 }}
+                <WiredValueOrVariableSection
+                    name="progressAchievementValue"
+                    isVariable={isVariable}
                     value={amount}
-                    onChange={(event) => setAmount(clampProgressAmount(parseInt(event.target.value, 10)))}
+                    target={valueTarget}
+                    token={valueToken}
+                    furniSource={valueFurniSource}
+                    userSource={valueUserSource}
+                    min={1}
+                    onIsVariableChange={setIsVariable}
+                    onValueChange={setAmount}
+                    onTargetChange={setValueTarget}
+                    onTokenChange={setValueToken}
+                    onFurniSourceChange={setValueFurniSource}
+                    onUserSourceChange={setValueUserSource}
                 />
             </div>
         </WiredActionBaseView>

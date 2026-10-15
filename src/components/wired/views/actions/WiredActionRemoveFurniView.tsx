@@ -5,7 +5,7 @@ import { useWired } from '../../../../hooks';
 import { FURNI_SOURCES, WiredSourcesSelector } from '../WiredSourcesSelector';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
-// Server WiredEffectRemoveFurni: intParams = [mode, furniSource]. furniSource is resolved via
+// Ours (wf_act_pickup_furni, code 1156). Server WiredEffectRemoveFurni: intParams = [mode, furniSource]. furniSource is resolved via
 // WiredSourceUtil.resolveItems, which supports SELECTED(100)/SELECTOR(200)/SIGNAL(201)/TRIGGER(0).
 const MODE_RETURN = 0;
 const MODE_DELETE = 1;
