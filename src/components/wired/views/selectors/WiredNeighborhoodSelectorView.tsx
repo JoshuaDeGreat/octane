@@ -100,8 +100,20 @@ const NeighborhoodFloor: FC<NeighborhoodFloorProps> = ({ radius, tiles, root, on
                 width: TILE_W,
                 height: TILE_H,
                 clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
-                backgroundColor: isRoot ? '#ffffff' : taken ? '#3fae49' : '#3a4152',
-                cursor: 'pointer'
+                backgroundColor: taken ? '#3fae49' : '#3a4152',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            };
+            // The root (where the source stands) is a marker on top of the tile, so a drawn root still
+            // shows green underneath, as the official entry-tile image does.
+            const rootMarker: CSSProperties = {
+                width: TILE_W / 2,
+                height: TILE_H / 2,
+                clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+                backgroundColor: '#ffffff',
+                pointerEvents: 'none'
             };
 
             cells.push(
@@ -118,7 +130,9 @@ const NeighborhoodFloor: FC<NeighborhoodFloorProps> = ({ radius, tiles, root, on
                     onMouseEnter={ (event: ReactMouseEvent) =>
                     {
                         if(drawing && (event.buttons & 1)) onDraw(x, y);
-                    } } />
+                    } }>
+                    { isRoot && <div style={ rootMarker } /> }
+                </div>
             );
         }
     }

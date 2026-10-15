@@ -2,6 +2,7 @@ export * from './createPacketCooldownGate';
 export * from './GetWiredTimeLocale';
 export * from './WiredActionLayoutCode';
 export * from './WiredNeighborhood';
+export * from './WiredUserAction';
 export * from './WiredAddonLayoutCode';
 export * from './WiredSelectorLayoutCode';
 export * from './WiredVariableLayoutCode';
