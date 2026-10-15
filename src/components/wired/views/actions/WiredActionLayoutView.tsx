@@ -91,6 +91,7 @@ import { WiredActionProgressRewardTrackView } from './WiredActionProgressRewardT
 import { WiredActionQuickBopperView } from './WiredActionQuickBopperView';
 import { WiredActionRelativeMoveView } from './WiredActionRelativeMoveView';
 import { WiredActionRemoveFurniView } from './WiredActionRemoveFurniView';
+import { WiredActionRemoveTemporaryFurniView } from './WiredActionRemoveTemporaryFurniView';
 import { WiredActionRemoveVariableView } from './WiredActionRemoveVariableView';
 import { WiredActionResetRewardTrackView } from './WiredActionResetRewardTrackView';
 import { WiredActionResetView } from './WiredActionResetView';
@@ -254,6 +255,8 @@ export const WiredActionLayoutView = (code: number) => {
         case WiredActionLayoutCode.SPAWN_FURNI:
             return <WiredActionPlaceFurniView />;
         case WiredActionLayoutCode.REMOVE_FURNI:
+            return <WiredActionRemoveTemporaryFurniView />;
+        case WiredActionLayoutCode.PICKUP_FURNI:
             return <WiredActionRemoveFurniView />;
         case WiredActionLayoutCode.CHANGE_OPACITY:
             return <WiredActionChangeOpacityView />;

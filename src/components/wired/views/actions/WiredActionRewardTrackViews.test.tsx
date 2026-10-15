@@ -20,6 +20,12 @@ vi.mock('../WiredSourcesSelector', () => ({
     WiredSourcesSelector: () => <div>sources</div>
 }));
 
+vi.mock('../WiredValueOrVariableSection', () => ({
+    normalizeWiredValueTarget: (value: number) => value,
+    variableTokenFromId: () => '',
+    WiredValueOrVariableSection: () => <div>value</div>
+}));
+
 vi.mock('./WiredActionBaseView', () => ({
     WiredActionBaseView: (props: PropsWithChildren<{ save: () => void; validate?: () => boolean }>) => {
         baseProps = { save: props.save, validate: props.validate };

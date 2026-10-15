@@ -1,11 +1,14 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
 import sourceFurniIcon from '../../../../assets/images/wired/source_furni.png';
 import sourceUserIcon from '../../../../assets/images/wired/source_user.png';
 import { Text } from '../../../../common';
-import { useWired } from '../../../../hooks';
+import { useWired, useWiredTools } from '../../../../hooks';
 import { WiredFurniSelectionSourceRow } from '../WiredFurniSelectionSourceRow';
 import { sortWiredSourceOptions, useAvailableUserSources } from '../WiredSourcesSelector';
+import { WiredVariablePicker } from '../WiredVariablePicker';
+import { flattenWiredVariablePickerEntries, getCustomVariableItemId } from '../WiredVariablePickerData';
+import { customVariablePickerEntries, normalizeWiredValueTarget, variableTokenFromId, WiredValueOrVariableSection } from '../WiredValueOrVariableSection';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 const SOURCE_TRIGGER = 0;
@@ -38,12 +41,13 @@ const clamp = (value: number, bound: number) => Math.max(-bound, Math.min(bound,
  * The official "place furni" (code 55): places temporary copies of the picked furni, as they were when
  * the box was saved. Int params [targetIsUser, location, altitude, offsetX, offsetY, offsetAltitude,
  * spawnWithVariable, valueIsVariable, value, valueTarget]; furni sources [picks, target furni, value
- * furni], user sources [target user, value user]. The spawn-with-variable part is kept as the box
- * sent it until its editor follows.
+ * furni], user sources [target user, value user]. Spawning with a variable gives every copy a furni
+ * variable; its value is a number or another variable's (value target 0 furni, 1 user, -10 global,
+ * -20 context). The two variables travel in the string param as "spawnId\tvalueId".
  */
 export const WiredActionPlaceTemporaryFurniView: FC<{}> = () =>
 {
-    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const [ targetIsUser, setTargetIsUser ] = useState(false);
     const [ location, setLocation ] = useState(0);
     const [ altitude, setAltitude ] = useState(0);
@@ -53,7 +57,22 @@ export const WiredActionPlaceTemporaryFurniView: FC<{}> = () =>
     const [ showOffsets, setShowOffsets ] = useState(false);
     const [ targetFurniSource, setTargetFurniSource ] = useState(SOURCE_TRIGGER);
     const [ targetUserSource, setTargetUserSource ] = useState(SOURCE_TRIGGER);
+    const [ spawnWithVariable, setSpawnWithVariable ] = useState(false);
+    const [ spawnToken, setSpawnToken ] = useState('');
+    const [ valueIsVariable, setValueIsVariable ] = useState(false);
+    const [ value, setValue ] = useState('0');
+    const [ valueTarget, setValueTarget ] = useState(0);
+    const [ valueToken, setValueToken ] = useState('');
+    const [ valueFurniSource, setValueFurniSource ] = useState(SOURCE_TRIGGER);
+    const [ valueUserSource, setValueUserSource ] = useState(SOURCE_TRIGGER);
     const availableUserSources = useAvailableUserSources(trigger, TARGET_USER_SOURCES);
+    const { furniVariableDefinitions = [] } = useWiredTools();
+    const spawnEntries = useMemo(
+        () => customVariablePickerEntries('furni', 'give', furniVariableDefinitions.filter(definition => !definition.isReadOnly), spawnToken),
+        [ furniVariableDefinitions, spawnToken ]
+    );
+    const spawnEntry = flattenWiredVariablePickerEntries(spawnEntries).find(entry => entry.token === spawnToken) ?? null;
+    const spawnHasValue = spawnEntry?.hasValue ?? true;
 
     useEffect(() =>
     {
@@ -70,20 +89,54 @@ export const WiredActionPlaceTemporaryFurniView: FC<{}> = () =>
         setShowOffsets(!!(params[3] || params[4] || params[5]));
         setTargetFurniSource(trigger.furniSourceTypes?.[1] ?? SOURCE_TRIGGER);
         setTargetUserSource(trigger.userSourceTypes?.[0] ?? SOURCE_TRIGGER);
+
+        const variables = (trigger.stringData ?? '').split('\t');
+
+        setSpawnWithVariable(params[6] === 1);
+        setValueIsVariable(params[7] === 1);
+        setValue(String(params[8] ?? 0));
+        setValueTarget(normalizeWiredValueTarget(params[9]));
+        setSpawnToken(variableTokenFromId(variables[0]));
+        setValueToken(variableTokenFromId(variables[1]));
+        setValueFurniSource(trigger.furniSourceTypes?.[2] ?? SOURCE_TRIGGER);
+        setValueUserSource(trigger.userSourceTypes?.[1] ?? SOURCE_TRIGGER);
     }, [ trigger ]);
 
     const save = () =>
     {
-        const params = trigger?.intData ?? [];
-        // Spawning with a variable: passed back as the box sent it.
-        const spawn = [ params[6] ?? 0, params[7] ?? 0, params[8] ?? 0, params[9] ?? 0 ];
+        const parsedValue = parseInt(value, 10);
+        const spawn = [ spawnWithVariable ? 1 : 0, valueIsVariable ? 1 : 0, Number.isFinite(parsedValue) ? parsedValue : 0, valueTarget ];
 
         setIntParams([ targetIsUser ? 1 : 0, location, altitude, offsetX, offsetY, offsetAltitude, ...spawn ]);
+        setStringParam(`${ getCustomVariableItemId(spawnToken) }\t${ getCustomVariableItemId(valueToken) }`);
         setSourceTypes({
-            furni: [ SOURCE_PICKED, targetFurniSource, trigger?.furniSourceTypes?.[2] ?? SOURCE_TRIGGER ],
-            users: [ targetUserSource, trigger?.userSourceTypes?.[1] ?? SOURCE_TRIGGER ]
+            furni: [ SOURCE_PICKED, targetFurniSource, valueFurniSource ],
+            users: [ targetUserSource, valueUserSource ]
         });
     };
+
+    const validate = () =>
+    {
+        if(!spawnWithVariable) return true;
+        if(getCustomVariableItemId(spawnToken) <= 0) return false;
+
+        return !(spawnHasValue && valueIsVariable && getCustomVariableItemId(valueToken) <= 0);
+    };
+
+    const sourceButtons = (isUser: boolean, onChange: (isUser: boolean) => void) => (
+        <div className="octane-wired__give-var-targets">
+            { [ { key: 'furni', icon: sourceFurniIcon, isUser: false }, { key: 'user', icon: sourceUserIcon, isUser: true } ].map(button => (
+                <button
+                    key={ button.key }
+                    type="button"
+                    title={ LocalizeText(`wiredfurni.params.sources.${ button.isUser ? 'users' : 'furni' }.title`) }
+                    className={ `octane-wired__give-var-target octane-wired__give-var-target--${ button.key } ${ isUser === button.isUser ? 'is-active' : '' }` }
+                    onClick={ () => onChange(button.isUser) }>
+                    <img src={ button.icon } alt={ button.key } />
+                </button>
+            )) }
+        </div>
+    );
 
     const customTargetUsed = location === 1 || altitude === 2;
     const radio = (name: string, value: number, current: number, onChange: (value: number) => void, label: string, info?: string) => (
@@ -103,7 +156,7 @@ export const WiredActionPlaceTemporaryFurniView: FC<{}> = () =>
     );
 
     return (
-        <WiredActionBaseView hasSpecialInput={ true } requiresFurni={ WiredFurniType.STUFF_SELECTION_OPTION_BY_ID } save={ save }>
+        <WiredActionBaseView hasSpecialInput={ true } requiresFurni={ WiredFurniType.STUFF_SELECTION_OPTION_BY_ID } save={ save } validate={ validate }>
             <div className="flex flex-col gap-2">
                 <Text small>{ localizeWithFallback('wiredfurni.params.place_furni.usage_info', 'Places temporary copies of the picked furni, as they are when you save.') }</Text>
 
@@ -132,6 +185,35 @@ export const WiredActionPlaceTemporaryFurniView: FC<{}> = () =>
 
                 <hr className="m-0 bg-dark" />
 
+                <div className="flex flex-col gap-1">
+                    <label className="flex items-center gap-1">
+                        <input type="checkbox" className="form-check-input" checked={ spawnWithVariable } onChange={ event => setSpawnWithVariable(event.target.checked) } />
+                        <Text bold>{ localizeWithFallback('wiredfurni.params.place_furni.spawn_with_variable', 'Spawn with variable') }</Text>
+                    </label>
+                    { spawnWithVariable &&
+                        <>
+                            <WiredVariablePicker entries={ spawnEntries } recentScope="variable-effects" selectedToken={ spawnToken } onSelect={ entry => setSpawnToken(entry.token) } />
+                            { !furniVariableDefinitions.length && <Text small>No wf_var_furni variables found in this room.</Text> }
+                            { spawnHasValue &&
+                                <WiredValueOrVariableSection
+                                    name="placeValueMode"
+                                    isVariable={ valueIsVariable }
+                                    value={ value }
+                                    target={ valueTarget }
+                                    token={ valueToken }
+                                    furniSource={ valueFurniSource }
+                                    userSource={ valueUserSource }
+                                    onIsVariableChange={ setValueIsVariable }
+                                    onValueChange={ setValue }
+                                    onTargetChange={ setValueTarget }
+                                    onTokenChange={ setValueToken }
+                                    onFurniSourceChange={ setValueFurniSource }
+                                    onUserSourceChange={ setValueUserSource } /> }
+                        </> }
+                </div>
+
+                <hr className="m-0 bg-dark" />
+
                 <div className={ customTargetUsed ? '' : 'opacity-50 pointer-events-none' }>
                     <WiredFurniSelectionSourceRow
                         title="wiredfurni.params.sources.merged.title.custom_target"
@@ -143,20 +225,7 @@ export const WiredActionPlaceTemporaryFurniView: FC<{}> = () =>
                         selectionLimit={ 0 }
                         selectionEnabledValues={ [] }
                         showSelectionToggle={ false }
-                        headerContent={
-                            <div className="octane-wired__give-var-targets">
-                                { [ { key: 'furni', icon: sourceFurniIcon, isUser: false }, { key: 'user', icon: sourceUserIcon, isUser: true } ].map(button => (
-                                    <button
-                                        key={ button.key }
-                                        type="button"
-                                        title={ LocalizeText(`wiredfurni.params.sources.${ button.isUser ? 'users' : 'furni' }.title`) }
-                                        className={ `octane-wired__give-var-target octane-wired__give-var-target--${ button.key } ${ targetIsUser === button.isUser ? 'is-active' : '' }` }
-                                        onClick={ () => setTargetIsUser(button.isUser) }>
-                                        <img src={ button.icon } alt={ button.key } />
-                                    </button>
-                                )) }
-                            </div>
-                        }
+                        headerContent={ sourceButtons(targetIsUser, setTargetIsUser) }
                         onChange={ value => (targetIsUser ? setTargetUserSource(value) : setTargetFurniSource(value)) } />
                 </div>
             </div>

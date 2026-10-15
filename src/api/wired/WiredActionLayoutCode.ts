@@ -84,4 +84,6 @@ export class WiredActionLayoutCode {
     public static MOVE_FURNI_GROUP_STEP: number = 1154;
     /** Ours (wf_act_spawn_furni): mint a new furni by base item id. */
     public static SPAWN_FURNI: number = 1155;
+    /** Ours (wf_act_pickup_furni): pick the furni up into its owner's inventory. */
+    public static PICKUP_FURNI: number = 1156;
 }
