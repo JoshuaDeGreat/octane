@@ -80,4 +80,8 @@ export class WiredActionLayoutCode {
     public static EFFECT_TEXT: number = 1123;
     public static ALL_USERS_LEAVE_TEAM: number = 1124;
     public static MODIFY_ARRAY: number = 1126;
+    /** Ours (wf_act_move_group_step): the selected furni step one tile in a compass direction. */
+    public static MOVE_FURNI_GROUP_STEP: number = 1154;
+    /** Ours (wf_act_spawn_furni): mint a new furni by base item id. */
+    public static SPAWN_FURNI: number = 1155;
 }

@@ -74,6 +74,7 @@ import { WiredActionJoinTeamView } from './WiredActionJoinTeamView';
 import { WiredActionKickFromRoomView } from './WiredActionKickFromRoomView';
 import { WiredActionLeaveTeamView } from './WiredActionLeaveTeamView';
 import { WiredActionMoveAndRotateFurniView } from './WiredActionMoveAndRotateFurniView';
+import { WiredActionMoveAsGroupView } from './WiredActionMoveAsGroupView';
 import { WiredActionMoveFurniAsGroupView } from './WiredActionMoveFurniAsGroupView';
 import { WiredActionMoveFurniToView } from './WiredActionMoveFurniToView';
 import { WiredActionMoveFurniView } from './WiredActionMoveFurniView';
@@ -83,6 +84,7 @@ import { WiredActionModifyArrayView } from './WiredActionModifyArrayView';
 import { WiredActionMuteUserView } from './WiredActionMuteUserView';
 import { WiredActionNegativeCallAnotherStackView } from './WiredActionNegativeCallAnotherStackView';
 import { WiredActionPlaceFurniView } from './WiredActionPlaceFurniView';
+import { WiredActionPlaceTemporaryFurniView } from './WiredActionPlaceTemporaryFurniView';
 import { WiredActionPlayYoutubeView } from './WiredActionPlayYoutubeView';
 import { WiredActionProgressAchievementView } from './WiredActionProgressAchievementView';
 import { WiredActionProgressRewardTrackView } from './WiredActionProgressRewardTrackView';
@@ -236,6 +238,8 @@ export const WiredActionLayoutView = (code: number) => {
         case WiredActionLayoutCode.SET_ROOM_AD:
             return <WiredActionSetRoomAdView />;
         case WiredActionLayoutCode.MOVE_FURNI_AS_GROUP:
+            return <WiredActionMoveAsGroupView />;
+        case WiredActionLayoutCode.MOVE_FURNI_GROUP_STEP:
             return <WiredActionMoveFurniAsGroupView />;
         case WiredActionLayoutCode.GIVE_CURRENCY_FROM_CHEST:
             return <WiredActionGiveCurrencyFromChestView />;
@@ -246,6 +250,8 @@ export const WiredActionLayoutView = (code: number) => {
         case WiredActionLayoutCode.CANCEL_TRANSACTION:
             return <WiredActionCancelTransactionView />;
         case WiredActionLayoutCode.PLACE_FURNI:
+            return <WiredActionPlaceTemporaryFurniView />;
+        case WiredActionLayoutCode.SPAWN_FURNI:
             return <WiredActionPlaceFurniView />;
         case WiredActionLayoutCode.REMOVE_FURNI:
             return <WiredActionRemoveFurniView />;
