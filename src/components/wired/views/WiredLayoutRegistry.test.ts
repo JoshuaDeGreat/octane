@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { WiredActionLayoutCode, WiredConditionlayout, WiredTriggerLayout } from '../../../api';
+import { WiredActionLayoutCode, WiredAddonLayoutCode, WiredConditionlayout, WiredSelectorLayoutCode, WiredTriggerLayout, WiredVariableLayoutCode } from '../../../api';
 import { WiredActionLayoutView } from './actions/WiredActionLayoutView';
 import { WiredConditionLayoutView } from './conditions/WiredConditionLayoutView';
+import { WiredAddonLayoutView } from './extras/WiredAddonLayoutView';
+import { WiredVariableLayoutView } from './extras/WiredVariableLayoutView';
+import { WiredSelectorLayoutView } from './selectors/WiredSelectorLayoutView';
 import { WiredTriggerLayoutView } from './triggers/WiredTriggerLayoutView';
 
 /**
@@ -18,7 +21,10 @@ describe('wired layout registries', () => {
     it('declares codes for every family', () => {
         expect(declaredCodes(WiredTriggerLayout).length).toBeGreaterThan(20);
         expect(declaredCodes(WiredConditionlayout).length).toBeGreaterThan(40);
-        expect(declaredCodes(WiredActionLayoutCode).length).toBeGreaterThan(100);
+        expect(declaredCodes(WiredActionLayoutCode).length).toBeGreaterThan(50);
+        expect(declaredCodes(WiredSelectorLayoutCode).length).toBeGreaterThan(19);
+        expect(declaredCodes(WiredAddonLayoutCode).length).toBeGreaterThan(30);
+        expect(declaredCodes(WiredVariableLayoutCode).length).toBeGreaterThan(8);
     });
 
     it('opens a window for every trigger code', () => {
@@ -29,7 +35,13 @@ describe('wired layout registries', () => {
         expect(missingWindows(WiredConditionlayout, WiredConditionLayoutView)).toEqual([]);
     });
 
-    it('opens a window for every action, selector and extra code', () => {
+    it('opens a window for every action code', () => {
         expect(missingWindows(WiredActionLayoutCode, WiredActionLayoutView)).toEqual([]);
+    });
+
+    it('opens a window for every selector, addon and variable code', () => {
+        expect(missingWindows(WiredSelectorLayoutCode, WiredSelectorLayoutView)).toEqual([]);
+        expect(missingWindows(WiredAddonLayoutCode, WiredAddonLayoutView)).toEqual([]);
+        expect(missingWindows(WiredVariableLayoutCode, WiredVariableLayoutView)).toEqual([]);
     });
 });

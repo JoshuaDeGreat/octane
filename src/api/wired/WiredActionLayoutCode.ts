@@ -25,11 +25,6 @@ export class WiredActionLayoutCode {
     public static BOT_FOLLOW_AVATAR: number = 25;
     public static BOT_CHANGE_FIGURE: number = 26;
     public static BOT_TALK_DIRECT_TO_AVTR: number = 27;
-    public static FURNI_AREA_SELECTOR: number = 28;
-    public static FURNI_NEIGHBORHOOD_SELECTOR: number = 29;
-    public static FURNI_BYTYPE_SELECTOR: number = 30;
-    public static USERS_AREA_SELECTOR: number = 31;
-    public static USERS_NEIGHBORHOOD_SELECTOR: number = 32;
     public static SEND_SIGNAL: number = 33;
     public static FREEZE: number = 34;
     public static UNFREEZE: number = 35;
@@ -41,48 +36,9 @@ export class WiredActionLayoutCode {
     public static CONTROL_CLOCK: number = 41;
     public static ADJUST_CLOCK: number = 42;
     public static MOVE_ROTATE_USER: number = 43;
-    public static FURNI_ALTITUDE_SELECTOR: number = 44;
-    public static FURNI_ON_FURNI_SELECTOR: number = 45;
-    public static FURNI_PICKS_SELECTOR: number = 46;
-    public static FURNI_SIGNAL_SELECTOR: number = 47;
-    public static USERS_SIGNAL_SELECTOR: number = 48;
-    public static USERS_BY_TYPE_SELECTOR: number = 49;
-    public static USERS_TEAM_SELECTOR: number = 50;
-    public static USERS_BY_ACTION_SELECTOR: number = 51;
-    public static USERS_BY_NAME_SELECTOR: number = 52;
-    public static USERS_ON_FURNI_SELECTOR: number = 53;
-    public static USERS_GROUP_SELECTOR: number = 54;
-    public static USERS_HANDITEM_SELECTOR: number = 55;
-    public static FILTER_FURNI_EXTRA: number = 56;
-    public static FILTER_USER_EXTRA: number = 57;
-    public static MOVE_CARRY_USERS_EXTRA: number = 58;
-    public static MOVE_NO_ANIMATION_EXTRA: number = 59;
-    public static ANIMATION_TIME_EXTRA: number = 60;
-    public static MOVE_PHYSICS_EXTRA: number = 61;
-    public static UNSEEN_EXTRA: number = 62;
-    public static RANDOM_EXTRA: number = 63;
-    public static EXEC_IN_ORDER_EXTRA: number = 64;
-    public static EXECUTION_LIMIT_EXTRA: number = 65;
-    public static OR_EVAL_EXTRA: number = 66;
-    public static TEXT_OUTPUT_USERNAME_EXTRA: number = 67;
-    public static TEXT_OUTPUT_FURNI_NAME_EXTRA: number = 68;
     public static GIVE_VARIABLE: number = 69;
-    public static USER_VARIABLE_EXTRA: number = 70;
-    public static FURNI_VARIABLE_EXTRA: number = 71;
-    public static ROOM_VARIABLE_EXTRA: number = 72;
     public static REMOVE_VARIABLE: number = 73;
     public static CHANGE_VARIABLE_VALUE: number = 74;
-    public static FURNI_WITH_VARIABLE_SELECTOR: number = 75;
-    public static USERS_WITH_VARIABLE_SELECTOR: number = 76;
-    public static FILTER_USERS_BY_VARIABLE_EXTRA: number = 77;
-    public static FILTER_FURNI_BY_VARIABLE_EXTRA: number = 78;
-    public static VARIABLE_TEXT_CONNECTOR_EXTRA: number = 79;
-    public static TEXT_OUTPUT_VARIABLE_EXTRA: number = 80;
-    public static VARIABLE_REFERENCE_EXTRA: number = 81;
-    public static VARIABLE_LEVELUP_SYSTEM_EXTRA: number = 82;
-    public static VARIABLE_ECHO_EXTRA: number = 83;
-    public static CONTEXT_VARIABLE_EXTRA: number = 84;
-    public static TEXT_INPUT_VARIABLE_EXTRA: number = 85;
     public static NEG_CALL_ANOTHER_STACK: number = 86;
     public static NEG_SEND_SIGNAL: number = 87;
     public static SET_ROLLER_SPEED: number = 88;
@@ -93,24 +49,12 @@ export class WiredActionLayoutCode {
     public static QUICK_BOPPER: number = 93;
     public static SET_ROOM_AD: number = 94;
     public static MOVE_FURNI_AS_GROUP: number = 95;
-    public static REMOTE_SELECTOR: number = 96;
-    public static MOVEMENT_CURVE_EXTRA: number = 97;
-    public static TIME_UTILITIES_EXTRA: number = 98;
     public static GIVE_CURRENCY_FROM_CHEST: number = 99;
-    public static CURRENCY_CHEST: number = 100;
-    public static FURNI_CHEST: number = 101;
     public static GIVE_FURNI_FROM_CHEST: number = 102;
-    public static SCAN_CHEST_FURNI_BY_TYPE: number = 103;
     public static INIT_TRANSACTION: number = 104;
     public static CANCEL_TRANSACTION: number = 105;
     public static PLACE_FURNI: number = 106;
     public static REMOVE_FURNI: number = 107;
-    public static QUEST_EXTRA: number = 108;
-    public static QUEST_CHAIN_EXTRA: number = 109;
-    public static CONTRACT_PAYMENT: number = 110;
-    public static CONTRACT_REWARD: number = 111;
-    public static CONTRACT_TRADE: number = 112;
-    public static CUSTOM_CONTRACT: number = 113;
     public static CHANGE_OPACITY: number = 114;
     public static WALK_TO_FURNI: number = 115;
     public static USER_TARGET: number = 116;
@@ -125,35 +69,22 @@ export class WiredActionLayoutCode {
     public static OVERRIDE_HEIGHT: number = 125;
 
     public static MODIFY_ARRAY: number = 126;
-    public static ARRAY_CAPTURE_VARIABLE_EXTRA: number = 127;
 
-    public static VARIABLE_WEB_API_EXTRA: number = 128;
 
     public static CLICK_SETTINGS: number = 129;
 
-    public static VARIABLE_FX_HEALTH_POINTS_EXTRA: number = 130;
-    public static VARIABLE_FX_PROGRESS_BAR_EXTRA: number = 131;
-    public static VARIABLE_FX_LEVELLING_PROGRESS_EXTRA: number = 132;
-    public static VARIABLE_FX_STATUS_BAR_EXTRA: number = 133;
-    public static VARIABLE_FX_BOSS_BAR_EXTRA: number = 134;
-    public static VARIABLE_FX_NUMBER_DISPLAY_EXTRA: number = 135;
 
-    public static PROJECTILE_EXTRA: number = 136;
     /** Habbo's "write to logs" (wf_act_log / wf_act_neg_log): a message at a log level into the room log. */
     public static WRITE_TO_LOGS: number = 137;
     /** Habbo's "teleport to room": a typed room, or the room a picked room link or teleporter leads to. */
     public static TELEPORT_TO_ROOM: number = 138;
     /** Habbo's variable leaderboard addon (wf_xtra_var_leaderboard), official addon code 1005. */
-    public static VARIABLE_LEADERBOARD_EXTRA: number = 1005;
 
     /** Habbo's achievement and reward-track boxes; hotel-wide rewards, gated by the hotel. */
     public static PROGRESS_ACHIEVEMENT: number = 150;
-    public static ACHIEVEMENT_ENABLER_EXTRA: number = 151;
     public static PROGRESS_REWARD_TRACK: number = 152;
     public static RESET_REWARD_TRACK: number = 153;
 
     /** Global placeholder add-on (wf_xtra_text_output_global); the upstream addon code. */
-    public static GLOBAL_PLACEHOLDER_EXTRA: number = 2000;
     /** Daily task variable box (wf_var_daily_task); upstream variable code 8 in the same band. */
-    public static DAILY_TASK_EXTRA: number = 2008;
 }
