@@ -69,6 +69,10 @@ const useWiredState = () => {
     const [stringParam, setStringParam, stringParamRef] = useLiveState<string>('');
     const [furniIds, setFurniIds, furniIdsRef] = useLiveState<number[]>([]);
     const [actionDelay, setActionDelay, actionDelayRef] = useLiveState<number>(0);
+    // Set by an editor that writes the official source fields and selector switches itself; until then
+    // the save passes back what the box sent.
+    const [, setSourceTypes, sourceTypesRef] = useLiveState<{ furni: number[]; users: number[] } | null>(null);
+    const [, setSelectorOptions, selectorOptionsRef] = useLiveState<{ filter: boolean; invert: boolean } | null>(null);
     const [allowsFurni, setAllowsFurni] = useState<number>(WiredFurniType.STUFF_SELECTION_OPTION_NONE);
     const selectByType = false;
     const [neighborhoodTiles, setNeighborhoodTiles] = useState<{ x: number; y: number }[] | null>(null);
@@ -96,8 +100,8 @@ const useWiredState = () => {
 
             // Official save layout: the source types, variable ids and second picks go back as the box
             // sent them until its editor sets them itself.
-            const furniSources = trigger.furniSourceTypes ?? [];
-            const userSources = trigger.userSourceTypes ?? [];
+            const furniSources = sourceTypesRef.current?.furni ?? trigger.furniSourceTypes ?? [];
+            const userSources = sourceTypesRef.current?.users ?? trigger.userSourceTypes ?? [];
             const variableIds = trigger.variableIds ?? [];
             const furniIds2 = trigger.selectedItems2 ?? [];
 
@@ -113,8 +117,8 @@ const useWiredState = () => {
                         intParams,
                         stringParam,
                         furniIds,
-                        trigger.isFilter ?? false,
-                        trigger.isInvert ?? false,
+                        selectorOptionsRef.current?.filter ?? trigger.isFilter ?? false,
+                        selectorOptionsRef.current?.invert ?? trigger.isInvert ?? false,
                         furniSources,
                         userSources,
                         variableIds,
@@ -509,6 +513,8 @@ const useWiredState = () => {
             setAllowsFurni(WiredFurniType.STUFF_SELECTION_OPTION_NONE);
             setNeighborhoodTiles(null);
             setNeighborhoodInvert(false);
+            setSourceTypes(null);
+            setSelectorOptions(null);
             setAllowedInteractionTypes(null);
             setAllowedInteractionErrorKey(null);
             setAllowedFurniCheckState(null);
@@ -537,6 +543,8 @@ const useWiredState = () => {
         selectObjectForWired,
         setNeighborhoodTiles,
         setNeighborhoodInvert,
+        setSourceTypes,
+        setSelectorOptions,
         setAllowedInteractionTypes,
         setAllowedInteractionErrorKey,
         setAllowedFurniCheck
