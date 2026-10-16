@@ -1,11 +1,12 @@
 import { FC, useEffect, useState } from 'react';
-import { LocalizeText, WiredFurniType } from '../../../../api';
+import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
 import { WiredConditionBaseView } from './WiredConditionBaseView';
 
-const teamIds: number[] = [1, 2, 3, 4];
+// 0 is "in any team", as officially.
+const teamIds: number[] = [0, 1, 2, 3, 4];
 
 interface WiredConditionActorIsTeamMemberViewProps {
     negative?: boolean;
@@ -14,18 +15,19 @@ interface WiredConditionActorIsTeamMemberViewProps {
 export const WiredConditionActorIsTeamMemberView: FC<WiredConditionActorIsTeamMemberViewProps> = ({ negative = false }) => {
     const [selectedTeam, setSelectedTeam] = useState(-1);
     const [quantifier, setQuantifier] = useState(1);
-    const { trigger = null, setIntParams = null } = useWired();
-    const [userSource, setUserSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return 0;
-    });
+    // Official layout: [team (0 any team, 1-4), our quantifier], the users in the official source slot.
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [userSource, setUserSource] = useState<number>(() => trigger?.userSourceTypes?.[0] ?? 0);
 
-    const save = () => setIntParams([selectedTeam, userSource, quantifier]);
+    const save = () => {
+        setIntParams([selectedTeam, quantifier]);
+        setSourceTypes({ furni: [], users: [userSource] });
+    };
 
     useEffect(() => {
         setSelectedTeam(trigger.intData.length > 0 ? trigger.intData[0] : 0);
-        setUserSource(trigger.intData.length > 1 ? trigger.intData[1] : 0);
-        setQuantifier(trigger.intData.length > 2 ? (trigger.intData[2] === 1 ? 1 : 0) : 1);
+        setUserSource(trigger.userSourceTypes?.[0] ?? 0);
+        setQuantifier(trigger.intData[1] === 1 ? 1 : 0);
     }, [trigger]);
 
     return (
@@ -63,7 +65,7 @@ export const WiredConditionActorIsTeamMemberView: FC<WiredConditionActorIsTeamMe
                                 type="radio"
                                 onChange={(event) => setSelectedTeam(value)}
                             />
-                            <Text>{LocalizeText(`wiredfurni.params.team.${value}`)}</Text>
+                            <Text>{value === 0 ? localizeWithFallback('wiredfurni.params.team.0', 'Any team') : LocalizeText(`wiredfurni.params.team.${value}`)}</Text>
                         </div>
                     );
                 })}

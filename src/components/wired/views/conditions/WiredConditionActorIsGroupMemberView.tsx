@@ -18,17 +18,19 @@ export const WiredConditionActorIsGroupMemberView: FC<WiredConditionActorIsGroup
     const [groupType, setGroupType] = useState(GROUP_CURRENT_ROOM);
     const [selectedGroupId, setSelectedGroupId] = useState(0);
     const [quantifier, setQuantifier] = useState(0);
-    const { trigger = null, setIntParams = null } = useWired();
+    // Official layout: the group id in the string (empty: the room's group), [our quantifier], the users
+    // in the official source slot.
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
 
     useEffect(() => {
         if (!trigger) return;
 
-        const params = trigger.intData;
+        const groupId = parseInt((trigger.stringData ?? '').trim(), 10);
 
-        setUserSource(params.length > 0 ? params[0] : 0);
-        setGroupType(params.length > 1 ? params[1] : GROUP_CURRENT_ROOM);
-        setSelectedGroupId(params.length > 2 ? params[2] : 0);
-        setQuantifier(params.length > 3 && params[3] === 1 ? 1 : 0);
+        setUserSource(trigger.userSourceTypes?.[0] ?? 0);
+        setGroupType(groupId > 0 ? GROUP_SELECTED : GROUP_CURRENT_ROOM);
+        setSelectedGroupId(groupId > 0 ? groupId : 0);
+        setQuantifier(trigger.intData[0] === 1 ? 1 : 0);
     }, [trigger]);
 
     useEffect(() => {
@@ -39,7 +41,11 @@ export const WiredConditionActorIsGroupMemberView: FC<WiredConditionActorIsGroup
 
     const selectedGroupOptions = useMemo(() => groups.map((group) => ({ value: group.groupId, label: group.groupName })), [groups]);
 
-    const save = () => setIntParams([userSource, groupType, selectedGroupId, quantifier]);
+    const save = () => {
+        setStringParam(groupType === GROUP_SELECTED && selectedGroupId > 0 ? String(selectedGroupId) : '');
+        setIntParams([quantifier]);
+        setSourceTypes({ furni: [], users: [userSource] });
+    };
 
     return (
         <WiredConditionBaseView

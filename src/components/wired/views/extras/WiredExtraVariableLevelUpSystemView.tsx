@@ -19,11 +19,17 @@ const SUB_IS_AT_MAX = 6;
 const SUB_MAX_LEVEL = 7;
 
 const DEFAULT_STEP_SIZE = 100;
-const DEFAULT_MAX_LEVEL = 10;
+// Official defaults for a new box: 50 levels, 20 % growth, every sub-variable.
+const DEFAULT_MAX_LEVEL = 50;
 const DEFAULT_FIRST_LEVEL_XP = 100;
-const DEFAULT_INCREASE_FACTOR = 100;
+const DEFAULT_INCREASE_FACTOR = 20;
 const DEFAULT_INTERPOLATION_TEXT = '';
-const DEFAULT_SUBVARIABLES = [SUB_CURRENT_LEVEL, SUB_CURRENT_XP];
+const DEFAULT_SUBVARIABLES = [0, 1, 2, 3, 4, 5, 6, 7];
+/** A box saved before sub-variables were stored had these two. */
+const LEGACY_SUBVARIABLES = [SUB_CURRENT_LEVEL, SUB_CURRENT_XP];
+const OFFICIAL_MODE_MANUAL = 0;
+const OFFICIAL_MODE_LINEAR = 1;
+const OFFICIAL_MODE_EXPONENTIAL = 2;
 const DEFAULT_PLACEHOLDER = '5=100            (Level 5 = 100 XP)\n10=500\n20=4000\n...';
 
 interface IVariableLevelUpEditorData {
@@ -72,8 +78,8 @@ const normalizePositiveInt = (value: number, fallback: number) => {
 const normalizeInterpolationText = (value: string) => (value ?? '').replace(/\r/g, '');
 
 const normalizeSubvariables = (value?: number[] | null) => {
-    if (value === null) return [...DEFAULT_SUBVARIABLES];
-    if (!Array.isArray(value)) return [...DEFAULT_SUBVARIABLES];
+    if (value === null) return [...LEGACY_SUBVARIABLES];
+    if (!Array.isArray(value)) return [...LEGACY_SUBVARIABLES];
 
     return [...new Set(value.filter((subvariable) => Number.isInteger(subvariable) && subvariable >= SUB_CURRENT_LEVEL && subvariable <= SUB_MAX_LEVEL))];
 };
@@ -92,6 +98,27 @@ const parseEditorData = (value: string): IVariableLevelUpEditorData => {
         return (JSON.parse(value) as IVariableLevelUpEditorData) || {};
     } catch {
         return {};
+    }
+};
+
+/**
+ * Official layout: [sub-variable mask, mode (0 manual, 1 linear, 2 exponential), the mode's figures:
+ * linear step and max level, or exponential first level XP, growth % and max level]; the manual
+ * "level=xp" lines as text. A box from before that layout sends its JSON text and no ints.
+ */
+const readEditorData = (intData: number[], stringData: string): IVariableLevelUpEditorData => {
+    if (!intData?.length || stringData?.trim().startsWith('{')) return parseEditorData(stringData);
+
+    const mask = intData[0] ?? 0;
+    const subvariables = DEFAULT_SUBVARIABLES.filter((subvariable) => (mask & (1 << subvariable)) !== 0);
+
+    switch (intData[1]) {
+        case OFFICIAL_MODE_MANUAL:
+            return { mode: MODE_MANUAL, interpolationText: stringData ?? '', subvariables };
+        case OFFICIAL_MODE_EXPONENTIAL:
+            return { mode: MODE_EXPONENTIAL, firstLevelXp: intData[2], increaseFactor: intData[3], maxLevel: intData[4], subvariables };
+        default:
+            return { mode: MODE_LINEAR, stepSize: intData[2], maxLevel: intData[3], subvariables };
     }
 };
 
@@ -226,7 +253,7 @@ export const WiredExtraVariableLevelUpSystemView: FC<{}> = () => {
             return;
         }
 
-        const editorData = parseEditorData(trigger.stringData);
+        const editorData = readEditorData(trigger.intData, trigger.stringData);
 
         setMode(normalizeMode(editorData.mode ?? MODE_LINEAR));
         setStepSizeInput(normalizeNonNegativeInt(editorData.stepSize ?? DEFAULT_STEP_SIZE, DEFAULT_STEP_SIZE).toString());
@@ -263,18 +290,21 @@ export const WiredExtraVariableLevelUpSystemView: FC<{}> = () => {
     }, []);
 
     const save = () => {
-        setIntParams([]);
-        setStringParam(
-            JSON.stringify({
-                mode,
-                stepSize: normalizedStepSize,
-                maxLevel: normalizedMaxLevel,
-                firstLevelXp: normalizedFirstLevelXp,
-                increaseFactor: normalizedIncreaseFactor,
-                interpolationText: normalizedInterpolation,
-                subvariables: [...selectedSubvariables].sort((left, right) => left - right)
-            })
-        );
+        const mask = selectedSubvariables.reduce((value, subvariable) => value | (1 << subvariable), 0);
+
+        switch (mode) {
+            case MODE_MANUAL:
+                setIntParams([mask, OFFICIAL_MODE_MANUAL]);
+                setStringParam(normalizedInterpolation);
+                return;
+            case MODE_EXPONENTIAL:
+                setIntParams([mask, OFFICIAL_MODE_EXPONENTIAL, normalizedFirstLevelXp, normalizedIncreaseFactor, normalizedMaxLevel]);
+                setStringParam('');
+                return;
+            default:
+                setIntParams([mask, OFFICIAL_MODE_LINEAR, normalizedStepSize, normalizedMaxLevel]);
+                setStringParam('');
+        }
     };
 
     const toggleSubvariable = (subvariable: number) => {

@@ -17,9 +17,13 @@ export const WiredTriggerReceiveSignalView: FC<{}> = () => {
     const [channel, setChannel] = useState(0);
     const [furniSource, setFurniSource] = useState(100);
 
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
 
-    const save = () => setIntParams([channel, furniSource]);
+    // Ours: [channel]; the antenna source in the official source slot.
+    const save = () => {
+        setIntParams([channel]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+    };
 
     useEffect(() => {
         if (!trigger) return;
@@ -27,8 +31,7 @@ export const WiredTriggerReceiveSignalView: FC<{}> = () => {
         const p = trigger.intData;
         if (p.length >= 1) setChannel(p[0]);
         if (p.length >= 2) setSenderCount(p[1]);
-        if (p.length >= 4) setFurniSource(normalizeFurniSource(p[3]));
-        else setFurniSource(100);
+        setFurniSource(normalizeFurniSource(trigger.furniSourceTypes?.[0] ?? 100));
     }, [trigger]);
 
     return (

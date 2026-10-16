@@ -1,10 +1,37 @@
-import { GetRoomEngine, GetSessionDataManager } from '@octane/renderer';
+import {
+    ApplySnapshotMessageComposer,
+    ConditionDefinition,
+    GetRoomEngine,
+    GetSessionDataManager,
+    Triggerable,
+    TriggerDefinition,
+    WiredActionDefinition,
+    WiredAddonDefinition,
+    WiredSelectorDefinition,
+    WiredVariableDefinition
+} from '@octane/renderer';
 import { CSSProperties, FC, MouseEvent, PropsWithChildren, ReactNode, useEffect, useState } from 'react';
-import { LocalizeText, localizeWithFallback, WiredFurniType, WiredSelectionVisualizer, wiredStyleClassName } from '../../../api';
+import {
+    CreateLinkEvent,
+    GetConfigurationValue,
+    LocalizeText,
+    localizeWithFallback,
+    NotificationBubbleType,
+    OpenUrl,
+    resolveWiredHeaderButton,
+    SendMessageComposer,
+    splitWiredName,
+    WIRED_HEADER_BUTTON_KEYS,
+    WiredFurniType,
+    WiredHeaderButtonMode,
+    WiredHolderKind,
+    WiredSelectionVisualizer,
+    wiredStyleClassName
+} from '../../../api';
 import wiredBgLeft from '../../../assets/images/wired/wired_bg_left.png';
 import wiredBgRight from '../../../assets/images/wired/wired_bg_right.png';
 import { Button, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView, Text } from '../../../common';
-import { useWired, useWiredTools } from '../../../hooks';
+import { useNotification, useWired, useWiredTools } from '../../../hooks';
 import { WiredFurniSelectorView } from './WiredFurniSelectorView';
 
 export interface WiredBaseViewProps {
@@ -19,10 +46,26 @@ export interface WiredBaseViewProps {
     selectionPreview?: ReactNode;
     /** False keeps furni picking on but leaves its section out, for views that show it elsewhere. */
     showSelection?: boolean;
+    /** Official: some elements open wider (frame width x modifier). */
+    widthModifier?: number;
+    /** Official: the action delay comes after the furni picks. */
+    delaySection?: ReactNode;
 }
 
+/** The official frame width (Illumina and Volter templates). */
+export const WIRED_FRAME_WIDTH = 240;
+
+const holderKind = (trigger: Triggerable): WiredHolderKind | null => {
+    if (trigger instanceof WiredVariableDefinition) return 'variable';
+    if (trigger instanceof WiredAddonDefinition) return 'addon';
+    if (trigger instanceof WiredSelectorDefinition) return 'selector';
+    if (trigger instanceof WiredActionDefinition) return 'action';
+    if (trigger instanceof ConditionDefinition) return 'condition';
+    if (trigger instanceof TriggerDefinition) return 'trigger';
+    return null;
+};
+
 export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) => {
-    const WIRED_CARD_WIDTH = 244;
     const {
         wiredType = '',
         requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_NONE,
@@ -34,14 +77,16 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
         footer = null,
         footerCollapsible = true,
         selectionPreview = null,
-        showSelection = true
+        showSelection = true,
+        widthModifier = 1,
+        delaySection = null
     } = props;
+    const WIRED_CARD_WIDTH = Math.round(WIRED_FRAME_WIDTH * (widthModifier > 0 ? widthModifier : 1));
     const [wiredName, setWiredName] = useState<string>(null);
     const [needsSave, setNeedsSave] = useState<boolean>(false);
     const [keepOpenOnSave, setKeepOpenOnSave] = useState<boolean>(false);
     const [showFooter, setShowFooter] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [pasteInto, setPasteInto] = useState(false);
     const {
         trigger = null,
         setTrigger = null,
@@ -56,9 +101,40 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
         copyWiredToClipboard = null,
         pasteWiredFromClipboard = null,
         resetWiredToDefault = null,
-        clearWiredPicks = null
+        clearWiredPicks = null,
+        pasteIntoMode = false,
+        setPasteIntoMode = null,
+        getSelectorOptions = null
     } = useWired();
     const { roomSettings, accountPreferences } = useWiredTools();
+    const { showSingleBubble = null, showConfirm = null } = useNotification();
+    const notify = (key: string, fallback: string) => showSingleBubble?.(localizeWithFallback(key, fallback), NotificationBubbleType.INFO);
+    const headerButton: WiredHeaderButtonMode | null = (() => {
+        const holder = trigger ? holderKind(trigger) : null;
+
+        return holder ? resolveWiredHeaderButton(holder, trigger.code) : null;
+    })();
+    const onHeaderButton = () => {
+        if (!trigger) return;
+
+        switch (headerButton) {
+            case 'apply_snapshot':
+                SendMessageComposer(new ApplySnapshotMessageComposer(trigger.id));
+                return;
+            case 'view_in_menu':
+                CreateLinkEvent('wired-tools/tab/variables');
+                return;
+            case 'view_logs':
+                CreateLinkEvent('wired-tools/logs');
+                return;
+            case 'web_api_docs': {
+                const link = GetConfigurationValue<string>('wired.api.docs.link', '');
+
+                if (link) OpenUrl(link);
+                return;
+            }
+        }
+    };
 
     const clearRoomAreaSelection = () => {
         GetRoomEngine().areaSelectionManager.clearHighlight();
@@ -78,15 +154,39 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
 
         if (save) save();
 
-        setKeepOpenOnSave(keepOpen);
-        setNeedsSave(true);
+        const proceed = () => {
+            setKeepOpenOnSave(keepOpen);
+            setNeedsSave(true);
+        };
+        const options = wiredType === 'selector' ? getSelectorOptions?.() : null;
+
+        // Official: inverting without filtering selects everything that does NOT match, which can be
+        // the whole room; it asks first.
+        if (options?.invert && !options.filter && showConfirm) {
+            showConfirm(
+                localizeWithFallback(
+                    'wiredfurni.danger.1.change.confirm.body',
+                    'You selected "Invert" without filtering. This selects all furni/users that do NOT meet the requirements, which may be the whole room. Are you sure? (DANGEROUS!)'
+                ),
+                proceed,
+                null,
+                null,
+                null,
+                localizeWithFallback('wiredfurni.danger.1.change.confirm.title', 'Are you sure?')
+            );
+            return;
+        }
+
+        proceed();
     };
 
     useEffect(() => {
         if (!needsSave) return;
 
-        if (keepOpenOnSave && saveWiredAndKeepOpen) saveWiredAndKeepOpen();
-        else saveWired();
+        if (keepOpenOnSave && saveWiredAndKeepOpen) {
+            saveWiredAndKeepOpen();
+            notify('notification.wired.saved', 'Saved');
+        } else saveWired();
 
         setNeedsSave(false);
         setKeepOpenOnSave(false);
@@ -111,21 +211,38 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
         if (save) save();
 
         copyWiredToClipboard?.();
+        notify('notification.wired.copied', 'Copied');
     };
-    const menuItems: Array<{ id: string; label: string; disabled: boolean; onClick: () => void; checked?: boolean } | null> = [
-        { id: 'copy', label: localizeWithFallback('wiredfurni.params.menu.copy', 'Copy'), disabled: !canEdit, onClick: onCopy },
+    // Official paste into: while on, opening another box of the same element saves this
+    // configuration into it. Switching it on pushes the view's settings into the hook first.
+    const onTogglePasteInto = () => {
+        if (!pasteIntoMode) {
+            if (validate && !validate()) return;
+            if (save) save();
+        }
+
+        setPasteIntoMode?.(!pasteIntoMode);
+    };
+    const copyPasteTooltip = localizeWithFallback('wiredfurni.params.menu.copy_paste.tooltip', 'Copy and paste a configuration between wired boxes of the same type');
+    const menuItems: Array<{ id: string; label: string; disabled: boolean; onClick: () => void; checked?: boolean; tooltip?: string } | null> = [
+        { id: 'copy', label: localizeWithFallback('wiredfurni.params.menu.copy', 'Copy'), disabled: !canEdit, onClick: onCopy, tooltip: copyPasteTooltip },
         {
             id: 'paste',
             label: localizeWithFallback('wiredfurni.params.menu.paste', 'Paste'),
             disabled: !canEdit || !clipboardEntry,
-            onClick: () => pasteWiredFromClipboard?.(pasteInto)
+            onClick: () => pasteWiredFromClipboard?.(false),
+            tooltip: copyPasteTooltip
         },
         {
             id: 'paste-into',
-            label: localizeWithFallback('wiredfurni.params.menu.paste_into', 'Paste into (keep picks and delay)'),
+            label: localizeWithFallback('wiredfurni.params.menu.paste_into', 'Paste into other wired'),
             disabled: !canEdit,
-            checked: pasteInto,
-            onClick: () => setPasteInto((value) => !value)
+            checked: pasteIntoMode,
+            onClick: onTogglePasteInto,
+            tooltip: localizeWithFallback(
+                'wiredfurni.params.menu.paste_into.tooltip',
+                'While this is on and the window is open, open other wired boxes of the same type to copy this configuration into them.'
+            )
         },
         null,
         {
@@ -137,11 +254,20 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
         { id: 'reset', label: localizeWithFallback('wiredfurni.params.menu.reset', 'Reset to default'), disabled: !canEdit, onClick: () => resetWiredToDefault?.() },
         null,
         {
+            id: 'open-menu',
+            label: localizeWithFallback('wiredfurni.params.menu.open_menu', 'Open the Wired Creator Tools'),
+            disabled: false,
+            onClick: () => CreateLinkEvent('wired-tools/show')
+        },
+        null,
+        {
             id: 'save-open',
-            label: localizeWithFallback('wiredfurni.params.menu.save_without_closing', 'Save without closing'),
+            label: localizeWithFallback('wiredfurni.params.menu.save', 'Save'),
             disabled: !canEdit,
-            onClick: () => onSave(true)
-        }
+            onClick: () => onSave(true),
+            tooltip: localizeWithFallback('wiredfurni.params.menu.save.tooltip', 'Save the current configuration without closing the window')
+        },
+        { id: 'close', label: localizeWithFallback('wiredfurni.params.menu.close', 'Close'), disabled: false, onClick: onClose }
     ];
 
     useEffect(() => {
@@ -234,6 +360,7 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
                                         className="octane-wired__menu-item"
                                         disabled={item.disabled}
                                         role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
+                                        title={item.tooltip}
                                         type="button"
                                         onClick={() => (item.checked === undefined ? runMenuAction(item.onClick) : item.onClick())}
                                     >
@@ -253,9 +380,15 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
                     <img className="octane-wired__summary-bg octane-wired__summary-bg--left" src={wiredBgLeft} alt="" />
                     <img className="octane-wired__summary-bg octane-wired__summary-bg--right" src={wiredBgRight} alt="" />
                     <div className="octane-wired__summary-copy">
+                        {!!splitWiredName(wiredName).kind && <span className="octane-wired__summary-kind">{splitWiredName(wiredName).kind}</span>}
                         <Text bold className="octane-wired__summary-title">
-                            {wiredName}
+                            {splitWiredName(wiredName).title}
                         </Text>
+                        {headerButton && (
+                            <button className="octane-wired__header-button" type="button" onClick={onHeaderButton}>
+                                {localizeWithFallback(WIRED_HEADER_BUTTON_KEYS[headerButton].key, WIRED_HEADER_BUTTON_KEYS[headerButton].fallback)}
+                            </button>
+                        )}
                     </div>
                 </div>
                 <div className="octane-wired__body">
@@ -265,6 +398,12 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
                         <>
                             <div className="octane-wired__divider" />
                             <div className="octane-wired__section octane-wired__section--selector">{selectionPreview || <WiredFurniSelectorView />}</div>
+                        </>
+                    )}
+                    {delaySection && (
+                        <>
+                            <div className="octane-wired__divider" />
+                            {delaySection}
                         </>
                     )}
                     {footer && (
@@ -285,11 +424,11 @@ export const WiredBaseView: FC<PropsWithChildren<WiredBaseViewProps>> = (props) 
                         </>
                     )}
                     <div className="octane-wired__divider" />
-                    <div className="flex items-center gap-1 octane-wired__actions">
+                    <div className="flex items-center gap-3 octane-wired__actions">
                         <Button
                             disabled={!roomSettings.canModify}
                             fullWidth
-                            variant="success"
+                            variant="secondary"
                             classNames={['octane-wired__button', 'octane-wired__button--primary']}
                             onClick={() => onSave(false)}
                         >

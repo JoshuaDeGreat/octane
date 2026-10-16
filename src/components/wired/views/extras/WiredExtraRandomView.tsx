@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { LocalizeText, WiredFurniType } from '../../../../api';
+import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
 import { Slider, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredExtraBaseView } from './WiredExtraBaseView';
@@ -24,22 +24,38 @@ export const WiredExtraRandomView: FC<{}> = () => {
     const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
     const [pickAmount, setPickAmount] = useState(MIN_PICK_AMOUNT);
     const [skipExecutions, setSkipExecutions] = useState(MIN_SKIP_EXECUTIONS);
+    const [skipTop, setSkipTop] = useState(0);
 
     useEffect(() => {
         if (!trigger) return;
 
-        setPickAmount(normalizePickAmount(trigger.intData.length > 0 ? trigger.intData[0] : MIN_PICK_AMOUNT));
-        setSkipExecutions(normalizeSkipExecutions(trigger.intData.length > 1 ? trigger.intData[1] : MIN_SKIP_EXECUTIONS));
+        // Official layout: [skip the top N actions, pick count]; ours follows: [avoid the last N picks].
+        const d = trigger.intData;
+
+        setSkipTop(normalizeSkipExecutions(d[0] ?? 0));
+        setPickAmount(normalizePickAmount(d[1] ?? MIN_PICK_AMOUNT));
+        setSkipExecutions(normalizeSkipExecutions(d[2] ?? MIN_SKIP_EXECUTIONS));
     }, [trigger]);
 
     const save = () => {
-        setIntParams([normalizePickAmount(pickAmount), normalizeSkipExecutions(skipExecutions)]);
+        setIntParams([normalizeSkipExecutions(skipTop), normalizePickAmount(pickAmount), normalizeSkipExecutions(skipExecutions)]);
         setStringParam('');
     };
 
     return (
         <WiredExtraBaseView hasSpecialInput={true} requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE} save={save} cardStyle={{ width: 380 }}>
             <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
+                    <Text>{localizeWithFallback('wiredfurni.params.skiptop', `Leave out the top ${skipTop} actions`, ['amount'], [skipTop.toString()])}</Text>
+                    <Slider
+                        max={MAX_RANDOM_VALUE}
+                        min={0}
+                        step={1}
+                        value={skipTop}
+                        onChange={(value) => setSkipTop(normalizeSkipExecutions(Array.isArray(value) ? value[0] : Number(value)))}
+                    />
+                    <Text small>{skipTop}</Text>
+                </div>
                 <div className="flex flex-col gap-1">
                     <Text>{LocalizeText('wiredfurni.params.pickamount', ['picks'], [pickAmount.toString()])}</Text>
                     <Slider

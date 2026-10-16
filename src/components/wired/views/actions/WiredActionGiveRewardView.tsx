@@ -5,6 +5,7 @@ import { Button, Slider, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { OctaneInput } from '../../../../layout';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 type RewardType = 'badge' | 'credits' | 'pixels' | 'diamonds' | 'points' | 'furni' | 'respect';
@@ -125,11 +126,8 @@ export const WiredActionGiveRewardView: FC<{}> = (props) => {
     const [rewardsLimit, setRewardsLimit] = useState(1);
     const [limitationInterval, setLimitationInterval] = useState(1);
     const [rewards, setRewards] = useState<RewardEntry[]>([]);
-    const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
-    const [userSource, setUserSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 4) return trigger.intData[4];
-        return 0;
-    });
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
+    const [userSource, setUserSource] = useState<number>(() => slotUserSource(trigger));
 
     const addReward = () => setRewards((rewards) => [...rewards, createReward()]);
     const hasCustomCurrencyReward = rewards.some((reward) => reward.rewardType === 'points');
@@ -170,7 +168,10 @@ export const WiredActionGiveRewardView: FC<{}> = (props) => {
 
         if (stringRewards.length > 0) {
             setStringParam(stringRewards.join(';'));
-            setIntParams([rewardTime, uniqueRewards ? 1 : 0, rewardsLimit, limitationInterval, userSource]);
+            // Official layout: [interval, unique, limit (0 when not set), n (at least 1)]; the user
+            // source is the official source slot.
+            setIntParams([rewardTime, uniqueRewards ? 1 : 0, limitEnabled ? rewardsLimit : 0, Math.max(1, limitationInterval)]);
+            setSourceTypes({ furni: [], users: [userSource] });
         }
     };
 
@@ -194,9 +195,9 @@ export const WiredActionGiveRewardView: FC<{}> = (props) => {
         setRewardTime(trigger.intData.length > 0 ? trigger.intData[0] : 0);
         setUniqueRewards(trigger.intData.length > 1 ? trigger.intData[1] === 1 : false);
         setRewardsLimit(trigger.intData.length > 2 ? trigger.intData[2] : 0);
-        setLimitationInterval(trigger.intData.length > 3 ? trigger.intData[3] : 0);
-        setLimitEnabled(trigger.intData.length > 3 ? trigger.intData[3] > 0 : false);
-        setUserSource(trigger.intData.length > 4 ? trigger.intData[4] : 0);
+        setLimitationInterval(trigger.intData.length > 3 ? Math.max(1, trigger.intData[3]) : 1);
+        setLimitEnabled(trigger.intData.length > 2 ? trigger.intData[2] > 0 : false);
+        setUserSource(slotUserSource(trigger));
         setRewards(readRewards);
     }, [trigger]);
 

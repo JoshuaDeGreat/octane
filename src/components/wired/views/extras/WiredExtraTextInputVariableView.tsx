@@ -26,7 +26,7 @@ const DISPLAY_NUMERIC = 1;
 const DISPLAY_TEXTUAL = 2;
 const DEFAULT_CAPTURER_NAME = '';
 const MAX_CAPTURER_NAME_LENGTH = 32;
-const PLACEHOLDER_WRAPPER_PATTERN = /^#(.*)#$/;
+const PLACEHOLDER_WRAPPER_PATTERN = /^#\((.*)\)$|^#(.*)#$/;
 
 const splitStringData = (value: string) => {
     if (!value?.length) return ['', DEFAULT_CAPTURER_NAME];
@@ -42,9 +42,9 @@ const normalizeDisplayType = (value: number) => (value === DISPLAY_TEXTUAL ? DIS
 const normalizeCapturerName = (value: string) => {
     let normalizedValue = (value ?? '').trim().replace(/[\t\r\n]/g, '');
 
-    if (PLACEHOLDER_WRAPPER_PATTERN.test(normalizedValue)) {
-        normalizedValue = normalizedValue.substring(1, normalizedValue.length - 1).trim();
-    }
+    const wrapped = PLACEHOLDER_WRAPPER_PATTERN.exec(normalizedValue);
+
+    if (wrapped) normalizedValue = (wrapped[1] ?? wrapped[2]).trim();
 
     return normalizedValue.slice(0, MAX_CAPTURER_NAME_LENGTH);
 };
@@ -89,7 +89,8 @@ export const WiredExtraTextInputVariableView: FC<{}> = () => {
 
         setVariableToken(normalizeVariableTokenFromWire(nextVariableToken));
         setCapturerName(normalizeCapturerName(nextCapturerName));
-        setDisplayType(normalizeDisplayType(trigger.intData.length > 0 ? trigger.intData[0] : DISPLAY_NUMERIC));
+        // Official layout: [text mode 0/1].
+        setDisplayType(trigger.intData[0] === 1 ? DISPLAY_TEXTUAL : DISPLAY_NUMERIC);
     }, [trigger]);
 
     useEffect(() => {
@@ -101,7 +102,7 @@ export const WiredExtraTextInputVariableView: FC<{}> = () => {
     const previewToken = useMemo(() => {
         const effectiveName = normalizeCapturerName(capturerName) || 'capturer';
 
-        return `#${effectiveName}#`;
+        return `#(${effectiveName})`;
     }, [capturerName]);
 
     const previewHtml = useMemo(() => LocalizeText('wiredfurni.params.texts.placeholder_preview', ['placeholder'], [escapeHtml(previewToken)]), [previewToken]);
@@ -109,7 +110,7 @@ export const WiredExtraTextInputVariableView: FC<{}> = () => {
     const save = () => {
         const variableItemId = getCustomVariableItemId(variableToken);
 
-        setIntParams([canUseTextDisplay ? normalizeDisplayType(displayType) : DISPLAY_NUMERIC]);
+        setIntParams([canUseTextDisplay && normalizeDisplayType(displayType) === DISPLAY_TEXTUAL ? 1 : 0]);
         setStringParam(`${variableItemId ? String(variableItemId) : ''}\t${normalizeCapturerName(capturerName)}`);
     };
 

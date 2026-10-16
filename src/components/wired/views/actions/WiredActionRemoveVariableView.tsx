@@ -19,9 +19,11 @@ import { WiredActionBaseView } from './WiredActionBaseView';
 
 type VariableTargetType = 'user' | 'furni' | 'context';
 
-const TARGET_USER = 0;
-const TARGET_FURNI = 1;
-const TARGET_CONTEXT = 2;
+// Official variable targets (1 user, 0 furni, -20 context); int params [target], furni / user slot 0
+// are the holders.
+const TARGET_USER = 1;
+const TARGET_FURNI = 0;
+const TARGET_CONTEXT = -20;
 const SOURCE_SELECTED = 100;
 
 const TARGET_BUTTONS: Array<{ key: VariableTargetType; icon: string }> = [
@@ -60,7 +62,8 @@ export const WiredActionRemoveVariableView: FC<{}> = () => {
         setActionDelay = null,
         setIntParams = null,
         setFurniIds = null,
-        setStringParam = null
+        setStringParam = null,
+        setSourceTypes = null
     } = useWired();
     const { userVariableDefinitions = [], furniVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const [selectedTargetType, setSelectedTargetType] = useState<VariableTargetType>('user');
@@ -131,8 +134,8 @@ export const WiredActionRemoveVariableView: FC<{}> = () => {
         setSelectedVariableToken(
             normalizeVariableTokenFromWire(!Number.isNaN(parsedVariableItemId) && parsedVariableItemId > 0 ? String(parsedVariableItemId) : '')
         );
-        setUserSource(trigger.intData.length > 1 ? trigger.intData[1] : 0);
-        setFurniSource(trigger.intData.length > 2 ? trigger.intData[2] : (trigger.selectedItems?.length ?? 0) > 0 ? SOURCE_SELECTED : 0);
+        setUserSource(trigger.userSourceTypes?.[0] ?? 0);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? SOURCE_SELECTED : 0));
     }, [trigger]);
 
     const save = () => {
@@ -140,7 +143,8 @@ export const WiredActionRemoveVariableView: FC<{}> = () => {
         const variableItemId = getCustomVariableItemId(selectedVariableToken);
 
         setStringParam(variableItemId ? String(variableItemId) : '');
-        setIntParams([targetValue, userSource, furniSource]);
+        setIntParams([targetValue]);
+        setSourceTypes({ furni: [furniSource], users: [userSource] });
         setFurniIds(selectedTargetType === 'furni' && furniSource === SOURCE_SELECTED ? [...furniIds] : []);
     };
 

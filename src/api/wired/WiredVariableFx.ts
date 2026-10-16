@@ -37,7 +37,7 @@ export const WIRED_FX_SHOW_DURATION_MAX_MS = 20000;
 export const WIRED_FX_SHOW_DURATION_DEFAULT_MS = 3000;
 export const WIRED_FX_SEGMENTS_MAX = 100;
 export const WIRED_FX_DEFAULT_MAX_VALUE = 100;
-export const WIRED_FX_PARAM_COUNT = 16;
+export const WIRED_FX_PARAM_COUNT = 23;
 
 export const WIRED_FX_RENDERER = {
     PLAIN: 0,
@@ -203,15 +203,21 @@ export const WIRED_FX_NUMBER_ALIGNMENTS = ['left', 'right', 'double'];
 /** The bars a level badge can draw beside it; the category extra picks one by renderer id. */
 export const WIRED_FX_LEVEL_BARS = [WIRED_FX_RENDERER.BLOCK, WIRED_FX_RENDERER.STRIPED, WIRED_FX_RENDERER.ARROW];
 
-/** The sixteen int params of every fx box, in wire order. */
+/** The int params of every fx box (see readWiredVariableFxParams for the wire order). */
 export interface IWiredVariableFxParams {
     source: number;
     visibility: number;
     showMode: number;
+    /** Official only, kept as it came: which changes refresh the fx. */
+    updateMask?: number;
+    /** Official only, kept as it came. */
+    showOnHover?: boolean;
     showDurationMs: number;
     styleId: number;
     colorId: number;
     widthId: number;
+    /** Official only, kept as it came; the server picks the renderer from the style. */
+    rendererId?: number;
     segments: number;
     defaultMin: number;
     defaultMax: number;
@@ -221,6 +227,8 @@ export interface IWiredVariableFxParams {
     overrideMaxTarget: number;
     audienceValue: number;
     categoryExtra: number;
+    /** Official only, kept as it came: the order in the object's fx stack. */
+    stackOrder?: number;
 }
 
 /** The tab-separated string param: three variable tokens (`custom:<id>` or empty) and the icon. */
@@ -299,52 +307,96 @@ export const defaultWiredVariableFxParams = (): IWiredVariableFxParams => ({
     overrideMinTarget: WIRED_FX_OVERRIDE_TARGET.HOLDER,
     overrideMaxTarget: WIRED_FX_OVERRIDE_TARGET.HOLDER,
     audienceValue: 0,
-    categoryExtra: 0
+    categoryExtra: 0,
+    updateMask: 0,
+    showOnHover: false,
+    rendererId: 0,
+    stackOrder: 0
 });
 
 /** The params as the box sent them, with the server's defaults for anything missing. */
+/** An official long param (hi word, lo word) as a number, clamped to the int range the server keeps. */
+const long = (intData: number[], index: number, fallback: number) => {
+    if (!intData || index + 1 >= intData.length) return fallback;
+
+    const value = Number((BigInt(intData[index]) << 32n) | (BigInt(intData[index + 1]) & 0xffffffffn));
+
+    return Math.max(-2147483648, Math.min(2147483647, value));
+};
+
+const OFFICIAL_TARGET_FURNI = 0;
+const OFFICIAL_TARGET_USER = 1;
+const OFFICIAL_TARGET_GLOBAL = -10;
+
+/**
+ * The params as the box sent them, with the server's defaults for anything missing. Official layout
+ * (23 ints): source (official target: 0 furni, 1 user), visibility, show mode, update mask, show on
+ * hover, show duration, style, colour, width, renderer, default min (long), default max (long),
+ * override min on, override max on, override min target, override max target (official target:
+ * the holder's, or -10 global), audience value (long), segments, category extra, stack order.
+ */
 export const readWiredVariableFxParams = (intData: number[], category: number): IWiredVariableFxParams => {
     const defaults = defaultWiredVariableFxParams();
     const styleCount = wiredVariableFxStyles(category).length;
+    const target = (index: number) => (int(intData, index, OFFICIAL_TARGET_USER) === OFFICIAL_TARGET_GLOBAL ? WIRED_FX_OVERRIDE_TARGET.GLOBAL : WIRED_FX_OVERRIDE_TARGET.HOLDER);
 
     return {
-        source: int(intData, 0, defaults.source) === WIRED_FX_SOURCE.FURNI ? WIRED_FX_SOURCE.FURNI : WIRED_FX_SOURCE.USER,
+        source: int(intData, 0, OFFICIAL_TARGET_USER) === OFFICIAL_TARGET_FURNI ? WIRED_FX_SOURCE.FURNI : WIRED_FX_SOURCE.USER,
         visibility: clamp(int(intData, 1, defaults.visibility), WIRED_FX_VISIBILITY.ONLY_USER, WIRED_FX_VISIBILITY.HAS_VARIABLE_WITH_VALUE),
         showMode: clamp(int(intData, 2, defaults.showMode), WIRED_FX_SHOW_MODE.ALWAYS, WIRED_FX_SHOW_MODE.NEVER),
-        showDurationMs: clamp(int(intData, 3, defaults.showDurationMs), WIRED_FX_SHOW_DURATION_MIN_MS, WIRED_FX_SHOW_DURATION_MAX_MS),
-        styleId: clamp(int(intData, 4, 0), 0, Math.max(0, styleCount - 1)),
-        colorId: int(intData, 5, defaults.colorId),
-        widthId: int(intData, 6, defaults.widthId),
-        segments: clamp(int(intData, 7, 0), 0, WIRED_FX_SEGMENTS_MAX),
-        defaultMin: int(intData, 8, defaults.defaultMin),
-        defaultMax: int(intData, 9, defaults.defaultMax),
-        overrideMinEnabled: int(intData, 10, 0) === 1,
-        overrideMaxEnabled: int(intData, 11, 0) === 1,
-        overrideMinTarget: int(intData, 12, 0) === WIRED_FX_OVERRIDE_TARGET.GLOBAL ? WIRED_FX_OVERRIDE_TARGET.GLOBAL : WIRED_FX_OVERRIDE_TARGET.HOLDER,
-        overrideMaxTarget: int(intData, 13, 0) === WIRED_FX_OVERRIDE_TARGET.GLOBAL ? WIRED_FX_OVERRIDE_TARGET.GLOBAL : WIRED_FX_OVERRIDE_TARGET.HOLDER,
-        audienceValue: int(intData, 14, 0),
-        categoryExtra: int(intData, 15, 0)
+        updateMask: clamp(int(intData, 3, 0), 0, 15),
+        showOnHover: int(intData, 4, 0) === 1,
+        showDurationMs: clamp(int(intData, 5, defaults.showDurationMs), WIRED_FX_SHOW_DURATION_MIN_MS, WIRED_FX_SHOW_DURATION_MAX_MS),
+        styleId: clamp(int(intData, 6, 0), 0, Math.max(0, styleCount - 1)),
+        colorId: int(intData, 7, defaults.colorId),
+        widthId: int(intData, 8, defaults.widthId),
+        rendererId: int(intData, 9, 0),
+        defaultMin: long(intData, 10, defaults.defaultMin),
+        defaultMax: long(intData, 12, defaults.defaultMax),
+        overrideMinEnabled: int(intData, 14, 0) === 1,
+        overrideMaxEnabled: int(intData, 15, 0) === 1,
+        overrideMinTarget: target(16),
+        overrideMaxTarget: target(17),
+        audienceValue: long(intData, 18, 0),
+        segments: clamp(int(intData, 20, 0), 0, WIRED_FX_SEGMENTS_MAX),
+        categoryExtra: int(intData, 21, 0),
+        stackOrder: int(intData, 22, 0)
     };
 };
 
-export const writeWiredVariableFxParams = (params: IWiredVariableFxParams): number[] => [
-    params.source,
-    params.visibility,
-    params.showMode,
-    params.showDurationMs,
-    params.styleId,
-    params.colorId,
-    params.widthId,
-    params.segments,
-    params.defaultMin,
-    params.defaultMax,
-    params.overrideMinEnabled ? 1 : 0,
-    params.overrideMaxEnabled ? 1 : 0,
-    params.overrideMinTarget,
-    params.overrideMaxTarget,
-    params.audienceValue,
-    params.categoryExtra
-];
+const hi = (value: number) => Number(BigInt.asIntN(32, BigInt(Math.trunc(value)) >> 32n));
+const lo = (value: number) => Number(BigInt.asIntN(32, BigInt(Math.trunc(value))));
+
+export const writeWiredVariableFxParams = (params: IWiredVariableFxParams): number[] => {
+    const holder = params.source === WIRED_FX_SOURCE.FURNI ? OFFICIAL_TARGET_FURNI : OFFICIAL_TARGET_USER;
+    const target = (value: number) => (value === WIRED_FX_OVERRIDE_TARGET.GLOBAL ? OFFICIAL_TARGET_GLOBAL : holder);
+
+    return [
+        holder,
+        params.visibility,
+        params.showMode,
+        params.updateMask ?? 0,
+        params.showOnHover ? 1 : 0,
+        params.showDurationMs,
+        params.styleId,
+        params.colorId,
+        params.widthId,
+        params.rendererId ?? 0,
+        hi(params.defaultMin),
+        lo(params.defaultMin),
+        hi(params.defaultMax),
+        lo(params.defaultMax),
+        params.overrideMinEnabled ? 1 : 0,
+        params.overrideMaxEnabled ? 1 : 0,
+        target(params.overrideMinTarget),
+        target(params.overrideMaxTarget),
+        hi(params.audienceValue),
+        lo(params.audienceValue),
+        params.segments,
+        params.categoryExtra,
+        params.stackOrder ?? 0
+    ];
+};
 
 export const readWiredVariableFxTokens = (stringData: string): IWiredVariableFxTokens => {
     const fields = (stringData ?? '').split(WIRED_FX_TOKEN_SEPARATOR);

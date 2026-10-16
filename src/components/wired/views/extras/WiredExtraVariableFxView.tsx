@@ -194,7 +194,7 @@ export const WiredExtraVariableFxView: FC<WiredExtraVariableFxViewProps> = (prop
     const categoryLabel = localizeWithFallback(title.key, title.fallback);
 
     return (
-        <WiredExtraBaseView hasSpecialInput={true} requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE} save={save} validate={validate} cardStyle={{ width: 420 }}>
+        <WiredExtraBaseView hasSpecialInput={true} requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE} save={save} validate={validate} widthModifier={1.45}>
             <div className="flex flex-col gap-2 octane-wired-fx-editor">
                 <Text small={true}>
                     {localizeWithFallback(

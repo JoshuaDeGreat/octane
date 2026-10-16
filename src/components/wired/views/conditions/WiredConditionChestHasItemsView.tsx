@@ -8,7 +8,7 @@ import { buildWiredVariablePickerEntries, createFallbackVariableEntry, flattenWi
 import { WiredConditionBaseView } from './WiredConditionBaseView';
 
 // Server contract (WiredConditionChestHasItems):
-//   intData[0] = amount, [1] = comparison, [2] = amount mode, [3] = variable target
+//   official: intData[0] = amount, [1] = amount mode, [2] = variable target (user 1, global -10), [3] = comparison
 //   stringData = the variable token
 // Old saves carry two ints and no token, so they read as a constant and behave as they did.
 
@@ -32,9 +32,9 @@ export const WiredConditionChestHasItemsView: FC<{}> = () => {
 
         const data = trigger.intData ?? [];
         setAmount(data.length > 0 ? Math.max(0, data[0]) : 1);
-        setComparison(data.length > 1 ? normalizeWiredComparison(data[1]) : WIRED_CMP_DEFAULT);
-        setAmountMode(data.length > 2 && data[2] === AMOUNT_VARIABLE ? AMOUNT_VARIABLE : AMOUNT_CONSTANT);
-        setAmountTarget(data.length > 3 && data[3] === TARGET_USER ? TARGET_USER : TARGET_ROOM);
+        setAmountMode(data.length > 1 && data[1] === AMOUNT_VARIABLE ? AMOUNT_VARIABLE : AMOUNT_CONSTANT);
+        setAmountTarget(data.length > 2 && data[2] === 1 ? TARGET_USER : TARGET_ROOM);
+        setComparison(data.length > 3 ? normalizeWiredComparison(data[3]) : WIRED_CMP_DEFAULT);
         setVariableToken(normalizeVariableTokenFromWire(trigger.stringData ?? ''));
     }, [trigger]);
 
@@ -55,7 +55,7 @@ export const WiredConditionChestHasItemsView: FC<{}> = () => {
 
     const save = () => {
         setStringParam(amountMode === AMOUNT_VARIABLE ? variableToken : '');
-        setIntParams([Math.max(0, amount), comparison, amountMode, amountTarget]);
+        setIntParams([Math.max(0, amount), amountMode, amountTarget === TARGET_USER ? 1 : -10, comparison]);
     };
 
     return (

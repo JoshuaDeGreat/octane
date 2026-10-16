@@ -6,7 +6,8 @@ import { normalizeWiredComparison, WIRED_CMP_GREATER_EQUAL, WiredComparisonOpera
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
 import { WiredConditionBaseView } from './WiredConditionBaseView';
 
-const TEAM_OPTIONS = [1, 2, 3, 4];
+// 0 is the triggering user's team, as officially.
+const TEAM_OPTIONS = [0, 1, 2, 3, 4];
 const COMPARISON_OPTIONS = [0, 1, 2];
 const MIN_SCORE = 0;
 const MAX_SCORE = 999;
@@ -43,13 +44,14 @@ export const WiredConditionTeamHasScoreView: FC<WiredConditionTeamHasScoreViewPr
     useEffect(() => {
         if (!trigger) return;
 
+        // Official team score: [team, points, comparison, ...]; the shared amount boxes keep [_, comparison, amount, ...].
         const nextTeam = trigger.intData.length > 0 ? trigger.intData[0] : 1;
-        const nextComparison = trigger.intData.length > 1 ? trigger.intData[1] : scoped ? 1 : WIRED_CMP_GREATER_EQUAL;
-        const nextScore = clampScore(trigger.intData.length > 2 ? trigger.intData[2] : 0, ceiling);
+        const nextComparison = trigger.intData.length > (scoped ? 2 : 1) ? trigger.intData[scoped ? 2 : 1] : scoped ? 1 : WIRED_CMP_GREATER_EQUAL;
+        const nextScore = clampScore(trigger.intData.length > (scoped ? 1 : 2) ? trigger.intData[scoped ? 1 : 2] : 0, ceiling);
         const nextUserSource = trigger.intData.length > 3 ? trigger.intData[3] : 0;
         const nextQuantifier = trigger.intData.length > 4 ? trigger.intData[4] : 0;
 
-        setTeam(TEAM_OPTIONS.includes(nextTeam) ? nextTeam : 1);
+        setTeam(TEAM_OPTIONS.includes(nextTeam) && (scoped || nextTeam !== 0) ? nextTeam : 1);
         setComparison(scoped ? (COMPARISON_OPTIONS.includes(nextComparison) ? nextComparison : 1) : normalizeWiredComparison(nextComparison));
         setScore(nextScore);
         setScoreInput(nextScore.toString());
@@ -79,7 +81,11 @@ export const WiredConditionTeamHasScoreView: FC<WiredConditionTeamHasScoreViewPr
     };
 
     const save = () => {
-        setIntParams([team, comparison, clampScore(score, ceiling), userSource, quantifier]);
+        setIntParams(
+            scoped
+                ? [team, clampScore(score, ceiling), comparison, userSource, quantifier]
+                : [team, comparison, clampScore(score, ceiling), userSource, quantifier]
+        );
     };
 
     return (
@@ -135,7 +141,7 @@ export const WiredConditionTeamHasScoreView: FC<WiredConditionTeamHasScoreViewPr
                                         type="radio"
                                         onChange={() => setTeam(value)}
                                     />
-                                    <Text>{LocalizeText(`wiredfurni.params.team.${value}`)}</Text>
+                                    <Text>{LocalizeText(value === 0 ? 'wiredfurni.params.team.triggerer' : `wiredfurni.params.team.${value}`)}</Text>
                                 </div>
                             );
                         })}

@@ -3,6 +3,7 @@ import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 const POINTS_TYPE_OPTIONS = [
@@ -14,7 +15,7 @@ const POINTS_TYPE_OPTIONS = [
 ];
 
 export const WiredActionGivePointsTypeView: FC<{}> = (props) => {
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
     const [pointsType, setPointsType] = useState<number>(0);
     const [amount, setAmount] = useState<number>(1);
     const [userSource, setUserSource] = useState<number>(0);
@@ -24,10 +25,14 @@ export const WiredActionGivePointsTypeView: FC<{}> = (props) => {
 
         setPointsType((trigger.intData?.length ?? 0) > 0 ? trigger.intData[0] : 0);
         setAmount((trigger.intData?.length ?? 0) > 1 ? trigger.intData[1] : 1);
-        setUserSource((trigger.intData?.length ?? 0) > 2 ? trigger.intData[2] : 0);
+        setUserSource(slotUserSource(trigger));
     }, [trigger]);
 
-    const save = () => setIntParams([pointsType, amount, userSource]);
+    // Ours: [points type, amount]; the user source is the official source slot.
+    const save = () => {
+        setIntParams([pointsType, amount]);
+        setSourceTypes({ furni: [], users: [userSource] });
+    };
 
     return (
         <WiredActionBaseView

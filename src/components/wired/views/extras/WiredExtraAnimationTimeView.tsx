@@ -7,7 +7,7 @@ import { WiredExtraBaseView } from './WiredExtraBaseView';
 const MIN_DURATION = 50;
 const MAX_DURATION = 2000;
 const STEP_DURATION = 50;
-const DEFAULT_DURATION = 500;
+const DEFAULT_DURATION = MIN_DURATION;
 
 const normalizeDuration = (value: number) => {
     if (isNaN(value)) return DEFAULT_DURATION;

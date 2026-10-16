@@ -19,6 +19,7 @@ export const WiredTriggerClickUserView: FC<{}> = () => {
     return (
         <WiredTriggerBaseView hasSpecialInput={true} requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE} save={save}>
             <div className="flex flex-col gap-1">
+                <Text bold>{LocalizeText('wiredfurni.params.click_user.settings')}</Text>
                 <div className="flex items-center gap-1">
                     <input
                         checked={blockMenuOpen}

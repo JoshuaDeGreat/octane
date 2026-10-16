@@ -1,7 +1,7 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { localizeWithFallback, WiredFurniType } from '../../../../api';
 import { Slider, Text } from '../../../../common';
-import { useWired } from '../../../../hooks';
+import { useNotification, useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
 import { WiredActionBaseView } from './WiredActionBaseView';
 import {
@@ -18,27 +18,68 @@ import {
     WiredActionChangeOpacityState
 } from './WiredActionChangeOpacityState';
 
-const EASING_OPTIONS = [
-    { value: WIRED_OPACITY_EASING_INSTANT, key: 'wiredfurni.params.easing.instant', label: 'Instant' },
-    { value: 1, key: 'wiredfurni.params.easing.linear', label: 'Linear' },
-    { value: 2, key: 'wiredfurni.params.easing.ease_in', label: 'Ease in' },
-    { value: 3, key: 'wiredfurni.params.easing.ease_out', label: 'Ease out' },
-    { value: 4, key: 'wiredfurni.params.easing.ease_in_out', label: 'Ease in-out' }
-];
+const EASING_FALLBACKS = ['Instant', 'Linear', 'Ease in', 'Ease out', 'Ease in and out'];
 
+type VisibilityChoice = 'visible' | 'invisible' | 'custom';
+
+const visibilityChoice = (opacity: number): VisibilityChoice =>
+    opacity >= WIRED_OPACITY_MAXIMUM ? 'visible' : opacity <= WIRED_OPACITY_MINIMUM ? 'invisible' : 'custom';
+
+/**
+ * Official set furni transparency (61): audience, visible / invisible, click handling and easing.
+ * Ours on top: an in-between transparency and the transition seconds.
+ */
 export const WiredActionChangeOpacityView: FC<{}> = () => {
-    const { trigger = null, setFurniIds = null, setIntParams = null } = useWired();
-    const [state, setState] = useState<WiredActionChangeOpacityState>(() => normalizeWiredActionChangeOpacity(trigger?.intData));
+    const { trigger = null, setFurniIds = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const { simpleAlert = null } = useNotification();
+    const read = () => normalizeWiredActionChangeOpacity(trigger?.intData, trigger?.furniSourceTypes, trigger?.userSourceTypes);
+    const [state, setState] = useState<WiredActionChangeOpacityState>(read);
+    const everyoneInfoShown = useRef(false);
 
     useEffect(() => {
-        setState(normalizeWiredActionChangeOpacity(trigger?.intData));
+        setState(read());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [trigger]);
 
     const update = (patch: Partial<WiredActionChangeOpacityState>) => setState((current) => ({ ...current, ...patch }));
+
+    const changeAudience = (visibility: number) => {
+        // Official: choosing "everyone" the first time explains how to keep it after re-entering.
+        if (visibility === WIRED_OPACITY_VISIBILITY_EVERYONE && !everyoneInfoShown.current && simpleAlert) {
+            everyoneInfoShown.current = true;
+            simpleAlert(
+                localizeWithFallback('wiredfurni.params.furni_visualization.audience.everyone_info.body', 'Stack this effect with "When a user enters the room" to keep it after re-entering.'),
+                null,
+                null,
+                null,
+                localizeWithFallback('wiredfurni.params.furni_visualization.audience.everyone_info.title', 'Keeping this effect visible after re-entering')
+            );
+        }
+
+        update({ visibility });
+    };
+
+    const changeVisibility = (choice: VisibilityChoice) => {
+        if (choice === 'visible') update({ opacity: WIRED_OPACITY_MAXIMUM });
+        else if (choice === 'invisible') update({ opacity: WIRED_OPACITY_MINIMUM });
+        else update({ opacity: 50 });
+    };
+
     const save = () => {
-        setIntParams(serializeWiredActionChangeOpacity(state));
+        const wire = serializeWiredActionChangeOpacity(state);
+
+        setIntParams(wire.intParams);
+        setSourceTypes({ furni: wire.furniSources, users: wire.userSources });
         if (state.furniSource !== WIRED_OPACITY_SELECTED_FURNI_SOURCE) setFurniIds?.([]);
     };
+
+    const choice = visibilityChoice(state.opacity);
+    const radio = (value: VisibilityChoice, key: string, fallback: string) => (
+        <label className="flex items-center gap-1">
+            <input checked={choice === value} className="form-check-input" name="wiredTransparency" type="radio" onChange={() => changeVisibility(value)} />
+            <Text>{localizeWithFallback(key, fallback)}</Text>
+        </label>
+    );
 
     return (
         <WiredActionBaseView
@@ -56,67 +97,47 @@ export const WiredActionChangeOpacityView: FC<{}> = () => {
                 />
             }
         >
-            <div className="flex flex-col gap-2">
-                <Text bold>{localizeWithFallback('wiredfurni.params.opacity.visibility_selection.title', 'Who should see this opacity change?')}</Text>
+            <div className="flex flex-col gap-1">
+                <Text bold>{localizeWithFallback('wiredfurni.params.furni_visualization.audience', 'Who should see the effect?')}</Text>
+                <select className="form-select form-select-sm" value={state.visibility} onChange={(event) => changeAudience(Number(event.target.value))}>
+                    <option value={WIRED_OPACITY_VISIBILITY_SOURCE_USERS}>{localizeWithFallback('wiredfurni.params.furni_visualization.audience.selected_users', 'Selected users')}</option>
+                    <option value={WIRED_OPACITY_VISIBILITY_EVERYONE}>{localizeWithFallback('wiredfurni.params.furni_visualization.audience.everyone', 'Everyone, also users who enter later')}</option>
+                </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+                <Text bold>{localizeWithFallback('wiredfurni.params.set_furni_transparency.visibility', 'Visibility:')}</Text>
+                {radio('visible', 'wiredfurni.params.set_furni_transparency.visible', 'Visible')}
+                {radio('invisible', 'wiredfurni.params.set_furni_transparency.invisible', 'Invisible')}
+                {radio('custom', 'wiredfurni.params.opacity.visibility_amount', 'Opacity')}
+                {choice === 'custom' && (
+                    <div className="flex items-center gap-2">
+                        <Slider
+                            max={WIRED_OPACITY_MAXIMUM - 1}
+                            min={WIRED_OPACITY_MINIMUM + 1}
+                            step={1}
+                            value={state.opacity}
+                            onChange={(opacity) => update({ opacity: opacity as number })}
+                        />
+                        <Text small>{state.opacity}%</Text>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+                <Text bold>{localizeWithFallback('wiredfurni.params.set_furni_transparency.click_handling', 'Click handling:')}</Text>
                 <label className="flex items-center gap-1">
-                    <input
-                        checked={state.visibility === WIRED_OPACITY_VISIBILITY_SOURCE_USERS}
-                        className="form-check-input"
-                        name="wiredOpacityVisibility"
-                        type="radio"
-                        onChange={() => update({ visibility: WIRED_OPACITY_VISIBILITY_SOURCE_USERS })}
-                    />
-                    <Text>{localizeWithFallback('wiredfurni.params.show_message.visibility_selection.0', 'Only the selected users')}</Text>
-                </label>
-                <label className="flex items-center gap-1">
-                    <input
-                        checked={state.visibility === WIRED_OPACITY_VISIBILITY_EVERYONE}
-                        className="form-check-input"
-                        name="wiredOpacityVisibility"
-                        type="radio"
-                        onChange={() => update({ visibility: WIRED_OPACITY_VISIBILITY_EVERYONE })}
-                    />
-                    <Text>{localizeWithFallback('wiredfurni.params.show_message.visibility_selection.1', 'Everyone in the room')}</Text>
+                    <input checked={state.clickThrough} className="form-check-input" type="checkbox" onChange={(event) => update({ clickThrough: event.target.checked })} />
+                    <Text>{localizeWithFallback('wiredfurni.params.set_furni_transparency.allow_click_through', 'The target cannot be clicked')}</Text>
                 </label>
             </div>
 
             <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between gap-2">
-                    <Text bold>{localizeWithFallback('wiredfurni.params.opacity.visibility_amount', 'Opacity')}</Text>
-                    <input
-                        aria-label="Opacity percentage"
-                        className="form-control form-control-sm max-w-[80px]"
-                        max={WIRED_OPACITY_MAXIMUM}
-                        min={WIRED_OPACITY_MINIMUM}
-                        type="number"
-                        value={state.opacity}
-                        onChange={(event) => update({ opacity: Number(event.target.value) })}
-                    />
-                </div>
-                <Slider
-                    max={WIRED_OPACITY_MAXIMUM}
-                    min={WIRED_OPACITY_MINIMUM}
-                    step={1}
-                    value={state.opacity}
-                    onChange={(opacity) => update({ opacity: opacity as number })}
-                />
-                <label className="flex items-center gap-1">
-                    <input
-                        checked={state.clickThrough}
-                        className="form-check-input"
-                        type="checkbox"
-                        onChange={(event) => update({ clickThrough: event.target.checked })}
-                    />
-                    <Text>{localizeWithFallback('wiredfurni.params.opacity.clickthrough', 'Allow clicks to pass through transparent furni')}</Text>
-                </label>
-            </div>
-
-            <div className="flex flex-col gap-1">
-                <Text bold>{localizeWithFallback('wiredfurni.params.easing_function', 'Transition')}</Text>
+                <Text bold>{localizeWithFallback('wiredfurni.params.set_furni_transparency.easing', 'Transition:')}</Text>
                 <select className="form-select form-select-sm" value={state.easing} onChange={(event) => update({ easing: Number(event.target.value) })}>
-                    {EASING_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                            {localizeWithFallback(option.key, option.label)}
+                    {EASING_FALLBACKS.map((fallback, value) => (
+                        <option key={value} value={value}>
+                            {localizeWithFallback(`wiredfurni.params.set_furni_transparency.easing.${value}`, fallback)}
                         </option>
                     ))}
                 </select>

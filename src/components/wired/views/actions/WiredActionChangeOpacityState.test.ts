@@ -11,7 +11,7 @@ import {
 } from './WiredActionChangeOpacityState';
 
 describe('WiredActionChangeOpacityState', () => {
-    it('uses conservative defaults for a legacy empty payload', () => {
+    it('opens a fresh box visible, for the selected users, instantly', () => {
         expect(normalizeWiredActionChangeOpacity()).toEqual({
             visibility: WIRED_OPACITY_VISIBILITY_SOURCE_USERS,
             opacity: WIRED_OPACITY_MAXIMUM,
@@ -19,51 +19,55 @@ describe('WiredActionChangeOpacityState', () => {
             duration: WIRED_OPACITY_DEFAULT_DURATION,
             furniSource: WIRED_OPACITY_SELECTED_FURNI_SOURCE,
             userSource: WIRED_OPACITY_TRIGGER_USER_SOURCE,
-            clickThrough: false
+            clickThrough: false,
+            targetUsers: false,
+            targetUserSource: WIRED_OPACITY_TRIGGER_USER_SOURCE
         });
     });
 
-    it('clamps malformed numeric input and rejects unsupported sources', () => {
-        expect(normalizeWiredActionChangeOpacity([99, -12, 90, 44, 999, -8, 7])).toEqual({
-            visibility: WIRED_OPACITY_VISIBILITY_SOURCE_USERS,
-            opacity: 0,
-            easing: 4,
-            duration: 10,
-            furniSource: WIRED_OPACITY_SELECTED_FURNI_SOURCE,
-            userSource: WIRED_OPACITY_TRIGGER_USER_SOURCE,
-            clickThrough: false
-        });
-    });
-
-    it('preserves every valid server parameter in wire order', () => {
-        expect(normalizeWiredActionChangeOpacity([1, 35, 3, 7, 200, 201, 1])).toEqual({
+    it('reads the official layout: transparency 100 is invisible', () => {
+        expect(normalizeWiredActionChangeOpacity([1, 100, 1, 3, 1, 7], [200], [201, 11])).toEqual({
             visibility: 1,
-            opacity: 35,
+            opacity: 0,
+            clickThrough: true,
             easing: 3,
+            targetUsers: true,
             duration: 7,
             furniSource: 200,
             userSource: 201,
-            clickThrough: true
+            targetUserSource: 11
         });
     });
 
-    it('normalizes state again when serializing the seven-value payload', () => {
+    it('clamps malformed input and rejects unsupported sources', () => {
+        const state = normalizeWiredActionChangeOpacity([99, -12, 7, 90, 5, 44], [999], [-8]);
+
+        expect(state.visibility).toBe(WIRED_OPACITY_VISIBILITY_SOURCE_USERS);
+        expect(state.opacity).toBe(WIRED_OPACITY_MAXIMUM);
+        expect(state.clickThrough).toBe(false);
+        expect(state.easing).toBe(4);
+        expect(state.duration).toBe(10);
+        expect(state.furniSource).toBe(WIRED_OPACITY_SELECTED_FURNI_SOURCE);
+        expect(state.userSource).toBe(WIRED_OPACITY_TRIGGER_USER_SOURCE);
+    });
+
+    it('writes the official ints with our transition seconds after them, and the source slots', () => {
         expect(
             serializeWiredActionChangeOpacity({
                 visibility: 1,
-                opacity: 51.8,
+                opacity: 0,
                 easing: 2,
                 duration: Number.NaN,
                 furniSource: 100,
                 userSource: 0,
-                clickThrough: true
+                clickThrough: true,
+                targetUsers: false,
+                targetUserSource: 0
             })
-        ).toEqual([1, 52, 2, WIRED_OPACITY_DEFAULT_DURATION, 100, 0, 1]);
+        ).toEqual({ intParams: [1, 100, 1, 2, 0, WIRED_OPACITY_DEFAULT_DURATION], furniSources: [100], userSources: [0, 0] });
     });
 
-    it('keeps duration 0 as the server-default transition and floors negatives to it', () => {
-        expect(normalizeWiredActionChangeOpacity([0, 100, 2, 0, 100, 0, 0]).duration).toBe(WIRED_OPACITY_DEFAULT_DURATION);
-        expect(normalizeWiredActionChangeOpacity([0, 100, 2, -3, 100, 0, 0]).duration).toBe(WIRED_OPACITY_DEFAULT_DURATION);
-        expect(normalizeWiredActionChangeOpacity([0, 100, 2, 7, 100, 0, 0]).duration).toBe(7);
+    it('keeps our in-between values as a transparency', () => {
+        expect(serializeWiredActionChangeOpacity({ ...normalizeWiredActionChangeOpacity(), opacity: 35 }).intParams[1]).toBe(65);
     });
 });

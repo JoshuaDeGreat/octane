@@ -33,26 +33,33 @@ export const WiredConditionTriggererMatchView: FC<WiredConditionTriggererMatchVi
     const [compareUserSource, setCompareUserSource] = useState(0);
     const [quantifier, setQuantifier] = useState(0);
     const [showAdvanced, setShowAdvanced] = useState(false);
-    const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
+    // Official layout: [type mask (1 Habbo, 2 pet, 4 bot), our compare source, our quantifier], the name in
+    // the string (empty: any), the users in the official source slot.
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
 
     const needsUsername = avatarMode === AVATAR_MODE_CERTAIN || compareUserSource === SOURCE_SPECIFIED_USERNAME;
     const quantifierKeyPrefix = negative ? 'wiredfurni.params.quantifier.users.neg' : 'wiredfurni.params.quantifier.users';
 
     const save = () => {
-        setIntParams([entityType, avatarMode, matchUserSource, compareUserSource, quantifier]);
-        setStringParam(username);
+        setIntParams([entityType || ENTITY_HABBO, compareUserSource, quantifier]);
+        setStringParam(needsUsername ? username : '');
+        setSourceTypes({ furni: [], users: [matchUserSource] });
     };
 
     useEffect(() => {
         if (!trigger) return;
 
-        setEntityType(trigger.intData.length > 0 ? trigger.intData[0] : ENTITY_HABBO);
-        setAvatarMode(trigger.intData.length > 1 ? trigger.intData[1] : AVATAR_MODE_ANY);
-        setMatchUserSource(trigger.intData.length > 2 ? trigger.intData[2] : 0);
-        setCompareUserSource(trigger.intData.length > 3 ? trigger.intData[3] : 0);
-        setQuantifier(trigger.intData.length > 4 ? trigger.intData[4] : 0);
+        const compare = trigger.intData.length > 1 ? trigger.intData[1] : 0;
+        const match = trigger.userSourceTypes?.[0] ?? 0;
+        const nextQuantifier = trigger.intData.length > 2 ? trigger.intData[2] : 0;
+
+        setEntityType(trigger.intData.length > 0 && trigger.intData[0] > 0 ? trigger.intData[0] : ENTITY_HABBO);
+        setAvatarMode((trigger.stringData || '').length > 0 && compare !== SOURCE_SPECIFIED_USERNAME ? AVATAR_MODE_CERTAIN : AVATAR_MODE_ANY);
+        setMatchUserSource(match);
+        setCompareUserSource(compare);
+        setQuantifier(nextQuantifier);
         setUsername(trigger.stringData || '');
-        setShowAdvanced(trigger.intData.length > 2 ? trigger.intData[2] !== 0 || trigger.intData[3] !== 0 || trigger.intData[4] !== 0 : false);
+        setShowAdvanced(match !== 0 || compare !== 0 || nextQuantifier !== 0);
     }, [trigger]);
 
     return (
@@ -110,12 +117,12 @@ export const WiredConditionTriggererMatchView: FC<WiredConditionTriggererMatchVi
                     return (
                         <div key={value} className="flex items-center gap-1">
                             <input
-                                checked={entityType === value}
+                                checked={(entityType & value) !== 0}
                                 className="form-check-input"
                                 id={`triggererEntityType${value}`}
                                 name="triggererEntityType"
-                                type="radio"
-                                onChange={() => setEntityType(value)}
+                                type="checkbox"
+                                onChange={() => setEntityType((current) => current ^ value)}
                             />
                             <Text>{LocalizeText(`wiredfurni.params.usertype.${value}`)}</Text>
                         </div>

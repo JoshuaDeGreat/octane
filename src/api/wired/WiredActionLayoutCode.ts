@@ -52,6 +52,7 @@ export class WiredActionLayoutCode {
     public static CANCEL_TRANSACTION: number = 48;
     public static WRITE_TO_LOGS: number = 49;
     public static PROGRESS_ACHIEVEMENT: number = 51;
+    /** Official give effect (wf_act_give_effect). */
     public static EFFECT_ID: number = 52;
     public static OVERRIDE_HEIGHT: number = 53;
     public static CLICK_SETTINGS: number = 54;
@@ -86,4 +87,6 @@ export class WiredActionLayoutCode {
     public static SPAWN_FURNI: number = 1155;
     /** Ours (wf_act_pickup_furni): pick the furni up into its owner's inventory. */
     public static PICKUP_FURNI: number = 1156;
+    /** Ours (wf_act_give_handitem): it shared the official give effect's code (52). */
+    public static GIVE_HAND_ITEM: number = 1157;
 }

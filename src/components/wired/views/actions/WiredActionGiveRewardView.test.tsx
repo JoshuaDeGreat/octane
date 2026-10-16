@@ -8,7 +8,7 @@ let trigger: { stringData: string; intData: number[] } | null = null;
 let save: (() => void) | null = null;
 
 vi.mock('../../../../hooks', () => ({
-    useWired: () => ({ trigger, setIntParams, setStringParam })
+    useWired: () => ({ trigger, setIntParams, setStringParam, setSourceTypes: vi.fn() })
 }));
 
 vi.mock('../../../../common', () => ({

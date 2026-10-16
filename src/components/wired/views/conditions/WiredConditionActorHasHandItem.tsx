@@ -13,18 +13,19 @@ interface WiredConditionActorHasHandItemViewProps {
 export const WiredConditionActorHasHandItemView: FC<WiredConditionActorHasHandItemViewProps> = ({ negative = false }) => {
     const [handItemId, setHandItemId] = useState(-1);
     const [quantifier, setQuantifier] = useState(0);
-    const { trigger = null, setIntParams = null } = useWired();
-    const [userSource, setUserSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return 0;
-    });
+    // Official layout: [hand item (0 any), our quantifier], the users in the official source slot.
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [userSource, setUserSource] = useState<number>(() => trigger?.userSourceTypes?.[0] ?? 0);
 
-    const save = () => setIntParams([handItemId, userSource, quantifier]);
+    const save = () => {
+        setIntParams([handItemId, quantifier]);
+        setSourceTypes({ furni: [], users: [userSource] });
+    };
 
     useEffect(() => {
         setHandItemId(trigger.intData.length > 0 ? trigger.intData[0] : 0);
-        setUserSource(trigger.intData.length > 1 ? trigger.intData[1] : 0);
-        setQuantifier(trigger.intData.length > 2 && trigger.intData[2] === 1 ? 1 : 0);
+        setUserSource(trigger.userSourceTypes?.[0] ?? 0);
+        setQuantifier(trigger.intData[1] === 1 ? 1 : 0);
     }, [trigger]);
 
     return (

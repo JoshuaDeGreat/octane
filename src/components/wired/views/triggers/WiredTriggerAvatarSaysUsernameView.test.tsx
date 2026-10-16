@@ -46,7 +46,8 @@ describe('the say-your-username trigger window', () => {
     afterEach(cleanup);
 
     it('offers only the hide and owner-only switches and sends no keyword', () => {
-        trigger = { intData: [2, 1, 0], stringData: 'left over' };
+        // Official layout: [owner only, match mode, hide].
+        trigger = { intData: [0, 2, 1], stringData: 'left over' };
         render(<WiredTriggerAvatarSaysSomethingView usernameOnly={true} />);
 
         expect(screen.queryByTestId('keyword')).toBeNull();
@@ -55,7 +56,7 @@ describe('the say-your-username trigger window', () => {
         fireEvent.click(screen.getByText('Save'));
 
         expect(setStringParam).toHaveBeenCalledWith('');
-        expect(setIntParams).toHaveBeenCalledWith([0, 1, 0]);
+        expect(setIntParams).toHaveBeenCalledWith([0, 0, 1]);
     });
 
     it('keeps the keyword window as it was for the ordinary trigger', () => {

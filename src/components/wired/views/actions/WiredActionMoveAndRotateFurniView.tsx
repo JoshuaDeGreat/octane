@@ -4,6 +4,7 @@ import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WIRED_DIRECTION_GRID, WiredDirectionIcon } from '../WiredDirectionIcon';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotFurniSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 const rotationOptions: number[] = [0, 1, 2, 3, 4, 5, 6];
@@ -12,13 +13,15 @@ export const WiredActionMoveAndRotateFurniView: FC<{}> = (props) => {
     const [movement, setMovement] = useState(0);
     const [rotation, setRotation] = useState(0);
     const [blockOnUserCollision, setBlockOnUserCollision] = useState(false);
-    const { trigger = null, setIntParams = null } = useWired();
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 2) return trigger.intData[2];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [furniSource, setFurniSource] = useState<number>(() => slotFurniSource(trigger));
 
-    const save = () => setIntParams([movement, rotation, furniSource, blockOnUserCollision ? 1 : 0]);
+    // Official layout: [start direction, turn, stop on user collision]; the furni source is the
+    // official source slot.
+    const save = () => {
+        setIntParams([movement, rotation, blockOnUserCollision ? 1 : 0]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+    };
 
     useEffect(() => {
         if (trigger.intData.length >= 2) {
@@ -29,10 +32,8 @@ export const WiredActionMoveAndRotateFurniView: FC<{}> = (props) => {
             setRotation(0);
         }
 
-        if (trigger.intData.length > 2) setFurniSource(trigger.intData[2]);
-        else setFurniSource((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
-
-        setBlockOnUserCollision((trigger.intData?.length ?? 0) > 3 ? trigger.intData[3] === 1 : false);
+        setFurniSource(slotFurniSource(trigger));
+        setBlockOnUserCollision(trigger.intData?.[2] === 1);
     }, [trigger]);
 
     const onChangeFurniSource = (next: number) => setFurniSource(next);

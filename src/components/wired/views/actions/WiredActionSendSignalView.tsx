@@ -1,7 +1,7 @@
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { LocalizeText, localizeWithFallback, WiredFurniType, WiredSelectionVisualizer  } from '../../../../api';
 import { Text } from '../../../../common';
-import { useWired } from '../../../../hooks';
+import { useNotification, useWired } from '../../../../hooks';
 import { WiredFurniSelectionSourceRow } from '../WiredFurniSelectionSourceRow';
 import { FURNI_SOURCES, USER_SOURCES } from '../WiredSourcesSelector';
 import { WiredActionBaseView } from './WiredActionBaseView';
@@ -9,7 +9,6 @@ import { WiredActionBaseView } from './WiredActionBaseView';
 const SOURCE_TRIGGER = 0;
 const SOURCE_SELECTED = 100;
 
-const FORWARD_ITEM_DELIMITER = ';';
 
 type SelectionMode = 'antenna' | 'furni';
 
@@ -31,13 +30,6 @@ const parseForwardIds = (data: string): number[] =>
     return Array.from(ids);
 };
 
-const serializeForwardIds = (ids: number[]): string =>
-{
-    if(!ids || !ids.length) return '';
-
-    return ids.filter(id => (id > 0)).join(FORWARD_ITEM_DELIMITER);
-};
-
 export const WiredActionSendSignalView: FC<{}> = () =>
 {
     const [ furniSource, setFurniSource ] = useState<number>(SOURCE_TRIGGER);
@@ -49,24 +41,24 @@ export const WiredActionSendSignalView: FC<{}> = () =>
     const [ selectionMode, setSelectionMode ] = useState<SelectionMode>('antenna');
     const highlightedIds = useRef<number[]>([]);
 
-    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null } = useWired();
+    const { trigger = null, furniIds = [], setFurniIds = null, setFurniIds2 = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
+    const { showConfirm = null } = useNotification();
 
     useEffect(() =>
     {
         if(!trigger) return;
 
-        const p = trigger.intData;
-        if(p.length > 1) setFurniSource(p[1]);
-        else setFurniSource(SOURCE_TRIGGER);
+        // Official: [split per furni, split per user]. Furni source slot 0 is the antennas, slot 1 the
+        // furni to forward (100 = the second picks, stuffIds2); user slot 0 the users to forward.
+        const p = trigger.intData ?? [];
 
-        if(p.length > 2) setUserSource(p[2]);
-        else setUserSource(SOURCE_TRIGGER);
-
-        setSignalPerFurni(p.length > 3 && p[3] === 1);
-        setSignalPerUser(p.length > 4 && p[4] === 1);
+        setFurniSource(trigger.furniSourceTypes?.[1] ?? SOURCE_TRIGGER);
+        setUserSource(trigger.userSourceTypes?.[0] ?? SOURCE_TRIGGER);
+        setSignalPerFurni(p[0] === 1);
+        setSignalPerUser(p[1] === 1);
 
         setAntennaIds(trigger.selectedItems ?? []);
-        setForwardFurniIds(parseForwardIds(trigger.stringData));
+        setForwardFurniIds(trigger.selectedItems2?.length ? [ ...trigger.selectedItems2 ] : parseForwardIds(trigger.stringData));
         setSelectionMode('antenna');
     }, [ trigger ]);
 
@@ -148,19 +140,26 @@ export const WiredActionSendSignalView: FC<{}> = () =>
             if(setFurniIds) setFurniIds([ ...nextAntennaIds ]);
         }
 
-        const antennaSource = (nextAntennaIds && nextAntennaIds.length) ? nextAntennaIds[0] : 0;
+        setIntParams([ signalPerFurni ? 1 : 0, signalPerUser ? 1 : 0 ]);
+        setStringParam('');
+        setSourceTypes({ furni: [ SOURCE_SELECTED, furniSource ], users: [ userSource ] });
+        setFurniIds2((furniSource === SOURCE_SELECTED) ? nextForwardFurniIds.filter(id => (id > 0)) : []);
+    }, [ selectionMode, furniIds, antennaIds, furniSource, userSource, signalPerFurni, signalPerUser, forwardFurniIds, setFurniIds, setFurniIds2, setIntParams, setStringParam, setSourceTypes ]);
 
-        setIntParams([
-            antennaSource,
-            furniSource,
-            userSource,
-            signalPerFurni ? 1 : 0,
-            signalPerUser ? 1 : 0,
-            0,
-        ]);
+    // Official: checking a split option first asks to confirm; cancelling leaves it unchecked.
+    const confirmSplit = (checked: boolean, apply: (value: boolean) => void) =>
+    {
+        if(!checked || !showConfirm) return apply(checked);
 
-        setStringParam(serializeForwardIds(nextForwardFurniIds));
-    }, [ selectionMode, furniIds, antennaIds, furniSource, userSource, signalPerFurni, signalPerUser, forwardFurniIds, setFurniIds, setIntParams, setStringParam ]);
+        showConfirm(
+            localizeWithFallback('wiredfurni.params.signal_warning.desc', 'This option is rarely needed and adds to the wired usage of the room. Make sure you cannot avoid it before continuing.\n\nPress "ok" if you are sure.'),
+            () => apply(true),
+            () => apply(false),
+            null,
+            null,
+            localizeWithFallback('wiredfurni.params.signal_warning.title', 'Are you sure?')
+        );
+    };
 
     useEffect(() =>
     {
@@ -198,7 +197,7 @@ export const WiredActionSendSignalView: FC<{}> = () =>
                         {} }
                         onSelectionActivate={ () => switchSelection('antenna') } />
                     <WiredFurniSelectionSourceRow
-                        title={ localizeWithFallback('wiredfurni.sendsignal.furni', 'Furniture to send forward:') }
+                        title={ localizeWithFallback('wiredfurni.params.sources.furni.title.signal_forward', 'Furni to forward:') }
                         titleIsLiteral={ true }
                         options={ FURNI_SOURCES }
                         value={ furniSource }
@@ -210,7 +209,7 @@ export const WiredActionSendSignalView: FC<{}> = () =>
                         onChange={ onChangeFurniSource }
                         onSelectionActivate={ () => switchSelection('furni') } />
                     <WiredFurniSelectionSourceRow
-                        title={ localizeWithFallback('wiredfurni.sendsignal.users', 'Users to send forward:') }
+                        title={ localizeWithFallback('wiredfurni.params.sources.users.title.signal_forward', 'Users to forward:') }
                         titleIsLiteral={ true }
                         options={ USER_SOURCES }
                         value={ userSource }
@@ -232,7 +231,7 @@ export const WiredActionSendSignalView: FC<{}> = () =>
                         className="form-check-input"
                         id="signal-per-furni"
                         checked={ signalPerFurni }
-                        onChange={ e => setSignalPerFurni(e.target.checked) } />
+                        onChange={ e => confirmSplit(e.target.checked, setSignalPerFurni) } />
                     <label className="form-check-label" htmlFor="signal-per-furni">
                         <Text small>{ LocalizeText('wiredfurni.params.signal.split_furni') }</Text>
                     </label>
@@ -243,7 +242,7 @@ export const WiredActionSendSignalView: FC<{}> = () =>
                         className="form-check-input"
                         id="signal-per-user"
                         checked={ signalPerUser }
-                        onChange={ e => setSignalPerUser(e.target.checked) } />
+                        onChange={ e => confirmSplit(e.target.checked, setSignalPerUser) } />
                     <label className="form-check-label" htmlFor="signal-per-user">
                         <Text small>{ LocalizeText('wiredfurni.params.signal.split_users') }</Text>
                     </label>

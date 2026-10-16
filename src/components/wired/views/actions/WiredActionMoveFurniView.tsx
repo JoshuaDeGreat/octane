@@ -15,6 +15,7 @@ import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WIRED_DIRECTION_GRID, WiredDirectionIcon } from '../WiredDirectionIcon';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotFurniSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 const NORMAL_DIRECTION_VALUE_MAP: Record<number, { value: number; icon: string }> = {
@@ -46,27 +47,21 @@ const extraDirectionOptions: { value: number; icon: string }[] = [
 const rotationOptions: number[] = [0, 1, 2, 3];
 
 export const WiredActionMoveFurniView: FC<{}> = (props) => {
-    const [movement, setMovement] = useState(-1);
-    const [rotation, setRotation] = useState(-1);
-    const { trigger = null, setIntParams = null } = useWired();
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 2) return trigger.intData[2];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const [movement, setMovement] = useState(0);
+    const [rotation, setRotation] = useState(0);
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [furniSource, setFurniSource] = useState<number>(() => slotFurniSource(trigger));
 
-    const save = () => setIntParams([movement, rotation, furniSource]);
+    // Official layout: [movement, rotation] (both 0 by default); the furni source is the official slot.
+    const save = () => {
+        setIntParams([movement, rotation]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+    };
 
     useEffect(() => {
-        if (trigger.intData.length >= 2) {
-            setMovement(trigger.intData[0]);
-            setRotation(trigger.intData[1]);
-        } else {
-            setMovement(-1);
-            setRotation(-1);
-        }
-
-        if (trigger.intData.length > 2) setFurniSource(trigger.intData[2]);
-        else setFurniSource((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
+        setMovement(trigger?.intData?.[0] ?? 0);
+        setRotation(trigger?.intData?.[1] ?? 0);
+        setFurniSource(slotFurniSource(trigger));
     }, [trigger]);
 
     const onChangeFurniSource = (next: number) => setFurniSource(next);

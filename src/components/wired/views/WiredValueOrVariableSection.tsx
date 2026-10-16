@@ -93,6 +93,10 @@ interface WiredValueOrVariableSectionProps {
     furniSource: number;
     userSource: number;
     min?: number;
+    /** The variable is read on the box's own selection: no source rows of its own. */
+    hideSources?: boolean;
+    /** The official targets this box offers (all four by default). */
+    targets?: number[];
     onIsVariableChange: (isVariable: boolean) => void;
     onValueChange: (value: string) => void;
     onTargetChange: (target: number) => void;
@@ -107,7 +111,7 @@ interface WiredValueOrVariableSectionProps {
  */
 export const WiredValueOrVariableSection: FC<WiredValueOrVariableSectionProps> = props =>
 {
-    const { name, isVariable, value, target, token, furniSource, userSource, min = undefined } = props;
+    const { name, isVariable, value, target, token, furniSource, userSource, min = undefined, hideSources = false, targets = null } = props;
     const { trigger = null } = useWired();
     const { userVariableDefinitions = [], furniVariableDefinitions = [], roomVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const availableUserSources = useAvailableUserSources(trigger, VALUE_USER_SOURCES);
@@ -135,7 +139,7 @@ export const WiredValueOrVariableSection: FC<WiredValueOrVariableSectionProps> =
             { isVariable &&
                 <>
                     <div className="octane-wired__give-var-targets">
-                        { WIRED_VALUE_TARGETS.map(entry => (
+                        { WIRED_VALUE_TARGETS.filter(entry => !targets || targets.includes(entry.value)).map(entry => (
                             <button
                                 key={ entry.key }
                                 type="button"
@@ -151,7 +155,7 @@ export const WiredValueOrVariableSection: FC<WiredValueOrVariableSectionProps> =
                         )) }
                     </div>
                     <WiredVariablePicker entries={ entries } recentScope="variable-references" selectedToken={ token } onSelect={ entry => props.onTokenChange(entry.token) } />
-                    { (target === 0 || target === 1) &&
+                    { !hideSources && (target === 0 || target === 1) &&
                         <WiredFurniSelectionSourceRow
                             title="wiredfurni.params.sources.merged.title.variables_reference"
                             options={ target === 1 ? availableUserSources : VALUE_FURNI_SOURCES }

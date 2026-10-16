@@ -237,6 +237,23 @@
         text-transform: uppercase;
     }
 
+    /* Official header button (HeaderPreset): centred under the name. */
+    .octane-wired__header-button {
+        align-self: center;
+        margin-top: 3px;
+        padding: 1px 8px;
+        border: 1px solid #8a8a8a;
+        border-radius: 3px;
+        background: linear-gradient(#fff, #dcdcdc);
+        color: #000;
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+    .octane-wired__header-button:hover {
+        background: linear-gradient(#fff, #c8c8c8);
+    }
+
     .octane-wired__summary-title {
         color: #4a4a4a !important;
         font-size: 15px !important;

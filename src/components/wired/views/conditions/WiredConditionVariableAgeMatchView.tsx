@@ -1,21 +1,22 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { LocalizeText, WiredFurniType } from '../../../../api';
+import { fromOfficialVariableTarget, LocalizeText, localizeWithFallback, toOfficialVariableTarget, WiredFurniType } from '../../../../api';
 import contextVariableIcon from '../../../../assets/images/wired/var/icon_source_context_clean.png';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import globalVariableIcon from '../../../../assets/images/wired/var/icon_source_global.png';
 import userVariableIcon from '../../../../assets/images/wired/var/icon_source_user.png';
 import { Text } from '../../../../common';
 import { useWired, useWiredTools } from '../../../../hooks';
-import { OctaneInput } from '../../../../layout';
 import { WiredFurniSelectionSourceRow } from '../WiredFurniSelectionSourceRow';
 import { FURNI_SOURCES, sortWiredSourceOptions, USER_SOURCES, useAvailableUserSources, WiredSourceOption } from '../WiredSourcesSelector';
 import { WiredVariablePicker } from '../WiredVariablePicker';
 import {
     createFallbackVariableEntry,
     flattenWiredVariablePickerEntries,
+    getCustomVariableItemId,
     IWiredVariablePickerEntry,
     normalizeVariableTokenFromWire
 } from '../WiredVariablePickerData';
+import { normalizeWiredValueTarget, variableTokenFromId, WiredValueOrVariableSection } from '../WiredValueOrVariableSection';
 import { WiredConditionBaseView } from './WiredConditionBaseView';
 
 type VariableTargetType = 'user' | 'furni' | 'global' | 'context';
@@ -117,7 +118,12 @@ const buildCustomVariableEntries = (target: VariableTargetType, definitions: IVa
 const getSourceTitle = () => LocalizeText('wiredfurni.params.sources.merged.title.variables');
 
 export const WiredConditionVariableAgeMatchView: FC<{}> = () => {
-    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null } = useWired();
+    // Official layout: [target, comparison, useUpdate, durationHigh, durationLow, unit, fromVariable, durationTarget,
+    // our quantifier], "variable\tdurationVariable" in the string, the furni and users in the official slots.
+    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
+    const [fromVariable, setFromVariable] = useState(false);
+    const [durationTarget, setDurationTarget] = useState(-10);
+    const [durationToken, setDurationToken] = useState('');
     const { userVariableDefinitions = [], furniVariableDefinitions = [], roomVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const [targetType, setTargetType] = useState<VariableTargetType>('user');
     const [variableToken, setVariableToken] = useState('');
@@ -166,17 +172,21 @@ export const WiredConditionVariableAgeMatchView: FC<{}> = () => {
         if (!trigger) return;
 
         const intData = trigger.intData || [];
-        const nextTargetType = normalizeTargetType(intData.length > 0 ? intData[0] : TARGET_USER);
+        const nextTargetType = normalizeTargetType(intData.length > 0 ? fromOfficialVariableTarget(intData[0]) : TARGET_USER);
+        const [variableText = '', durationText = ''] = (trigger.stringData || '').split('\t');
 
         setTargetType(nextTargetType);
-        setVariableToken(normalizeVariableTokenFromWire(trigger.stringData || ''));
-        setCompareValue(intData.length > 1 && intData[1] === COMPARE_VALUE_UPDATED ? COMPARE_VALUE_UPDATED : COMPARE_VALUE_CREATED);
-        setComparison(intData.length > 2 && intData[2] === COMPARISON_HIGHER_THAN ? COMPARISON_HIGHER_THAN : COMPARISON_LOWER_THAN);
-        setDurationInput(String(intData.length > 3 ? intData[3] : 0));
-        setDurationUnit(intData.length > 4 ? intData[4] : 1);
-        setUserSource(intData.length > 5 ? intData[5] : SOURCE_TRIGGER);
-        setFurniSource(intData.length > 6 ? intData[6] : (trigger.selectedItems?.length ?? 0) > 0 ? SOURCE_SELECTED : SOURCE_TRIGGER);
-        setQuantifier(intData.length > 7 && intData[7] === QUANTIFIER_ANY ? QUANTIFIER_ANY : QUANTIFIER_ALL);
+        setVariableToken(normalizeVariableTokenFromWire(variableText));
+        setComparison(intData.length > 1 && intData[1] === COMPARISON_HIGHER_THAN ? COMPARISON_HIGHER_THAN : COMPARISON_LOWER_THAN);
+        setCompareValue(intData.length > 2 && intData[2] === COMPARE_VALUE_UPDATED ? COMPARE_VALUE_UPDATED : COMPARE_VALUE_CREATED);
+        setDurationInput(String(intData.length > 4 ? intData[4] : 0));
+        setDurationUnit(intData.length > 5 ? intData[5] : 1);
+        setFromVariable(intData[6] === 1);
+        setDurationTarget(normalizeWiredValueTarget(intData.length > 7 ? intData[7] : -10));
+        setDurationToken(variableTokenFromId(durationText));
+        setUserSource(trigger.userSourceTypes?.[0] ?? SOURCE_TRIGGER);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? SOURCE_SELECTED : SOURCE_TRIGGER));
+        setQuantifier(intData.length > 8 && intData[8] === QUANTIFIER_ANY ? QUANTIFIER_ANY : QUANTIFIER_ALL);
     }, [trigger]);
 
     useEffect(() => {
@@ -196,17 +206,21 @@ export const WiredConditionVariableAgeMatchView: FC<{}> = () => {
     const save = () => {
         const parsedDuration = parseInt(durationInput.trim(), 10);
 
-        setStringParam(variableToken);
+        const durationVariableId = fromVariable ? getCustomVariableItemId(durationToken) : 0;
+
+        setStringParam(`${variableToken}\t${durationVariableId}`);
         setIntParams([
-            getTargetValue(targetType),
-            compareValue,
+            toOfficialVariableTarget(getTargetValue(targetType)),
             comparison,
+            compareValue,
+            0,
             Number.isFinite(parsedDuration) ? Math.max(0, parsedDuration) : 0,
             durationUnit,
-            userSource,
-            furniSource,
+            fromVariable && durationVariableId > 0 ? 1 : 0,
+            durationTarget,
             quantifier
         ]);
+        setSourceTypes({ furni: [furniSource], users: [userSource] });
 
         if (requiresFurni <= WiredFurniType.STUFF_SELECTION_OPTION_NONE) setFurniIds([]);
     };
@@ -341,14 +355,25 @@ export const WiredConditionVariableAgeMatchView: FC<{}> = () => {
 
                 <div className="octane-wired__give-var-section">
                     <div className="octane-wired__give-var-section-title">{LocalizeText('wiredfurni.params.variables.time_selection')}</div>
+                    <WiredValueOrVariableSection
+                        name="variableAgeDuration"
+                        hideSources={true}
+                        min={0}
+                        isVariable={fromVariable}
+                        value={durationInput}
+                        target={durationTarget}
+                        token={durationToken}
+                        furniSource={furniSource}
+                        userSource={userSource}
+                        onIsVariableChange={setFromVariable}
+                        onValueChange={setDurationInput}
+                        onTargetChange={setDurationTarget}
+                        onTokenChange={setDurationToken}
+                        onFurniSourceChange={() => null}
+                        onUserSourceChange={() => null}
+                    />
                     <div className="flex items-center gap-2">
-                        <Text>{LocalizeText('wiredfurni.params.variables.duration')}</Text>
-                        <OctaneInput
-                            className="octane-wired__give-var-number"
-                            type="number"
-                            value={durationInput}
-                            onChange={(event) => setDurationInput(event.target.value)}
-                        />
+                        <Text>{localizeWithFallback('wiredfurni.params.variables.duration.unit', LocalizeText('wiredfurni.params.variables.duration'))}</Text>
                         <select
                             className="min-w-0 flex-1 rounded border border-[#b8b2a4] bg-white px-2 py-[3px] text-[12px]"
                             value={durationUnit}

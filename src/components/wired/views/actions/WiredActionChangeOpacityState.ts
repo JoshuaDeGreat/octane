@@ -12,6 +12,10 @@ export const WIRED_OPACITY_DEFAULT_DURATION = 0;
 export const WIRED_OPACITY_SELECTED_FURNI_SOURCE = 100;
 export const WIRED_OPACITY_TRIGGER_USER_SOURCE = 0;
 
+/**
+ * The editor's state. `opacity` is ours (100 = fully visible); the official box only knows visible
+ * (transparency 0) and invisible (transparency 100).
+ */
 export interface WiredActionChangeOpacityState {
     visibility: number;
     opacity: number;
@@ -20,6 +24,8 @@ export interface WiredActionChangeOpacityState {
     furniSource: number;
     userSource: number;
     clickThrough: boolean;
+    targetUsers: boolean;
+    targetUserSource: number;
 }
 
 const clampInteger = (value: number, minimum: number, maximum: number) => {
@@ -38,34 +44,53 @@ const normalizeDuration = (value: number) => {
     return Math.min(WIRED_OPACITY_MAXIMUM_DURATION, Math.max(WIRED_OPACITY_MINIMUM_DURATION, normalized));
 };
 
-export const normalizeWiredActionChangeOpacity = (intData: readonly number[] = []): WiredActionChangeOpacityState => ({
+/**
+ * Official layout: int params `[audience (1 everyone), visibility (0 visible, 100 invisible), click
+ * through, easing, target users]`, ours follows: `transition seconds`. Furni slot 0 the target furni,
+ * user slot 0 the audience, slot 1 the target users.
+ */
+export const normalizeWiredActionChangeOpacity = (
+    intData: readonly number[] = [],
+    furniSources: readonly number[] = [],
+    userSources: readonly number[] = []
+): WiredActionChangeOpacityState => ({
     visibility: intData[0] === WIRED_OPACITY_VISIBILITY_EVERYONE ? WIRED_OPACITY_VISIBILITY_EVERYONE : WIRED_OPACITY_VISIBILITY_SOURCE_USERS,
-    opacity: clampInteger(intData[1] ?? WIRED_OPACITY_MAXIMUM, WIRED_OPACITY_MINIMUM, WIRED_OPACITY_MAXIMUM),
-    easing: clampInteger(intData[2] ?? WIRED_OPACITY_EASING_INSTANT, 0, 4),
-    duration: normalizeDuration(intData[3] ?? WIRED_OPACITY_DEFAULT_DURATION),
-    furniSource: hasSource(FURNI_SOURCES, intData[4]) ? intData[4] : WIRED_OPACITY_SELECTED_FURNI_SOURCE,
-    userSource: hasSource(USER_SOURCES, intData[5]) ? intData[5] : WIRED_OPACITY_TRIGGER_USER_SOURCE,
-    clickThrough: intData[6] === 1
+    opacity: WIRED_OPACITY_MAXIMUM - clampInteger(intData[1] ?? 0, WIRED_OPACITY_MINIMUM, WIRED_OPACITY_MAXIMUM),
+    clickThrough: intData[2] === 1,
+    easing: clampInteger(intData[3] ?? WIRED_OPACITY_EASING_INSTANT, 0, 4),
+    targetUsers: intData[4] === 1,
+    duration: normalizeDuration(intData[5] ?? WIRED_OPACITY_DEFAULT_DURATION),
+    furniSource: hasSource(FURNI_SOURCES, furniSources[0]) ? furniSources[0] : WIRED_OPACITY_SELECTED_FURNI_SOURCE,
+    userSource: hasSource(USER_SOURCES, userSources[0]) ? userSources[0] : WIRED_OPACITY_TRIGGER_USER_SOURCE,
+    // Stored only (avatars are not made transparent yet): passed through as the box sent it.
+    targetUserSource: Number.isInteger(userSources[1]) ? userSources[1] : WIRED_OPACITY_TRIGGER_USER_SOURCE
 });
 
 export const serializeWiredActionChangeOpacity = (state: WiredActionChangeOpacityState) => {
-    const normalized = normalizeWiredActionChangeOpacity([
-        state.visibility,
-        state.opacity,
-        state.easing,
-        state.duration,
-        state.furniSource,
-        state.userSource,
-        state.clickThrough ? 1 : 0
-    ]);
+    const opacity = clampInteger(state.opacity, WIRED_OPACITY_MINIMUM, WIRED_OPACITY_MAXIMUM);
+    const normalized = normalizeWiredActionChangeOpacity(
+        [
+            state.visibility,
+            WIRED_OPACITY_MAXIMUM - opacity,
+            state.clickThrough ? 1 : 0,
+            state.easing,
+            state.targetUsers ? 1 : 0,
+            state.duration
+        ],
+        [state.furniSource],
+        [state.userSource, state.targetUserSource]
+    );
 
-    return [
-        normalized.visibility,
-        normalized.opacity,
-        normalized.easing,
-        normalized.duration,
-        normalized.furniSource,
-        normalized.userSource,
-        normalized.clickThrough ? 1 : 0
-    ];
+    return {
+        intParams: [
+            normalized.visibility,
+            WIRED_OPACITY_MAXIMUM - normalized.opacity,
+            normalized.clickThrough ? 1 : 0,
+            normalized.easing,
+            normalized.targetUsers ? 1 : 0,
+            normalized.duration
+        ],
+        furniSources: [normalized.furniSource],
+        userSources: [normalized.userSource, normalized.targetUserSource]
+    };
 };

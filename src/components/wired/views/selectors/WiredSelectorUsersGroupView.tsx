@@ -13,17 +13,18 @@ export const WiredSelectorUsersGroupView: FC<{}> = () => {
     const [selectedGroupId, setSelectedGroupId] = useState(0);
     const [filterExisting, setFilterExisting] = useState(false);
     const [invert, setInvert] = useState(false);
-    const { trigger = null, setIntParams = null } = useWired();
+    // Official layout: the group id in the string (empty: the room's group), no int params.
+    const { trigger = null, setIntParams = null, setStringParam = null, setSelectorOptions = null } = useWired();
 
     useEffect(() => {
         if (!trigger) return;
 
-        const params = trigger.intData;
+        const groupId = parseInt((trigger.stringData ?? '').trim(), 10);
 
-        setGroupType(params.length > 0 ? params[0] : GROUP_CURRENT_ROOM);
-        setSelectedGroupId(params.length > 1 ? params[1] : 0);
-        setFilterExisting(params.length > 2 ? params[2] === 1 : false);
-        setInvert(params.length > 3 ? params[3] === 1 : false);
+        setGroupType(groupId > 0 ? GROUP_SELECTED : GROUP_CURRENT_ROOM);
+        setSelectedGroupId(groupId > 0 ? groupId : 0);
+        setFilterExisting(trigger.isFilter ?? false);
+        setInvert(trigger.isInvert ?? false);
     }, [trigger]);
 
     useEffect(() => {
@@ -34,7 +35,11 @@ export const WiredSelectorUsersGroupView: FC<{}> = () => {
 
     const selectedGroupOptions = useMemo(() => groups.map((group) => ({ value: group.groupId, label: group.groupName })), [groups]);
 
-    const save = () => setIntParams([groupType, selectedGroupId, filterExisting ? 1 : 0, invert ? 1 : 0]);
+    const save = () => {
+        setIntParams([]);
+        setStringParam(groupType === GROUP_SELECTED && selectedGroupId > 0 ? String(selectedGroupId) : '');
+        setSelectorOptions({ filter: filterExisting, invert });
+    };
 
     return (
         <WiredSelectorBaseView hasSpecialInput={true} requiresFurni={0} save={save} hideDelay={true} cardStyle={{ width: 400 }}>

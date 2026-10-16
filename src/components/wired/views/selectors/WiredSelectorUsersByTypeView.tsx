@@ -10,7 +10,7 @@ export const WiredSelectorUsersByTypeView: FC<{}> = () => {
     const [userType, setUserType] = useState(1);
     const [filterExisting, setFilterExisting] = useState(false);
     const [invert, setInvert] = useState(false);
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSelectorOptions = null } = useWired();
 
     useEffect(() => {
         if (!trigger) return;
@@ -18,12 +18,14 @@ export const WiredSelectorUsersByTypeView: FC<{}> = () => {
         const params = trigger.intData;
 
         setUserType(params.length > 0 ? params[0] : 1);
-        setFilterExisting(params.length > 1 ? params[1] === 1 : false);
-        setInvert(params.length > 2 ? params[2] === 1 : false);
+        setFilterExisting(trigger.isFilter ?? false);
+        setInvert(trigger.isInvert ?? false);
     }, [trigger]);
 
     const save = useCallback(() => {
-        setIntParams([userType, filterExisting ? 1 : 0, invert ? 1 : 0]);
+        // Official type mask: any of Habbo (1), pet (2) and bot (4).
+        setIntParams([userType || 1]);
+        setSelectorOptions({ filter: filterExisting, invert });
     }, [userType, filterExisting, invert, setIntParams]);
 
     return (
@@ -34,11 +36,11 @@ export const WiredSelectorUsersByTypeView: FC<{}> = () => {
                     {USER_TYPES.map((value) => (
                         <label key={value} className="flex items-center gap-1">
                             <input
-                                checked={userType === value}
+                                checked={(userType & value) !== 0}
                                 className="form-check-input"
                                 name="usersByTypeSelector"
-                                type="radio"
-                                onChange={() => setUserType(value)}
+                                type="checkbox"
+                                onChange={() => setUserType((current) => current ^ value)}
                             />
                             <Text>{LocalizeText(`wiredfurni.params.usertype.${value}`)}</Text>
                         </label>

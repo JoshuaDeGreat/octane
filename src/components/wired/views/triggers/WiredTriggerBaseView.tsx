@@ -9,6 +9,8 @@ export interface WiredTriggerBaseViewProps {
     footer?: ReactNode;
     footerCollapsible?: boolean;
     selectionPreview?: ReactNode;
+    /** Official: some elements open wider. */
+    widthModifier?: number;
 }
 
 export const WiredTriggerBaseView: FC<PropsWithChildren<WiredTriggerBaseViewProps>> = (props) => {
@@ -19,7 +21,8 @@ export const WiredTriggerBaseView: FC<PropsWithChildren<WiredTriggerBaseViewProp
         children = null,
         footer = null,
         footerCollapsible = true,
-        selectionPreview = null
+        selectionPreview = null,
+        widthModifier = 1
     } = props;
 
     const onSave = () => save && save();
@@ -33,6 +36,7 @@ export const WiredTriggerBaseView: FC<PropsWithChildren<WiredTriggerBaseViewProp
             footer={footer}
             footerCollapsible={footerCollapsible}
             selectionPreview={selectionPreview}
+            widthModifier={widthModifier}
         >
             {children}
         </WiredBaseView>

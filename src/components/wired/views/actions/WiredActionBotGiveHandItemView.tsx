@@ -5,6 +5,7 @@ import { useWired } from '../../../../hooks';
 import { OctaneInput } from '../../../../layout';
 import { WiredHandItemField } from '../WiredHandItemField';
 import { CLICKED_USER_SOURCE_VALUE, WiredSourceOption, WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 const USER_SOURCE_OPTIONS: WiredSourceOption[] = [
@@ -27,13 +28,16 @@ const normalizeBotSource = (value: number, hasBotName = false) => (BOT_SOURCE_OP
 export const WiredActionBotGiveHandItemView: FC<{}> = (props) => {
     const [botName, setBotName] = useState('');
     const [handItemId, setHandItemId] = useState(-1);
-    const { trigger = null, setStringParam = null, setIntParams = null } = useWired();
+    const { trigger = null, setStringParam = null, setIntParams = null, setSourceTypes = null } = useWired();
     const [userSource, setUserSource] = useState<number>(0);
     const [botSource, setBotSource] = useState<number>(100);
 
     const save = () => {
+        // Official: the name (empty without "use the named bot"), ints [hand item]; the bots are user
+        // slot 0, ours the receivers in slot 1.
         setStringParam(botSource === 100 ? botName : '');
-        setIntParams([handItemId, userSource, botSource]);
+        setIntParams([Math.max(0, handItemId)]);
+        setSourceTypes({ furni: [], users: [botSource, userSource] });
     };
 
     useEffect(() => {
@@ -41,10 +45,8 @@ export const WiredActionBotGiveHandItemView: FC<{}> = (props) => {
 
         setBotName(nextBotName);
         setHandItemId(trigger.intData.length > 0 ? trigger.intData[0] : 0);
-        setUserSource(trigger.intData.length > 1 ? normalizeUserSource(trigger.intData[1]) : 0);
-        setBotSource(
-            trigger.intData.length > 2 ? normalizeBotSource(trigger.intData[2], nextBotName.length > 0) : normalizeBotSource(-1, nextBotName.length > 0)
-        );
+        setUserSource(normalizeUserSource(slotUserSource(trigger, 1)));
+        setBotSource(normalizeBotSource(trigger.userSourceTypes?.[0] ?? -1, nextBotName.length > 0));
     }, [trigger]);
 
     return (

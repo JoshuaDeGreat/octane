@@ -23,21 +23,23 @@ export const WiredConditionUserPerformsActionView: FC<WiredConditionUserPerforms
     const [userSource, setUserSource] = useState(0);
     const [quantifier, setQuantifier] = useState(0);
     const [showAdvanced, setShowAdvanced] = useState(false);
-    const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
+    // Official layout: [action, our quantifier], the extra in the string, the users in the official source slot.
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const quantifierKeyPrefix = negative ? 'wiredfurni.params.quantifier.users.neg' : 'wiredfurni.params.quantifier.users';
 
     // Official: [action] and the sign / dance extra in the string; the user source and the quantifier
     // follow in the int params until the conditions get their official slots.
     const save = () => {
-        setIntParams([choice.action, userSource, quantifier]);
+        setIntParams([choice.action, quantifier]);
+        setSourceTypes({ furni: [], users: [userSource] });
         setStringParam(wiredUserActionExtra(choice));
     };
 
     useEffect(() => {
         setChoice(readWiredUserAction(trigger?.intData ?? [], trigger?.stringData ?? ''));
-        setUserSource(trigger?.intData?.length > 1 ? trigger.intData[1] : 0);
-        setQuantifier(trigger?.intData?.length > 2 ? trigger.intData[2] : 0);
-        setShowAdvanced(trigger?.intData?.length > 1 ? trigger.intData[1] !== 0 || trigger.intData[2] !== 0 : false);
+        setUserSource(trigger?.userSourceTypes?.[0] ?? 0);
+        setQuantifier(trigger?.intData?.[1] === 1 ? 1 : 0);
+        setShowAdvanced((trigger?.userSourceTypes?.[0] ?? 0) !== 0 || trigger?.intData?.[1] === 1);
     }, [trigger]);
 
     return (

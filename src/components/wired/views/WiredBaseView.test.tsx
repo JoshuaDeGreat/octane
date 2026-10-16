@@ -1,6 +1,6 @@
 /* @vitest-environment jsdom */
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ButtonHTMLAttributes, PropsWithChildren } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -19,23 +19,61 @@ const mocks = vi.hoisted(() => ({
         copyWiredToClipboard: vi.fn(),
         pasteWiredFromClipboard: vi.fn(),
         resetWiredToDefault: vi.fn(),
-        clearWiredPicks: vi.fn()
+        clearWiredPicks: vi.fn(),
+        pasteIntoMode: false,
+        setPasteIntoMode: vi.fn(),
+        getSelectorOptions: vi.fn()
     },
-    roomSettings: { canModify: true }
+    roomSettings: { canModify: true },
+    showSingleBubble: vi.fn(),
+    showConfirm: vi.fn(),
+    sent: [] as unknown[],
+    links: [] as string[]
 }));
 
-vi.mock('@octane/renderer', () => ({
-    GetRoomEngine: () => ({ areaSelectionManager: { clearHighlight: vi.fn(), deactivate: vi.fn() } }),
-    GetSessionDataManager: () => ({ getFloorItemData: () => ({ name: 'WIRED Action' }) })
-}));
+vi.mock('@octane/renderer', () => {
+    class Triggerable {}
+    class ConditionDefinition extends Triggerable {}
+    class TriggerDefinition extends Triggerable {}
+    class WiredActionDefinition extends Triggerable {}
+    class WiredAddonDefinition extends Triggerable {}
+    class WiredSelectorDefinition extends Triggerable {}
+    class WiredVariableDefinition extends Triggerable {}
+    class ApplySnapshotMessageComposer {
+        constructor(public id: number) {}
+    }
 
-vi.mock('../../../api', () => ({
+    return {
+        ApplySnapshotMessageComposer,
+        ConditionDefinition,
+        GetRoomEngine: () => ({ areaSelectionManager: { clearHighlight: vi.fn(), deactivate: vi.fn() } }),
+        GetSessionDataManager: () => ({ getFloorItemData: () => ({ name: 'Effect: Toggle state' }) }),
+        Triggerable,
+        TriggerDefinition,
+        WiredActionDefinition,
+        WiredAddonDefinition,
+        WiredSelectorDefinition,
+        WiredVariableDefinition
+    };
+});
+
+vi.mock('../../../api', async () => {
+    const header = await vi.importActual<typeof import('../../../api/wired/WiredHeaderButton')>('../../../api/wired/WiredHeaderButton');
+
+    return {
+    ...header,
+    CreateLinkEvent: (link: string) => mocks.links.push(link),
+    GetConfigurationValue: () => '',
+    NotificationBubbleType: { INFO: 'info' },
+    OpenUrl: vi.fn(),
+    SendMessageComposer: (composer: unknown) => mocks.sent.push(composer),
     LocalizeText: (key: string) => key,
     localizeWithFallback: (key: string, fallback: string) => fallback,
     WiredFurniType: { STUFF_SELECTION_OPTION_NONE: 0 },
     WiredSelectionVisualizer: { clearAllSelectionShaders: vi.fn(), clearSelectionShaderFromFurni: vi.fn(), applySelectionShaderToFurni: vi.fn() },
     wiredStyleClassName: () => ''
-}));
+    };
+});
 
 vi.mock('../../../assets/images/wired/wired_bg_left.png', () => ({ default: 'left.png' }));
 vi.mock('../../../assets/images/wired/wired_bg_right.png', () => ({ default: 'right.png' }));
@@ -59,6 +97,7 @@ vi.mock('../../../common', () => ({
 
 vi.mock('../../../hooks', () => ({
     useWired: () => mocks.wired,
+    useNotification: () => ({ showSingleBubble: mocks.showSingleBubble, showConfirm: mocks.showConfirm }),
     useWiredTools: () => ({ roomSettings: mocks.roomSettings, accountPreferences: { wiredStyle: 'default' } })
 }));
 
@@ -74,6 +113,10 @@ describe('WiredBaseView quick menu', () => {
         mocks.wired.clipboardEntry = null;
         mocks.wired.furniIds = [];
         mocks.roomSettings.canModify = true;
+        mocks.showSingleBubble.mockReset();
+        mocks.showConfirm.mockReset();
+        mocks.sent.length = 0;
+        mocks.links.length = 0;
     });
 
     afterEach(cleanup);
@@ -88,21 +131,28 @@ describe('WiredBaseView quick menu', () => {
         fireEvent.click(screen.getByRole('menuitem', { name: 'Copy' }));
         expect(save).toHaveBeenCalledTimes(1);
         expect(mocks.wired.copyWiredToClipboard).toHaveBeenCalledTimes(1);
+        expect(mocks.showSingleBubble).toHaveBeenCalledWith('Copied', 'info');
 
         mocks.wired.clipboardEntry = { key: 'action:7' };
         rerender(<WiredBaseView hasSpecialInput={false} requiresFurni={0} save={save} wiredType="action" />);
         openMenu();
-        fireEvent.click(screen.getByRole('menuitemcheckbox', { name: /Paste into/ }));
         fireEvent.click(screen.getByRole('menuitem', { name: 'Paste' }));
-        expect(mocks.wired.pasteWiredFromClipboard).toHaveBeenCalledWith(true);
+        expect(mocks.wired.pasteWiredFromClipboard).toHaveBeenCalledWith(false);
+
+        // Official paste into: switching it on pushes the view's settings first.
+        save.mockClear();
+        openMenu();
+        fireEvent.click(screen.getByRole('menuitemcheckbox', { name: /Paste into/ }));
+        expect(save).toHaveBeenCalledTimes(1);
+        expect(mocks.wired.setPasteIntoMode).toHaveBeenCalledWith(true);
     });
 
-    it('save without closing goes through the keep-open save', () => {
+    it('save goes through the keep-open save', () => {
         const save = vi.fn();
         render(<WiredBaseView hasSpecialInput={false} requiresFurni={0} save={save} wiredType="action" />);
 
         openMenu();
-        fireEvent.click(screen.getByRole('menuitem', { name: 'Save without closing' }));
+        fireEvent.click(screen.getByRole('menuitem', { name: 'Save' }));
 
         expect(save).toHaveBeenCalledTimes(1);
         expect(mocks.wired.saveWiredAndKeepOpen).toHaveBeenCalledTimes(1);
@@ -125,6 +175,31 @@ describe('WiredBaseView quick menu', () => {
         render(<WiredBaseView hasSpecialInput={false} requiresFurni={0} save={vi.fn()} wiredType="action" />);
         openMenu();
         expect(screen.getByRole('menuitem', { name: 'Copy' })).toBeDisabled();
-        expect(screen.getByRole('menuitem', { name: 'Save without closing' })).toBeDisabled();
+        expect(screen.getByRole('menuitem', { name: 'Save' })).toBeDisabled();
+    });
+
+    it('has the official open-menu and close entries and splits the header name', () => {
+        render(<WiredBaseView hasSpecialInput={false} requiresFurni={0} save={vi.fn()} wiredType="action" />);
+
+        expect(screen.getByText('EFFECT')).toBeInTheDocument();
+        expect(screen.getByText('Toggle state')).toBeInTheDocument();
+        openMenu();
+        fireEvent.click(screen.getByRole('menuitem', { name: 'Open the Wired Creator Tools' }));
+        expect(mocks.links).toEqual(['wired-tools/show']);
+        openMenu();
+        fireEvent.click(screen.getByRole('menuitem', { name: 'Close' }));
+        expect(mocks.wired.setTrigger).toHaveBeenCalledWith(null);
+    });
+
+    it('asks before saving a selector that inverts without filtering', () => {
+        mocks.wired.getSelectorOptions.mockReturnValue({ filter: false, invert: true });
+        render(<WiredBaseView hasSpecialInput={false} requiresFurni={0} save={vi.fn()} wiredType="selector" />);
+
+        fireEvent.click(screen.getByText('wiredfurni.ready'));
+        expect(mocks.showConfirm).toHaveBeenCalledTimes(1);
+        expect(mocks.wired.saveWired).not.toHaveBeenCalled();
+
+        act(() => mocks.showConfirm.mock.calls[0][1]());
+        expect(mocks.wired.saveWired).toHaveBeenCalledTimes(1);
     });
 });

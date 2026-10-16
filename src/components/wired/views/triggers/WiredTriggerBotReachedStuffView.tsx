@@ -24,17 +24,19 @@ export const WiredTriggerBotReachedStuffView: FC<{}> = (props) => {
     const [botName, setBotName] = useState('');
     const [furniSource, setFurniSource] = useState(100);
     const [botSource, setBotSource] = useState(100);
-    const { trigger = null, setStringParam = null, setIntParams = null } = useWired();
+    const { trigger = null, setStringParam = null, setIntParams = null, setSourceTypes = null } = useWired();
 
     const save = () => {
-        setStringParam(botSource === 100 ? botName : '');
-        setIntParams([furniSource, botSource]);
+        // Official: the bot name, no int params; the furni and bot sources in the official slots.
+        setStringParam(botName);
+        setIntParams([]);
+        setSourceTypes({ furni: [furniSource], users: [botSource] });
     };
 
     useEffect(() => {
-        setBotName(trigger.stringData);
-        setFurniSource(trigger?.intData?.length > 0 ? normalizeFurniSource(trigger.intData[0]) : 100);
-        setBotSource(trigger?.intData?.length > 1 ? normalizeBotSource(trigger.intData[1]) : 100);
+        setBotName(trigger?.stringData ?? '');
+        setFurniSource(normalizeFurniSource(trigger?.furniSourceTypes?.[0] ?? 100));
+        setBotSource(normalizeBotSource(trigger?.userSourceTypes?.[0] ?? 100));
     }, [trigger]);
 
     return (
@@ -56,12 +58,10 @@ export const WiredTriggerBotReachedStuffView: FC<{}> = (props) => {
                 />
             }
         >
-            {botSource === 100 && (
-                <div className="flex flex-col gap-1">
-                    <Text bold>{LocalizeText('wiredfurni.params.bot.name')}</Text>
-                    <OctaneInput maxLength={32} type="text" value={botName} onChange={(event) => setBotName(event.target.value)} />
-                </div>
-            )}
+            <div className="flex flex-col gap-1">
+                <Text bold>{LocalizeText('wiredfurni.params.bot.name')}</Text>
+                <OctaneInput maxLength={32} title={LocalizeText('wiredfurni.tooltip.botname')} type="text" value={botName} onChange={(event) => setBotName(event.target.value)} />
+            </div>
         </WiredTriggerBaseView>
     );
 };

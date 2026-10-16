@@ -21,7 +21,7 @@ const PICKED_SOURCE = 100;
  * teleporter leads to, arriving on the linker's or teleporter's pair, or else to the typed room.
  */
 export const WiredActionTeleportToRoomView: FC<{}> = () => {
-    const { trigger = null, furniIds = [], setIntParams = null, setStringParam = null, setAllowedFurniCheck = null, setAllowedInteractionErrorKey = null } = useWired();
+    const { trigger = null, furniIds = [], setIntParams = null, setStringParam = null, setSourceTypes = null, setAllowedFurniCheck = null, setAllowedInteractionErrorKey = null } = useWired();
     const [roomId, setRoomId] = useState('');
     const [userSource, setUserSource] = useState(0);
     const [furniSource, setFurniSource] = useState(PICKED_SOURCE);
@@ -29,11 +29,13 @@ export const WiredActionTeleportToRoomView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
+        // Official: no int params; the user and furni sources are the official source slots (a box
+        // saved before still reads its [user source, furni source]). Our room id is the text.
         const params = readTeleportToRoomParams(trigger.intData);
 
         setRoomId(sanitizeTeleportRoomId(trigger.stringData ?? ''));
-        setUserSource(params.userSource);
-        setFurniSource(params.furniSource);
+        setUserSource(trigger.userSourceTypes?.[0] ?? params.userSource);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? params.furniSource);
     }, [trigger]);
 
     useEffect(() => {
@@ -54,7 +56,8 @@ export const WiredActionTeleportToRoomView: FC<{}> = () => {
 
     const save = () => {
         setStringParam(roomId);
-        setIntParams([userSource, furniSource]);
+        setIntParams([]);
+        setSourceTypes({ furni: [furniSource], users: [userSource] });
     };
 
     return (

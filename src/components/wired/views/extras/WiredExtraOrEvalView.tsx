@@ -38,7 +38,7 @@ const normalizeCompareValue = (value: number) => {
 };
 
 export const WiredExtraOrEvalView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setStringParam = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
     const [evaluationMode, setEvaluationMode] = useState(MODE_ALL);
     const [furniSource, setFurniSource] = useState(0);
     const [compareValue, setCompareValue] = useState(DEFAULT_COMPARE_VALUE);
@@ -57,8 +57,13 @@ export const WiredExtraOrEvalView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
-        setEvaluationMode(normalizeEvaluationMode(trigger.intData.length > 0 ? trigger.intData[0] : MODE_ALL));
-        setFurniSource(normalizeFurniSource(trigger.intData.length > 1 ? trigger.intData[1] : 0));
+        // Official layout: [mode (-1 counted, 0 all, 1 any, 2 not all, 3 none), counted mode (0 less,
+        // 1 exactly, 2 more), count]; the picked conditions' source is ours, in the furni slot.
+        const d = trigger.intData;
+        const mode = d[0] ?? MODE_ALL;
+
+        setEvaluationMode(mode === -1 ? MODE_LESS_THAN + Math.max(0, Math.min(2, d[1] ?? 1)) : normalizeEvaluationMode(mode));
+        setFurniSource(normalizeFurniSource(trigger.furniSourceTypes?.[0] ?? 0));
         const nextCompareValue = normalizeCompareValue(trigger.intData.length > 2 ? trigger.intData[2] : DEFAULT_COMPARE_VALUE);
         setCompareValue(nextCompareValue);
         setCompareValueInput(nextCompareValue.toString());
@@ -85,7 +90,11 @@ export const WiredExtraOrEvalView: FC<{}> = () => {
     };
 
     const save = () => {
-        setIntParams([normalizeEvaluationMode(evaluationMode), normalizeFurniSource(furniSource), normalizeCompareValue(compareValue)]);
+        const mode = normalizeEvaluationMode(evaluationMode);
+        const counted = mode >= MODE_LESS_THAN;
+
+        setIntParams([counted ? -1 : mode, counted ? mode - MODE_LESS_THAN : 0, normalizeCompareValue(compareValue)]);
+        setSourceTypes({ furni: [normalizeFurniSource(furniSource)], users: [] });
         setStringParam('');
     };
 

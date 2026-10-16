@@ -4,28 +4,26 @@ import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { OctaneInput } from '../../../../layout';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 export const WiredActionKickFromRoomView: FC<{}> = (props) => {
     const [message, setMessage] = useState('');
-    const { trigger = null, setStringParam = null, setIntParams = null } = useWired();
+    const { trigger = null, setStringParam = null, setIntParams = null, setSourceTypes = null } = useWired();
     /** Sit, lie down and fast walk share this window for its user source; nobody is being kicked, so
      * the message the kicked person would see has nothing to say. */
     const showMessage = trigger?.code !== WiredActionLayoutCode.USER_TARGET;
-    const [userSource, setUserSource] = useState<number>(() => {
-        if (trigger?.intData?.length >= 1) return trigger.intData[0];
-        return 0;
-    });
+    const [userSource, setUserSource] = useState<number>(() => slotUserSource(trigger));
 
     const save = () => {
         setStringParam(showMessage ? message : '');
-        setIntParams([userSource]);
+        setIntParams([]);
+        setSourceTypes({ furni: [], users: [userSource] });
     };
 
     useEffect(() => {
         setMessage(trigger.stringData);
-        if (trigger.intData.length >= 1) setUserSource(trigger.intData[0]);
-        else setUserSource(0);
+        setUserSource(slotUserSource(trigger));
     }, [trigger]);
 
     return (

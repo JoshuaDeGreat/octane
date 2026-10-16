@@ -3,6 +3,7 @@ import { LocalizeText, WiredFurniType, WIRED_CLOCK_FURNI_TYPES } from '../../../
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotFurniSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 // Game timers and the football, Banzai and Freeze counters as well as the clock counter.
@@ -23,22 +24,21 @@ const normalizeControl = (value: number) => {
 };
 
 export const WiredActionControlClockView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
     const [control, setControl] = useState(0);
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const [furniSource, setFurniSource] = useState<number>(() => slotFurniSource(trigger));
 
+    // Official layout: [action]; the furni source is the official source slot.
     const save = () => {
-        setIntParams([control, furniSource]);
+        setIntParams([control]);
+        setSourceTypes({ furni: [furniSource], users: [] });
     };
 
     useEffect(() => {
         if (!trigger) return;
 
         setControl(trigger.intData.length > 0 ? normalizeControl(trigger.intData[0]) : 0);
-        setFurniSource(trigger.intData.length > 1 ? trigger.intData[1] : (trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
+        setFurniSource(slotFurniSource(trigger));
     }, [trigger]);
 
     useEffect(() => {
@@ -59,6 +59,7 @@ export const WiredActionControlClockView: FC<{}> = () => {
             footer={<WiredSourcesSelector showFurni={true} furniSource={furniSource} onChangeFurni={setFurniSource} />}
         >
             <div className="flex flex-col gap-2">
+                <Text bold>{LocalizeText('wiredfurni.params.clock_control')}</Text>
                 {CONTROL_OPTIONS.map((option) => {
                     return (
                         <div key={option.value} className="flex items-center gap-1">

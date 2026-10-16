@@ -19,19 +19,19 @@ interface WiredConditionActorIsWearingEffectViewProps {
 export const WiredConditionActorIsWearingEffectView: FC<WiredConditionActorIsWearingEffectViewProps> = ({ negative = false, showEffect = true }) => {
     const [effect, setEffect] = useState(-1);
     const [quantifier, setQuantifier] = useState(1);
-    const { trigger = null, setIntParams = null } = useWired();
-    const [userSource, setUserSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return 0;
-    });
+    // Official layout: [effect (0 any), our quantifier], the users in the official source slot.
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [userSource, setUserSource] = useState<number>(() => trigger?.userSourceTypes?.[0] ?? 0);
 
-    const save = () => setIntParams([effect, userSource, quantifier]);
+    const save = () => {
+        setIntParams([effect, quantifier]);
+        setSourceTypes({ furni: [], users: [userSource] });
+    };
 
     useEffect(() => {
         setEffect(trigger?.intData[0] ?? 0);
-        if (trigger?.intData?.length > 1) setUserSource(trigger.intData[1]);
-        else setUserSource(0);
-        setQuantifier(trigger?.intData?.length > 2 ? (trigger.intData[2] === 1 ? 1 : 0) : 1);
+        setUserSource(trigger?.userSourceTypes?.[0] ?? 0);
+        setQuantifier(trigger?.intData?.[1] === 1 ? 1 : 0);
     }, [trigger]);
 
     return (

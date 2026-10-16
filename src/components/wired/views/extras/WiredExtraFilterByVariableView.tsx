@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
+import { fromOfficialVariableTarget, LocalizeText, localizeWithFallback, toOfficialVariableTarget, WiredFurniType } from '../../../../api';
 import contextVariableIcon from '../../../../assets/images/wired/var/icon_source_context_clean.png';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import globalVariableIcon from '../../../../assets/images/wired/var/icon_source_global.png';
@@ -123,7 +123,7 @@ const resolveSourceOptions = (baseOptions: WiredSourceOption[], selectedValue: n
 };
 
 export const WiredExtraFilterByVariableView: FC<WiredExtraFilterByVariableViewProps> = ({ target }) => {
-    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null } = useWired();
+    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const { userVariableDefinitions = [], furniVariableDefinitions = [], roomVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const [variableToken, setVariableToken] = useState('');
     const [sortBy, setSortBy] = useState(0);
@@ -201,12 +201,16 @@ export const WiredExtraFilterByVariableView: FC<WiredExtraFilterByVariableViewPr
 
         setVariableToken(normalizeVariableTokenFromWire(stringParts.length > 0 ? stringParts[0] : ''));
         setReferenceVariableToken(normalizeVariableTokenFromWire(stringParts.length > 1 ? stringParts[1] : ''));
-        setSortBy(trigger.intData.length > 0 ? trigger.intData[0] : 0);
-        setAmountMode((trigger.intData.length > 1 ? trigger.intData[1] : AMOUNT_CONSTANT) === AMOUNT_VARIABLE ? 'variable' : 'constant');
-        setAmountInput((trigger.intData.length > 2 ? trigger.intData[2] : 1).toString());
-        setReferenceTargetType(normalizeTargetType(trigger.intData.length > 3 ? trigger.intData[3] : TARGET_USER));
-        setReferenceUserSource(trigger.intData.length > 4 ? trigger.intData[4] : SOURCE_TRIGGER);
-        setReferenceFurniSource(trigger.intData.length > 5 ? trigger.intData[5] : nextReferenceFurniIds.length ? SOURCE_SECONDARY_SELECTED : SOURCE_TRIGGER);
+        // Official layout: [N, sort, N from a variable, its target (official ids)]; the N variable's
+        // sources in the official slots.
+        const d = trigger.intData;
+
+        setAmountInput((d[0] ?? 1).toString());
+        setSortBy(d[1] ?? 0);
+        setAmountMode((d[2] ?? AMOUNT_CONSTANT) === AMOUNT_VARIABLE ? 'variable' : 'constant');
+        setReferenceTargetType(normalizeTargetType(d.length > 3 ? fromOfficialVariableTarget(d[3]) : TARGET_USER));
+        setReferenceUserSource(trigger.userSourceTypes?.[0] ?? SOURCE_TRIGGER);
+        setReferenceFurniSource(trigger.furniSourceTypes?.[0] ?? (nextReferenceFurniIds.length ? SOURCE_SECONDARY_SELECTED : SOURCE_TRIGGER));
         setReferenceFurniIds(nextReferenceFurniIds);
         setFurniIds(nextReferenceFurniIds);
     }, [setFurniIds, trigger]);
@@ -229,13 +233,12 @@ export const WiredExtraFilterByVariableView: FC<WiredExtraFilterByVariableViewPr
         setReferenceFurniIds(nextReferenceFurniIds);
         setStringParam(`${variableToken || ''}\t${amountMode === 'variable' ? referenceVariableToken : ''}`);
         setIntParams([
+            Number.isFinite(parsedAmount) ? parsedAmount : 0,
             sortBy,
             amountMode === 'variable' ? AMOUNT_VARIABLE : AMOUNT_CONSTANT,
-            Number.isFinite(parsedAmount) ? parsedAmount : 0,
-            getTargetValue(referenceTargetType),
-            referenceUserSource,
-            referenceFurniSource
+            toOfficialVariableTarget(getTargetValue(referenceTargetType))
         ]);
+        setSourceTypes({ furni: [referenceFurniSource], users: [referenceUserSource] });
         setFurniIds(referenceSelectionEnabled ? nextReferenceFurniIds : []);
     };
 

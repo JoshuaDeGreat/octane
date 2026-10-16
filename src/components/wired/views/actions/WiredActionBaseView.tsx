@@ -15,6 +15,8 @@ export interface WiredActionBaseViewProps {
     footer?: ReactNode;
     footerCollapsible?: boolean;
     selectionPreview?: ReactNode;
+    /** Official: some elements open wider. */
+    widthModifier?: number;
 }
 
 export const WiredActionBaseView: FC<PropsWithChildren<WiredActionBaseViewProps>> = (props) => {
@@ -28,7 +30,8 @@ export const WiredActionBaseView: FC<PropsWithChildren<WiredActionBaseViewProps>
         hideDelay = false,
         footer = null,
         footerCollapsible = true,
-        selectionPreview = null
+        selectionPreview = null,
+        widthModifier = 1
     } = props;
     const { trigger = null, actionDelay = 0, setActionDelay = null } = useWired();
 
@@ -47,15 +50,18 @@ export const WiredActionBaseView: FC<PropsWithChildren<WiredActionBaseViewProps>
             footer={footer}
             footerCollapsible={footerCollapsible}
             selectionPreview={selectionPreview}
+            widthModifier={widthModifier}
+            delaySection={
+                hideDelay ? null : (
+                    // Official: the delay comes after the furni picks.
+                    <div className="flex flex-col octane-wired__section octane-wired__section--delay">
+                        <Text bold>{LocalizeText('wiredfurni.params.delay', ['seconds'], [GetWiredTimeLocale(actionDelay)])}</Text>
+                        <Slider max={WIRED_ACTION_DELAY_MAX_PULSES} min={0} value={actionDelay} onChange={(event) => setActionDelay(event)} />
+                    </div>
+                )
+            }
         >
             {children}
-            {!hideDelay && !!children && <div className="octane-wired__divider" />}
-            {!hideDelay && (
-                <div className="flex flex-col octane-wired__section octane-wired__section--delay">
-                    <Text bold>{LocalizeText('wiredfurni.params.delay', ['seconds'], [GetWiredTimeLocale(actionDelay)])}</Text>
-                    <Slider max={WIRED_ACTION_DELAY_MAX_PULSES} min={0} value={actionDelay} onChange={(event) => setActionDelay(event)} />
-                </div>
-            )}
         </WiredBaseView>
     );
 };

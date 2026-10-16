@@ -136,6 +136,7 @@ import { HOLDER_TYPE_FURNI, HOLDER_TYPE_USER, WiredHolderDescription, WiredVaria
 import { useVariablesExplorerStore } from '../../state/variablesExplorer';
 import { WiredVariableHolderPanelView } from './WiredVariableHolderPanelView';
 import { WiredVariablesTabView } from './WiredVariablesTabView';
+import { translateWiredMenuLink, wiredMenuTabKey } from './WiredMenuLinks';
 import { useWiredCreatorToolsUiStore } from './wiredCreatorToolsUiStore';
 
 const WIRED_FURNI_GRAVITY_MODEL_KEY = 'wired_furni_gravity';
@@ -1025,6 +1026,10 @@ export const WiredCreatorToolsView: FC<{}> = () => {
                             }
                         }
                         return;
+                    case 'logs':
+                        // The log action's header button: the room log window.
+                        setIsRoomLogsOpen(true);
+                        return;
                     case 'tab':
                         if (parts.length > 2) {
                             const tab = parts[2] as WiredToolsTab;
@@ -1040,8 +1045,23 @@ export const WiredCreatorToolsView: FC<{}> = () => {
 
         AddLinkEventTracker(linkTracker);
 
-        return () => RemoveLinkEventTracker(linkTracker);
-    }, [refreshSelectedFurni, refreshSelectedUser, simpleAlert]);
+        // The official wired menu links (notifications, other windows) land on the same handler.
+        const wiredMenuTracker: ILinkEventTracker = {
+            linkReceived: (url: string) => {
+                const translated = translateWiredMenuLink(url);
+
+                if (translated) linkTracker.linkReceived(translated);
+            },
+            eventUrlPrefix: 'wiredmenu/'
+        };
+
+        AddLinkEventTracker(wiredMenuTracker);
+
+        return () => {
+            RemoveLinkEventTracker(linkTracker);
+            RemoveLinkEventTracker(wiredMenuTracker);
+        };
+    }, [refreshSelectedFurni, refreshSelectedUser, simpleAlert, setIsRoomLogsOpen]);
 
     useEffect(() => {
         if (!isVisible || !roomSession?.roomId || !roomSettings.isLoaded || roomSettings.canInspect) return;
@@ -3175,7 +3195,7 @@ export const WiredCreatorToolsView: FC<{}> = () => {
                 <OctaneCardTabsView justifyContent="start">
                     {TABS.map((tab) => (
                         <OctaneCardTabsItemView key={tab.key} isActive={activeTab === tab.key} onClick={() => setActiveTab(tab.key)}>
-                            <Text>{tab.label}</Text>
+                            <Text>{localizeWithFallback(wiredMenuTabKey(tab.key), tab.label)}</Text>
                         </OctaneCardTabsItemView>
                     ))}
                 </OctaneCardTabsView>

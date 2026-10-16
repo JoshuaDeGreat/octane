@@ -3,6 +3,7 @@ import { localizeWithFallback, WiredFurniType } from '../../../../api';
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 /** What a click on another avatar does, as the server and the renderer number it. */
@@ -28,14 +29,18 @@ export const WiredActionClickSettingsView: FC<{}> = () => {
     const [userOption, setUserOption] = useState(0);
     const [furniOption, setFurniOption] = useState(0);
     const [userSource, setUserSource] = useState(0);
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
 
-    const save = () => setIntParams([userOption, furniOption, userSource]);
+    // Official layout: [user option, furni option]; the user source is the official source slot.
+    const save = () => {
+        setIntParams([userOption, furniOption]);
+        setSourceTypes({ furni: [], users: [userSource] });
+    };
 
     useEffect(() => {
         setUserOption(normalize(trigger?.intData?.length > 0 ? trigger.intData[0] : 0, USER_OPTIONS));
         setFurniOption(normalize(trigger?.intData?.length > 1 ? trigger.intData[1] : 0, FURNI_OPTIONS));
-        setUserSource(trigger?.intData?.length > 2 ? trigger.intData[2] : 0);
+        setUserSource(slotUserSource(trigger));
     }, [trigger]);
 
     return (

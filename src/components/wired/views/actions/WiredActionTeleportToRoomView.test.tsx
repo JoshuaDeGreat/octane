@@ -5,13 +5,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const setIntParams = vi.fn();
 const setStringParam = vi.fn();
 const setAllowedFurniCheck = vi.fn();
+const setSourceTypes = vi.fn();
 const setAllowedInteractionErrorKey = vi.fn();
 let trigger: { stringData: string; intData: number[] } | null = null;
 let furniIds: number[] = [];
 let baseProps: { save: () => void; validate?: () => boolean } | null = null;
 
 vi.mock('../../../../hooks', () => ({
-    useWired: () => ({ trigger, furniIds, setIntParams, setStringParam, setAllowedFurniCheck, setAllowedInteractionErrorKey })
+    useWired: () => ({ trigger, furniIds, setIntParams, setStringParam, setSourceTypes, setAllowedFurniCheck, setAllowedInteractionErrorKey })
 }));
 
 vi.mock('../../../../common', () => ({
@@ -52,7 +53,8 @@ describe('WiredActionTeleportToRoomView', () => {
         baseProps.save();
 
         expect(setStringParam).toHaveBeenCalledWith('77');
-        expect(setIntParams).toHaveBeenCalledWith([11, 100]);
+        expect(setIntParams).toHaveBeenCalledWith([]);
+        expect(setSourceTypes).toHaveBeenCalledWith({ furni: [100], users: [11] });
     });
 
     it('needs a room id or a picked furni, and keeps the id to digits', () => {

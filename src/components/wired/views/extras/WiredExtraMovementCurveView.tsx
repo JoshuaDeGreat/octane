@@ -22,8 +22,8 @@ import { WiredExtraBaseView } from './WiredExtraBaseView';
 /**
  * Habbo's "movement curve" (wf_xtra_mov_curve): how high the furni the stack moves jump, typed or
  * read from a variable. Our easing curves sit under the advanced options.
- * Int params: [curve, intensity, strength, from variable, variable target, user source, furni source];
- * string param: the variable token.
+ * Official int params: [strength from variable, strength, variable target (official ids)]; ours follow:
+ * [curve, intensity]. String param: the variable token; its user and furni source in the official slots.
  */
 
 type VariableTarget = 'user' | 'furni' | 'global' | 'context';
@@ -49,10 +49,10 @@ const SOURCE_TRIGGER = 0;
 const SOURCE_SECONDARY_SELECTED = 101;
 
 const TARGETS: Array<{ key: VariableTarget; value: number; icon: string }> = [
-    { key: 'furni', value: 1, icon: furniVariableIcon },
-    { key: 'user', value: 0, icon: userVariableIcon },
-    { key: 'global', value: 3, icon: globalVariableIcon },
-    { key: 'context', value: 2, icon: contextVariableIcon }
+    { key: 'furni', value: 0, icon: furniVariableIcon },
+    { key: 'user', value: 1, icon: userVariableIcon },
+    { key: 'global', value: -10, icon: globalVariableIcon },
+    { key: 'context', value: -20, icon: contextVariableIcon }
 ];
 
 const FURNI_SOURCES: WiredSourceOption[] = sortWiredSourceOptions(
@@ -69,10 +69,10 @@ const CONTEXT_SOURCES: WiredSourceOption[] = [{ value: SOURCE_TRIGGER, label: lo
 
 const clamp = (value: number, min: number, max: number, fallback: number) => (Number.isFinite(value) ? Math.max(min, Math.min(max, Math.round(value))) : fallback);
 const targetOf = (value: number): VariableTarget => TARGETS.find((target) => target.value === value)?.key ?? 'user';
-const targetValue = (key: VariableTarget) => TARGETS.find((target) => target.key === key)?.value ?? 0;
+const targetValue = (key: VariableTarget) => TARGETS.find((target) => target.key === key)?.value ?? 1;
 
 export const WiredExtraMovementCurveView: FC<{}> = () => {
-    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null } = useWired();
+    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const { userVariableDefinitions = [], furniVariableDefinitions = [], roomVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const [curveType, setCurveType] = useState(CURVE_JUMP);
     const [intensity, setIntensity] = useState(INTENSITY_DEFAULT);
@@ -110,13 +110,13 @@ export const WiredExtraMovementCurveView: FC<{}> = () => {
 
         const ints = trigger.intData ?? [];
 
-        setCurveType(ints.length > 0 ? clamp(ints[0], 0, CURVE_MAX, CURVE_JUMP) : CURVE_JUMP);
-        setIntensity(ints.length > 1 ? clamp(ints[1], 0, 100, INTENSITY_DEFAULT) : INTENSITY_DEFAULT);
-        setStrengthInput(String(ints.length > 2 ? clamp(ints[2], STRENGTH_MIN, STRENGTH_MAX, STRENGTH_DEFAULT) : STRENGTH_DEFAULT));
-        setFromVariable(ints.length > 3 && ints[3] === 1);
-        setTarget(targetOf(ints.length > 4 ? ints[4] : 0));
-        setUserSource(ints.length > 5 ? ints[5] : SOURCE_TRIGGER);
-        setFurniSource(ints.length > 6 ? ints[6] : SOURCE_TRIGGER);
+        setFromVariable(ints.length > 0 && ints[0] === 1);
+        setStrengthInput(String(ints.length > 1 ? clamp(ints[1], STRENGTH_MIN, STRENGTH_MAX, STRENGTH_DEFAULT) : STRENGTH_DEFAULT));
+        setTarget(targetOf(ints.length > 2 ? ints[2] : 1));
+        setCurveType(ints.length > 3 ? clamp(ints[3], 0, CURVE_MAX, CURVE_JUMP) : CURVE_JUMP);
+        setIntensity(ints.length > 4 ? clamp(ints[4], 0, 100, INTENSITY_DEFAULT) : INTENSITY_DEFAULT);
+        setUserSource(trigger.userSourceTypes?.[0] ?? SOURCE_TRIGGER);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? SOURCE_TRIGGER);
         setVariableToken(normalizeVariableTokenFromWire(trigger.stringData ?? ''));
     }, [trigger]);
 
@@ -130,14 +130,13 @@ export const WiredExtraMovementCurveView: FC<{}> = () => {
 
     const save = () => {
         setIntParams([
-            curveType,
-            intensity,
-            clamp(parseInt(strengthInput, 10), STRENGTH_MIN, STRENGTH_MAX, STRENGTH_DEFAULT),
             fromVariable ? 1 : 0,
+            clamp(parseInt(strengthInput, 10), STRENGTH_MIN, STRENGTH_MAX, STRENGTH_DEFAULT),
             targetValue(target),
-            userSource,
-            furniSource
+            curveType,
+            intensity
         ]);
+        setSourceTypes({ furni: [furniSource], users: [userSource] });
         setStringParam(fromVariable ? variableToken : '');
         if (!picksFurni) setFurniIds([]);
     };

@@ -62,12 +62,12 @@ describe('WiredVariableFx helpers', () => {
         expect(wiredVariableFxStyles(99)).toBe(wiredVariableFxStyles(WIRED_FX_CATEGORY.PROGRESS_BAR));
     });
 
-    it('round-trips the sixteen params and clamps what the server would clamp', () => {
+    it('round-trips the official params and clamps what the server would clamp', () => {
         const params = { ...defaultWiredVariableFxParams(), visibility: 1, showMode: 1, showDurationMs: 2500, styleId: 3, segments: 6, overrideMaxEnabled: true, overrideMaxTarget: 1, audienceValue: 7 };
 
         expect(readWiredVariableFxParams(writeWiredVariableFxParams(params), WIRED_FX_CATEGORY.PROGRESS_BAR)).toEqual(params);
 
-        const clamped = readWiredVariableFxParams([9, 99, 99, 1, 99, 5, 2, 999, 0, 100, 1, 1, 9, 9, 0, 0], WIRED_FX_CATEGORY.PROGRESS_BAR);
+        const clamped = readWiredVariableFxParams([9, 99, 99, 0, 0, 1, 99, 5, 2, 0, 0, 0, 0, 100, 1, 1, 9, 9, 0, 0, 999, 0, 0], WIRED_FX_CATEGORY.PROGRESS_BAR);
 
         expect(clamped.source).toBe(0);
         expect(clamped.visibility).toBe(4);
@@ -76,6 +76,8 @@ describe('WiredVariableFx helpers', () => {
         expect(clamped.styleId).toBe(4);
         expect(clamped.segments).toBe(100);
         expect(clamped.overrideMinTarget).toBe(0);
+        expect(readWiredVariableFxParams(writeWiredVariableFxParams({ ...params, defaultMin: -5, source: 1 }), WIRED_FX_CATEGORY.PROGRESS_BAR).defaultMin).toBe(-5);
+        expect(writeWiredVariableFxParams({ ...params, overrideMaxTarget: 1 })[17]).toBe(-10);
         expect(readWiredVariableFxParams([], WIRED_FX_CATEGORY.BOSS_BAR)).toEqual(defaultWiredVariableFxParams());
     });
 

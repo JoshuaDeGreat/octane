@@ -9,7 +9,9 @@ let trigger: { intData: number[]; stringData: string } | null = null;
 vi.mock('../../../../api', () => ({
     LocalizeText: (key: string) => key,
     localizeWithFallback: (key: string, fallback: string) => fallback,
-    WiredFurniType: { STUFF_SELECTION_OPTION_NONE: 0 }
+    WiredFurniType: { STUFF_SELECTION_OPTION_NONE: 0 },
+    fromOfficialVariableTarget: (official: number) => (official === 0 ? 1 : official === -20 ? 2 : official === -10 ? 3 : 0),
+    toOfficialVariableTarget: (ours: number) => (ours === 1 ? 0 : ours === 2 ? -20 : ours === 3 ? -10 : 1)
 }));
 
 vi.mock('../../../../hooks', () => ({
@@ -66,7 +68,7 @@ describe('WiredTriggerVariableChangedView origin filter', () => {
     });
 
     it('listens to every origin for a box saved before the filter existed', () => {
-        trigger = { intData: [0, 1, 1, 1, 1, 1, 1], stringData: 'custom:score' };
+        trigger = { intData: [1, 1, 1, 7], stringData: 'custom:score' };
 
         render(<WiredTriggerVariableChangedView />);
 
@@ -74,7 +76,8 @@ describe('WiredTriggerVariableChangedView origin filter', () => {
     });
 
     it('reads the saved mask back into the three boxes', () => {
-        trigger = { intData: [0, 1, 1, 1, 1, 1, 1, 0b0101], stringData: 'custom:score' };
+        // Official bits: 0 this room, 2 inspection (creator tools), 3 external (web API).
+        trigger = { intData: [1, 1, 1, 7, 0b0101, 0, 1], stringData: 'custom:score' };
 
         render(<WiredTriggerVariableChangedView />);
 
@@ -85,16 +88,16 @@ describe('WiredTriggerVariableChangedView origin filter', () => {
     });
 
     it('saves -1 while every origin is ticked and the mask once one is not', () => {
-        trigger = { intData: [0, 1, 1, 1, 1, 1, 1], stringData: 'custom:score' };
+        trigger = { intData: [1, 1, 1, 7], stringData: 'custom:score' };
 
         render(<WiredTriggerVariableChangedView />);
 
         fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-        expect(setIntParams.mock.calls[0][0]).toHaveLength(8);
-        expect(setIntParams.mock.calls[0][0][7]).toBe(-1);
+        expect(setIntParams.mock.calls[0][0]).toHaveLength(7);
+        expect(setIntParams.mock.calls[0][0][4]).toBe(-1);
 
         fireEvent.click(screen.getByRole('checkbox', { name: 'The web API' }));
         fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-        expect(setIntParams.mock.calls[1][0][7]).toBe(0b101);
+        expect(setIntParams.mock.calls[1][0][4]).toBe(0b0101);
     });
 });

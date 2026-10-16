@@ -3,6 +3,7 @@ import { LocalizeText, localizeWithFallback, WiredFurniType, WIRED_CLOCK_FURNI_T
 import { Slider, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotFurniSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 const MINUTES_MIN = 0;
@@ -33,12 +34,9 @@ const formatSeconds = (halfSeconds: number) => {
 };
 
 export const WiredActionAdjustClockView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
     const [operator, setOperator] = useState(2);
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const [furniSource, setFurniSource] = useState<number>(() => slotFurniSource(trigger));
     const [minutes, setMinutes] = useState(0);
     const [halfSeconds, setHalfSeconds] = useState(0);
 
@@ -47,10 +45,14 @@ export const WiredActionAdjustClockView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
-        setOperator(trigger.intData.length > 0 ? normalizeOperator(trigger.intData[0]) : 2);
-        setFurniSource(trigger.intData.length > 1 ? trigger.intData[1] : (trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
-        setMinutes(trigger.intData.length > 2 ? normalizeMinutes(trigger.intData[2]) : 0);
-        setHalfSeconds(trigger.intData.length > 3 ? normalizeHalfSeconds(trigger.intData[3]) : 0);
+        // Official layout: [whole seconds, minutes, half a second (0/1), operator]; the furni source is
+        // the official source slot.
+        const d = trigger.intData ?? [];
+
+        setHalfSeconds(normalizeHalfSeconds((d[0] ?? 0) * 2 + (d[2] === 1 ? 1 : 0)));
+        setMinutes(normalizeMinutes(d[1] ?? 0));
+        setOperator(normalizeOperator(d[3] ?? 2));
+        setFurniSource(slotFurniSource(trigger));
     }, [trigger]);
 
     useEffect(() => {
@@ -64,7 +66,10 @@ export const WiredActionAdjustClockView: FC<{}> = () => {
     }, [setAllowedInteractionErrorKey, setAllowedInteractionTypes]);
 
     const save = () => {
-        setIntParams([operator, furniSource, normalizeMinutes(minutes), normalizeHalfSeconds(halfSeconds)]);
+        const value = normalizeHalfSeconds(halfSeconds);
+
+        setIntParams([Math.floor(value / 2), normalizeMinutes(minutes), value % 2, operator]);
+        setSourceTypes({ furni: [furniSource], users: [] });
     };
 
     return (
@@ -75,6 +80,7 @@ export const WiredActionAdjustClockView: FC<{}> = () => {
             footer={<WiredSourcesSelector showFurni={true} furniSource={furniSource} onChangeFurni={setFurniSource} />}
         >
             <div className="flex flex-col gap-2">
+                <Text bold>{LocalizeText('wiredfurni.params.choose_type')}</Text>
                 {OPERATOR_OPTIONS.map((option) => {
                     return (
                         <div key={option.value} className="flex items-center gap-1">
@@ -92,12 +98,11 @@ export const WiredActionAdjustClockView: FC<{}> = () => {
                 })}
             </div>
             <div className="flex flex-col gap-1">
-                <Text bold>{localizeWithFallback('wiredfurni.params.clock_minutes', LocalizeText('wiredfurni.params.time.minute_selection'))}</Text>
+                <Text bold>{localizeWithFallback('wiredfurni.params.clock_minutes', LocalizeText('wiredfurni.params.time.minute_selection'), ['minutes'], [minutes.toString()])}</Text>
                 <Slider max={MINUTES_MAX} min={MINUTES_MIN} step={1} value={minutes} onChange={(event) => setMinutes(normalizeMinutes(event as number))} />
-                <Text small>{minutes}</Text>
             </div>
             <div className="flex flex-col gap-1">
-                <Text bold>{localizeWithFallback('wiredfurni.params.clock_seconds', LocalizeText('wiredfurni.params.time.second_selection'))}</Text>
+                <Text bold>{localizeWithFallback('wiredfurni.params.clock_seconds', LocalizeText('wiredfurni.params.time.second_selection'), ['seconds'], [secondsLabel])}</Text>
                 <Slider
                     max={HALF_SECONDS_MAX}
                     min={HALF_SECONDS_MIN}
@@ -105,7 +110,6 @@ export const WiredActionAdjustClockView: FC<{}> = () => {
                     value={halfSeconds}
                     onChange={(event) => setHalfSeconds(normalizeHalfSeconds(event as number))}
                 />
-                <Text small>{secondsLabel}</Text>
             </div>
         </WiredActionBaseView>
     );
