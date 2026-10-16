@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LocalizeText, localizeWithFallback, WiredFurniType, WiredSelectionVisualizer } from '../../../../api';
+import { fromOfficialComparison, fromOfficialVariableTarget, LocalizeText, localizeWithFallback, toOfficialComparison, toOfficialVariableTarget, WiredFurniType, WiredSelectionVisualizer } from '../../../../api';
 import contextVariableIcon from '../../../../assets/images/wired/var/icon_source_context_clean.png';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import globalVariableIcon from '../../../../assets/images/wired/var/icon_source_global.png';
@@ -150,7 +150,10 @@ const isFurniTarget = (targetType: VariableTargetType) => targetType === 'furni'
 const isContextTarget = (targetType: VariableTargetType) => targetType === 'context';
 
 export const WiredConditionVariableValueMatchView: FC<{}> = () => {
-    const { trigger = null, furniIds = [], setAllowsFurni = null, setFurniIds = null, setIntParams = null, setStringParam = null } = useWired();
+    // Official layout: [target, comparison, operandIsVariable, operandHigh, operandLow, operandTarget, sameHolder,
+    // our reference user source, our reference furni source, our quantifier], the furni and users in the official slots.
+    const { trigger = null, furniIds = [], setAllowsFurni = null, setFurniIds = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
+    const [sameHolder, setSameHolder] = useState(false);
     const { userVariableDefinitions = [], furniVariableDefinitions = [], roomVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const [targetType, setTargetType] = useState<VariableTargetType>('user');
     const [variableToken, setVariableToken] = useState('');
@@ -268,20 +271,21 @@ export const WiredConditionVariableValueMatchView: FC<{}> = () => {
         if (!trigger) return;
 
         const stringParts = parseStringData(trigger.stringData);
-        const nextTargetType = normalizeTargetType(trigger.intData.length > 0 ? trigger.intData[0] : TARGET_USER);
-        const nextReferenceTargetType = normalizeTargetType(trigger.intData.length > 4 ? trigger.intData[4] : TARGET_USER);
+        const nextTargetType = normalizeTargetType(trigger.intData.length > 0 ? fromOfficialVariableTarget(trigger.intData[0]) : TARGET_USER);
+        const nextReferenceTargetType = normalizeTargetType(trigger.intData.length > 5 ? fromOfficialVariableTarget(trigger.intData[5]) : TARGET_USER);
         const nextDestinationFurniIds = [...(trigger.selectedItems ?? [])];
         const nextReferenceFurniIds = parseIds(stringParts.length > 2 ? stringParts[2] : '');
 
         setTargetType(nextTargetType);
         setVariableToken(normalizeVariableTokenFromWire(stringParts.length > 0 ? stringParts[0] : ''));
-        setComparison(trigger.intData.length > 1 ? trigger.intData[1] : 2);
+        setComparison(trigger.intData.length > 1 ? fromOfficialComparison(trigger.intData[1]) : 2);
         setReferenceMode((trigger.intData.length > 2 ? trigger.intData[2] : REFERENCE_CONSTANT) === REFERENCE_VARIABLE ? 'variable' : 'constant');
-        setReferenceConstantValueInput((trigger.intData.length > 3 ? trigger.intData[3] : 0).toString());
+        setReferenceConstantValueInput((trigger.intData.length > 4 ? trigger.intData[4] : 0).toString());
+        setSameHolder(trigger.intData[6] === 1);
         setReferenceTargetType(nextReferenceTargetType);
         setReferenceVariableToken(normalizeVariableTokenFromWire(stringParts.length > 1 ? stringParts[1] : ''));
-        setUserSource(trigger.intData.length > 5 ? trigger.intData[5] : SOURCE_TRIGGER);
-        setFurniSource(trigger.intData.length > 6 ? trigger.intData[6] : nextDestinationFurniIds.length ? SOURCE_SELECTED : SOURCE_TRIGGER);
+        setUserSource(trigger.userSourceTypes?.[0] ?? SOURCE_TRIGGER);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? (nextDestinationFurniIds.length ? SOURCE_SELECTED : SOURCE_TRIGGER));
         setReferenceUserSource(trigger.intData.length > 7 ? trigger.intData[7] : SOURCE_TRIGGER);
         setReferenceFurniSource(trigger.intData.length > 8 ? trigger.intData[8] : nextReferenceFurniIds.length ? SOURCE_SECONDARY_SELECTED : SOURCE_TRIGGER);
         setQuantifier(trigger.intData.length > 9 ? (trigger.intData[9] === QUANTIFIER_ANY ? QUANTIFIER_ANY : QUANTIFIER_ALL) : QUANTIFIER_ALL);
@@ -332,18 +336,21 @@ export const WiredConditionVariableValueMatchView: FC<{}> = () => {
         setDestinationFurniIds(nextDestinationFurniIds);
         setReferenceFurniIds(nextReferenceFurniIds);
         setStringParam(serializeStringData(variableToken, referenceMode === 'variable' ? referenceVariableToken : '', nextReferenceFurniIds));
+        const constantValue = Number.isFinite(parsedReferenceConstantValue) ? parsedReferenceConstantValue : 0;
+
         setIntParams([
-            getTargetValue(targetType),
-            comparison,
+            toOfficialVariableTarget(getTargetValue(targetType)),
+            toOfficialComparison(comparison),
             referenceMode === 'variable' ? REFERENCE_VARIABLE : REFERENCE_CONSTANT,
-            Number.isFinite(parsedReferenceConstantValue) ? parsedReferenceConstantValue : 0,
-            getTargetValue(referenceTargetType),
-            userSource,
-            furniSource,
+            constantValue < 0 ? -1 : 0,
+            constantValue,
+            toOfficialVariableTarget(getTargetValue(referenceTargetType)),
+            referenceMode === 'variable' && sameHolder ? 1 : 0,
             referenceUserSource,
             referenceFurniSource,
             quantifier
         ]);
+        setSourceTypes({ furni: [furniSource], users: [userSource] });
         setFurniIds(isFurniTarget(targetType) && furniSource === SOURCE_SELECTED ? [...nextDestinationFurniIds] : []);
     };
 
@@ -532,6 +539,12 @@ export const WiredConditionVariableValueMatchView: FC<{}> = () => {
                                 selectedToken={referenceVariableToken}
                                 onSelect={(entry) => setReferenceVariableToken(entry.token)}
                             />
+                        )}
+                        {referenceMode === 'variable' && (
+                            <label className="octane-wired__give-var-checkbox">
+                                <input checked={sameHolder} className="form-check-input" type="checkbox" onChange={(event) => setSameHolder(event.target.checked)} />
+                                <Text>{localizeWithFallback('wiredfurni.params.variables.same_holder', 'Read it on each target itself')}</Text>
+                            </label>
                         )}
                     </div>
                 </div>

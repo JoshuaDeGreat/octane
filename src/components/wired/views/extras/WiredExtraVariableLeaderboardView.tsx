@@ -84,7 +84,7 @@ export const WiredExtraVariableLeaderboardView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
-        const config = decodeLeaderboardConfig(trigger.intData, trigger.stringData, context?.physicalTileX ?? 0, context?.physicalTileY ?? 0);
+        const config = decodeLeaderboardConfig(trigger.intData, trigger.stringData, context?.physicalTileX ?? 0, context?.physicalTileY ?? 0, trigger.variableIds ?? []);
         const initialNames: Record<string, string> = {};
 
         for (const choice of (context?.choices ?? []).slice(0, LEADERBOARD_MAX_CHOICES)) {
@@ -168,7 +168,7 @@ export const WiredExtraVariableLeaderboardView: FC<{}> = () => {
     );
 
     return (
-        <WiredExtraBaseView hasSpecialInput={true} requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE} save={save} validate={validate} cardStyle={{ width: 440 }}>
+        <WiredExtraBaseView hasSpecialInput={true} requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE} save={save} validate={validate} widthModifier={1.35}>
             <div className="flex flex-col gap-2 octane-wired-leaderboard-editor">
                 {warning && <Text small className="text-red-500">{warning}</Text>}
 

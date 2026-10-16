@@ -165,6 +165,7 @@ export const WiredExtraVariableWebApiView: FC<{}> = () => {
             hasSpecialInput={true}
             requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE}
             save={save}
+            widthModifier={1.4}
             footerCollapsible={false}
             footer={
                 <div className="flex gap-1">

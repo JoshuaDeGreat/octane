@@ -36,6 +36,7 @@ import {
     IsOwnerOfFloorFurniture,
     LocalizeText,
     localizeWithFallback,
+    NotificationBubbleType,
     pasteTriggerableData,
     resetTriggerableData,
     SendMessageComposer,
@@ -72,6 +73,10 @@ const useWiredState = () => {
     // Set by an editor that writes the official source fields and selector switches itself; until then
     // the save passes back what the box sent.
     const [, setSourceTypes, sourceTypesRef] = useLiveState<{ furni: number[]; users: number[] } | null>(null);
+    // The official second pick list (stuffIds2); null sends back what the box sent.
+    const [, setFurniIds2, furniIds2Ref] = useLiveState<number[] | null>(null);
+    // The official definition variable ids; null sends back what the box sent.
+    const [, setVariableIds, variableIdsRef] = useLiveState<string[] | null>(null);
     const [, setSelectorOptions, selectorOptionsRef] = useLiveState<{ filter: boolean; invert: boolean } | null>(null);
     const [allowsFurni, setAllowsFurni] = useState<number>(WiredFurniType.STUFF_SELECTION_OPTION_NONE);
     const selectByType = false;
@@ -82,38 +87,53 @@ const useWiredState = () => {
     // A view's own test for a floor furni pick, next to the interaction names.
     const [allowedFurniCheck, setAllowedFurniCheckState] = useState<WiredFurniPickCheck | null>(null);
     const setAllowedFurniCheck = useCallback((check: WiredFurniPickCheck | null) => setAllowedFurniCheckState(() => check), []);
-    const { showConfirm = null, simpleAlert = null } = useNotification();
+    const { showConfirm = null, simpleAlert = null, showSingleBubble = null } = useNotification();
     const { requestUserVariables = null, roomSettings = null } = useWiredTools();
     // The quick menu's clipboard: one entry per holder and code, kept for the session.
     const [clipboard, setClipboard] = useState<Map<string, WiredClipboardEntry>>(() => new Map());
     // "Save without closing": the next save success leaves the window open.
     const keepOpenAfterSaveRef = useRef(false);
+    // The non-owner confirmation, once answered, holds for the rest of the session.
+    const nonOwnerConfirmedRef = useRef(false);
+    // Official "paste into": while on, opening another box of the same element saves the open
+    // configuration into it instead of opening it.
+    const [pasteIntoMode, setPasteIntoModeState] = useState(false);
+    const pasteIntoModeRef = useRef(false);
+    const setPasteIntoMode = useCallback((value: boolean) => {
+        pasteIntoModeRef.current = value;
+        setPasteIntoModeState(value);
+    }, []);
 
-    const saveWired = () => {
+    /**
+     * Saves the open configuration. With a target, it goes into that box instead (paste into): the
+     * target keeps its own furni picks.
+     */
+    const saveWired = (target: Triggerable = null) => {
         const save = (trigger: Triggerable) => {
             if (!trigger) return;
 
             const intParams = intParamsRef.current;
             const stringParam = stringParamRef.current;
-            const furniIds = furniIdsRef.current;
+            const furniIds = target ? (target.selectedItems ?? []) : furniIdsRef.current;
             const actionDelay = actionDelayRef.current;
 
             // Official save layout: the source types, variable ids and second picks go back as the box
             // sent them until its editor sets them itself.
             const furniSources = sourceTypesRef.current?.furni ?? trigger.furniSourceTypes ?? [];
             const userSources = sourceTypesRef.current?.users ?? trigger.userSourceTypes ?? [];
-            const variableIds = trigger.variableIds ?? [];
-            const furniIds2 = trigger.selectedItems2 ?? [];
+            const variableIds = variableIdsRef.current ?? trigger.variableIds ?? [];
+            const furniIds2 = target ? (target.selectedItems2 ?? []) : (furniIds2Ref.current ?? trigger.selectedItems2 ?? []);
+            const id = target ? target.id : trigger.id;
 
             // Addons, selectors and variables have their own official save packets.
             if (trigger instanceof WiredAddonDefinition) {
                 SendMessageComposer(
-                    new UpdateAddonMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                    new UpdateAddonMessageComposer(id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
                 );
             } else if (trigger instanceof WiredSelectorDefinition) {
                 SendMessageComposer(
                     new UpdateSelectorMessageComposer(
-                        trigger.id,
+                        id,
                         intParams,
                         stringParam,
                         furniIds,
@@ -127,20 +147,20 @@ const useWiredState = () => {
                 );
             } else if (trigger instanceof WiredVariableDefinition) {
                 SendMessageComposer(
-                    new UpdateVariableMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                    new UpdateVariableMessageComposer(id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
                 );
             } else if (trigger instanceof WiredActionDefinition) {
                 SendMessageComposer(
-                    new UpdateActionMessageComposer(trigger.id, intParams, stringParam, furniIds, actionDelay, furniSources, userSources, variableIds, furniIds2)
+                    new UpdateActionMessageComposer(id, intParams, stringParam, furniIds, actionDelay, furniSources, userSources, variableIds, furniIds2)
                 );
             } else if (trigger instanceof TriggerDefinition) {
                 SendMessageComposer(
-                    new UpdateTriggerMessageComposer(trigger.id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
+                    new UpdateTriggerMessageComposer(id, intParams, stringParam, furniIds, furniSources, userSources, variableIds, furniIds2)
                 );
             } else if (trigger instanceof ConditionDefinition) {
                 SendMessageComposer(
                     new UpdateConditionMessageComposer(
-                        trigger.id,
+                        id,
                         intParams,
                         stringParam,
                         furniIds,
@@ -156,10 +176,12 @@ const useWiredState = () => {
 
         const trigger = triggerRef.current;
 
-        if (!IsOwnerOfFloorFurniture(trigger.id)) {
+        // Official: editing someone else's wired asks once per session.
+        if (!nonOwnerConfirmedRef.current && !IsOwnerOfFloorFurniture(target ? target.id : trigger.id)) {
             showConfirm(
                 LocalizeText('wiredfurni.nonowner.change.confirm.body'),
                 () => {
+                    nonOwnerConfirmedRef.current = true;
                     save(trigger);
                 },
                 null,
@@ -174,6 +196,9 @@ const useWiredState = () => {
 
     const selectObjectForWired = (objectId: number, category: number) => {
         if (!trigger || !allowsFurni) return;
+
+        // Official: furni picking is off while paste-into is on.
+        if (pasteIntoModeRef.current) return;
 
         if (objectId <= 0) return;
 
@@ -374,6 +399,14 @@ const useWiredState = () => {
         setTrigger(null);
     });
 
+    /** The selector's filter/invert as its editor last set them, or as the box sent them. */
+    const getSelectorOptions = useCallback((): { filter: boolean; invert: boolean } => {
+        const current = triggerRef.current;
+        const sent = current instanceof WiredSelectorDefinition ? { filter: !!current.isFilter, invert: !!current.isInvert } : { filter: false, invert: false };
+
+        return selectorOptionsRef.current ?? sent;
+    }, []);
+
     /** Saves the box and keeps the window open, so the next change starts from what was saved. */
     const saveWiredAndKeepOpen = useCallback(() => {
         keepOpenAfterSaveRef.current = true;
@@ -458,29 +491,44 @@ const useWiredState = () => {
         }
     });
 
-    useMessageEvent<WiredFurniAddonEvent>(WiredFurniAddonEvent, (event) => setTrigger(event.getParser().definition));
+    /**
+     * A box the server opened. In paste-into mode, another box of the same element gets the open
+     * configuration saved into it (the open window stays); a different element is refused.
+     */
+    const openDefinition = (definition: Triggerable) => {
+        const current = triggerRef.current;
 
-    useMessageEvent<WiredFurniSelectorEvent>(WiredFurniSelectorEvent, (event) => setTrigger(event.getParser().definition));
+        if (pasteIntoModeRef.current && current && definition && definition.id !== current.id) {
+            if (wiredClipboardKeyOf(definition) === wiredClipboardKeyOf(current)) {
+                keepOpenAfterSaveRef.current = true;
+                saveWired(definition);
+                showSingleBubble?.(localizeWithFallback('notification.wired.pasted_into', 'The settings were applied'), NotificationBubbleType.INFO);
+            } else {
+                showSingleBubble?.(
+                    localizeWithFallback('notification.wired.pasted_into_fail', 'This configuration does not fit that wired box'),
+                    NotificationBubbleType.INFO
+                );
+            }
 
-    useMessageEvent<WiredFurniVariableEvent>(WiredFurniVariableEvent, (event) => setTrigger(event.getParser().definition));
+            return;
+        }
 
-    useMessageEvent<WiredFurniActionEvent>(WiredFurniActionEvent, (event) => {
-        const parser = event.getParser();
+        // Official: every newly opened box starts with paste-into off.
+        setPasteIntoMode(false);
+        setTrigger(definition);
+    };
 
-        setTrigger(parser.definition);
-    });
+    useMessageEvent<WiredFurniAddonEvent>(WiredFurniAddonEvent, (event) => openDefinition(event.getParser().definition));
 
-    useMessageEvent<WiredFurniConditionEvent>(WiredFurniConditionEvent, (event) => {
-        const parser = event.getParser();
+    useMessageEvent<WiredFurniSelectorEvent>(WiredFurniSelectorEvent, (event) => openDefinition(event.getParser().definition));
 
-        setTrigger(parser.definition);
-    });
+    useMessageEvent<WiredFurniVariableEvent>(WiredFurniVariableEvent, (event) => openDefinition(event.getParser().definition));
 
-    useMessageEvent<WiredFurniTriggerEvent>(WiredFurniTriggerEvent, (event) => {
-        const parser = event.getParser();
+    useMessageEvent<WiredFurniActionEvent>(WiredFurniActionEvent, (event) => openDefinition(event.getParser().definition));
 
-        setTrigger(parser.definition);
-    });
+    useMessageEvent<WiredFurniConditionEvent>(WiredFurniConditionEvent, (event) => openDefinition(event.getParser().definition));
+
+    useMessageEvent<WiredFurniTriggerEvent>(WiredFurniTriggerEvent, (event) => openDefinition(event.getParser().definition));
 
     // While an editor is open its picks stay highlighted, even when a furni's sprites are rebuilt
     // (a state change, an animation); after it closes, late redraws are swept once more.
@@ -514,6 +562,8 @@ const useWiredState = () => {
             setNeighborhoodTiles(null);
             setNeighborhoodInvert(false);
             setSourceTypes(null);
+            setFurniIds2(null);
+            setVariableIds(null);
             setSelectorOptions(null);
             setAllowedInteractionTypes(null);
             setAllowedInteractionErrorKey(null);
@@ -538,12 +588,17 @@ const useWiredState = () => {
         clipboardEntry,
         copyWiredToClipboard,
         pasteWiredFromClipboard,
+        pasteIntoMode,
+        setPasteIntoMode,
+        getSelectorOptions,
         resetWiredToDefault,
         clearWiredPicks,
         selectObjectForWired,
         setNeighborhoodTiles,
         setNeighborhoodInvert,
         setSourceTypes,
+        setFurniIds2,
+        setVariableIds,
         setSelectorOptions,
         setAllowedInteractionTypes,
         setAllowedInteractionErrorKey,

@@ -23,6 +23,7 @@ export class WiredAddonLayoutCode
     public static FURNI_NAME_PLACEHOLDER: number = 19;
     public static CUSTOM_CONTRACT: number = 20;
     public static PROJECTILE: number = 21;
+    public static MOVEMENT_CURVE: number = 22;
     public static VARIABLE_TEXT_CONVERTER: number = 1000;
     public static VARIABLE_LEVEL_UP: number = 1001;
     public static VARIABLE_TIME_UTIL: number = 1002;
@@ -36,7 +37,6 @@ export class WiredAddonLayoutCode
     public static GLOBAL_PLACEHOLDER: number = 2000;
     public static ACHIEVEMENT_ENABLER: number = 2001;
     public static VARIABLES_WEB_API: number = 2002;
-    public static MOVEMENT_CURVE: number = 3001;
     public static CURRENCY_CHEST: number = 3002;
     public static FURNI_CHEST: number = 3003;
     public static CONTRACT_PAYMENT: number = 3004;

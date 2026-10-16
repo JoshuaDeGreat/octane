@@ -26,14 +26,15 @@ export const WiredTriggerAvatarSaysSomethingView: FC<WiredTriggerAvatarSaysSomet
 
     const save = () => {
         setStringParam(usernameOnly ? '' : message);
-        setIntParams([usernameOnly ? MATCH_CONTAINS : matchMode, hideMessage ? 1 : 0, ownerOnly ? 1 : 0]);
+        // Official layout: [owner only, match mode, hide the message].
+        setIntParams([ownerOnly ? 1 : 0, usernameOnly ? MATCH_CONTAINS : matchMode, hideMessage ? 1 : 0]);
     };
 
     useEffect(() => {
         setMessage(trigger?.stringData ?? '');
-        setMatchMode(trigger?.intData?.length > 0 ? trigger.intData[0] : MATCH_CONTAINS);
-        setHideMessage(trigger?.intData?.length > 1 ? trigger.intData[1] === 1 : false);
-        setOwnerOnly(trigger?.intData?.length > 2 ? trigger.intData[2] === 1 : false);
+        setOwnerOnly(trigger?.intData?.[0] === 1);
+        setMatchMode(trigger?.intData?.length > 1 ? trigger.intData[1] : MATCH_CONTAINS);
+        setHideMessage(trigger?.intData?.[2] === 1);
     }, [trigger]);
 
     return (
@@ -46,11 +47,19 @@ export const WiredTriggerAvatarSaysSomethingView: FC<WiredTriggerAvatarSaysSomet
             {!usernameOnly && (
                 <div className="flex flex-col gap-1">
                     <Text bold>{LocalizeText('wiredfurni.params.whatissaid')}</Text>
-                    <OctaneInput type="text" value={message} onChange={(event) => setMessage(event.target.value)} />
+                    <OctaneInput
+                        disabled={matchMode === MATCH_ALL}
+                        maxLength={1000}
+                        title={LocalizeText('wiredfurni.tooltip.chatinput')}
+                        type="text"
+                        value={message}
+                        onChange={(event) => setMessage(event.target.value)}
+                    />
                 </div>
             )}
             {!usernameOnly && (
                 <div className="flex flex-col gap-1">
+                    <Text bold>{LocalizeText('wiredfurni.params.chattriggertype')}</Text>
                     <div className="flex items-center gap-1">
                         <input
                             checked={matchMode === MATCH_CONTAINS}
@@ -87,6 +96,7 @@ export const WiredTriggerAvatarSaysSomethingView: FC<WiredTriggerAvatarSaysSomet
                 </div>
             )}
             <div className="flex flex-col gap-1">
+                <Text bold>{LocalizeText('wiredfurni.params.select_options')}</Text>
                 <div className="flex items-center gap-1">
                     <input
                         checked={hideMessage}

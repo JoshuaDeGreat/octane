@@ -61,6 +61,7 @@ import { WiredActionControlClockView } from './WiredActionControlClockView';
 import { WiredActionFleeView } from './WiredActionFleeView';
 import { WiredActionFreezeView } from './WiredActionFreezeView';
 import { WiredActionFurniToFurniView } from './WiredActionFurniToFurniView';
+import { WiredActionGiveEffectView } from './WiredActionGiveEffectView';
 import { WiredActionGiveCurrencyFromChestView } from './WiredActionGiveCurrencyFromChestView';
 import { WiredActionGiveFurniFromChestView } from './WiredActionGiveFurniFromChestView';
 import { WiredActionGiveOrTakeFurniView } from './WiredActionGiveOrTakeFurniView';
@@ -147,10 +148,12 @@ export const WiredActionLayoutView = (code: number) => {
         case WiredActionLayoutCode.EFFECT_AMOUNT:
         case WiredActionLayoutCode.EFFECT_BADGE:
         case WiredActionLayoutCode.EFFECT_TAG:
-        case WiredActionLayoutCode.EFFECT_ID:
+        case WiredActionLayoutCode.GIVE_HAND_ITEM:
         case WiredActionLayoutCode.EFFECT_MESSAGE:
         case WiredActionLayoutCode.EFFECT_TEXT:
             return <WiredActionChatView />;
+        case WiredActionLayoutCode.EFFECT_ID:
+            return <WiredActionGiveEffectView />;
         case WiredActionLayoutCode.USER_TARGET:
             return <WiredActionKickFromRoomView />;
         case WiredActionLayoutCode.MOVE_USER_TILES:

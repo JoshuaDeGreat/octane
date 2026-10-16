@@ -26,26 +26,29 @@ const formatSeconds = (halfSeconds: number) => {
 };
 
 export const WiredTriggerClockCounterView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 2) return normalizeFurniSource(trigger.intData[2]);
-        return 100;
-    });
+    const { trigger = null, setIntParams = null, setSourceTypes = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
+    const [furniSource, setFurniSource] = useState<number>(() => normalizeFurniSource(trigger?.furniSourceTypes?.[0] ?? 100));
     const [minutes, setMinutes] = useState(0);
     const [halfSeconds, setHalfSeconds] = useState(0);
 
     const secondsLabel = useMemo(() => formatSeconds(halfSeconds), [halfSeconds]);
 
     const save = () => {
-        setIntParams([normalizeMinutes(minutes), normalizeHalfSeconds(halfSeconds), normalizeFurniSource(furniSource)]);
+        // Official layout: [whole seconds, minutes, half a second (0/1)]; the source in the official slot.
+        const value = normalizeHalfSeconds(halfSeconds);
+
+        setIntParams([Math.floor(value / 2), normalizeMinutes(minutes), value % 2]);
+        setSourceTypes({ furni: [normalizeFurniSource(furniSource)], users: [] });
     };
 
     useEffect(() => {
         if (!trigger) return;
 
-        setMinutes(trigger.intData.length > 0 ? normalizeMinutes(trigger.intData[0]) : 0);
-        setHalfSeconds(trigger.intData.length > 1 ? normalizeHalfSeconds(trigger.intData[1]) : 0);
-        setFurniSource(trigger.intData.length > 2 ? normalizeFurniSource(trigger.intData[2]) : 100);
+        const d = trigger.intData ?? [];
+
+        setHalfSeconds(normalizeHalfSeconds((d[0] ?? 0) * 2 + (d[2] === 1 ? 1 : 0)));
+        setMinutes(normalizeMinutes(d[1] ?? 0));
+        setFurniSource(normalizeFurniSource(trigger.furniSourceTypes?.[0] ?? 100));
     }, [trigger]);
 
     useEffect(() => {
@@ -68,7 +71,6 @@ export const WiredTriggerClockCounterView: FC<{}> = () => {
             <div className="flex flex-col gap-1">
                 <Text bold>{LocalizeText('wiredfurni.params.clock_minutes_elapsed', ['minutes'], [minutes.toString()])}</Text>
                 <Slider max={MINUTES_MAX} min={MINUTES_MIN} step={1} value={minutes} onChange={(event) => setMinutes(normalizeMinutes(event as number))} />
-                <Text small>{minutes}</Text>
             </div>
             <div className="flex flex-col gap-1">
                 <Text bold>{LocalizeText('wiredfurni.params.clock_seconds_elapsed', ['seconds'], [secondsLabel])}</Text>
@@ -79,7 +81,6 @@ export const WiredTriggerClockCounterView: FC<{}> = () => {
                     value={halfSeconds}
                     onChange={(event) => setHalfSeconds(normalizeHalfSeconds(event as number))}
                 />
-                <Text small>{secondsLabel}</Text>
             </div>
         </WiredTriggerBaseView>
     );

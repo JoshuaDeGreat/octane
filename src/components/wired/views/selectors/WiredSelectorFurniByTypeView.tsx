@@ -4,26 +4,28 @@ import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSelectorBaseView } from './WiredSelectorBaseView';
 
-const SOURCE_FURNI_PICKED = 0;
 
 export const WiredSelectorFurniByTypeView: FC<{}> = () => {
     const [matchState, setMatchState] = useState(false);
     const [filterExisting, setFilterExisting] = useState(false);
     const [invert, setInvert] = useState(false);
 
-    const { trigger = null, setIntParams } = useWired();
+    // Official layout: [match state], the picked furni (the types) in the official source slot.
+    const { trigger = null, setIntParams, setSelectorOptions = null, setSourceTypes = null } = useWired();
 
     useEffect(() => {
         if (!trigger) return;
 
         const p = trigger.intData;
-        if (p.length >= 2) setMatchState(p[1] === 1);
-        if (p.length >= 3) setFilterExisting(p[2] === 1);
-        if (p.length >= 4) setInvert(p[3] === 1);
+        setMatchState(p[0] === 1);
+        setFilterExisting(trigger.isFilter ?? false);
+        setInvert(trigger.isInvert ?? false);
     }, [trigger]);
 
     const save = useCallback(() => {
-        setIntParams([SOURCE_FURNI_PICKED, matchState ? 1 : 0, filterExisting ? 1 : 0, invert ? 1 : 0]);
+        setIntParams([matchState ? 1 : 0]);
+        setSourceTypes({ furni: [100], users: [] });
+        setSelectorOptions({ filter: filterExisting, invert });
     }, [matchState, filterExisting, invert, setIntParams]);
 
     const requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_BY_ID;

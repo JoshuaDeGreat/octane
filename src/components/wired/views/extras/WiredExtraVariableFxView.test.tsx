@@ -5,6 +5,14 @@ import { WIRED_FX_CATEGORY } from '../../../../api';
 
 const setIntParams = vi.fn();
 const setStringParam = vi.fn();
+/** Our former sixteen-param order, as the official 23-int layout the box now sends and saves. */
+const official = (l: number[]) => {
+    const holder = l[0] === 1 ? 0 : 1;
+    const word = (value: number) => (value < 0 ? -1 : 0);
+
+    return [holder, l[1], l[2], 0, 0, l[3], l[4], l[5], l[6], 0, word(l[8]), l[8], word(l[9]), l[9], l[10], l[11], l[12] === 1 ? -10 : holder, l[13] === 1 ? -10 : holder, word(l[14]), l[14], l[7], l[15], 0];
+};
+
 let trigger: { stringData: string; intData: number[] } | null = null;
 let baseProps: { save: () => void; validate?: () => boolean } | null = null;
 
@@ -52,17 +60,17 @@ describe('WiredExtraVariableFxView', () => {
         trigger = { stringData: '', intData: [] };
     });
 
-    it('saves the defaults as sixteen params and four empty tokens', () => {
+    it('saves the defaults as the official params and four empty tokens', () => {
         render(<WiredExtraVariableFxView category={WIRED_FX_CATEGORY.PROGRESS_BAR} />);
 
         baseProps.save();
 
-        expect(setIntParams).toHaveBeenCalledWith([0, 2, 0, 3000, 0, -1, 2, 0, 0, 100, 0, 0, 0, 0, 0, 0]);
+        expect(setIntParams).toHaveBeenCalledWith(official([0, 2, 0, 3000, 0, -1, 2, 0, 0, 100, 0, 0, 0, 0, 0, 0]));
         expect(setStringParam).toHaveBeenCalledWith('\t\t\t');
     });
 
     it('shows what the box stored and writes edits back in wire order', () => {
-        trigger = { stringData: 'custom:300\t\t\t', intData: [0, 1, 1, 2500, 1, 3, 3, 4, 10, 250, 1, 0, 0, 0, 0, 0] };
+        trigger = { stringData: 'custom:300\t\t\t', intData: official([0, 1, 1, 2500, 1, 3, 3, 4, 10, 250, 1, 0, 0, 0, 0, 0]) };
 
         render(<WiredExtraVariableFxView category={WIRED_FX_CATEGORY.PROGRESS_BAR} />);
 
@@ -75,7 +83,7 @@ describe('WiredExtraVariableFxView', () => {
         fireEvent.change(screen.getByTestId('fx-show-duration'), { target: { value: '99999' } });
         baseProps.save();
 
-        expect(setIntParams).toHaveBeenCalledWith([0, 1, 1, 20000, 1, 3, 3, 4, 10, 300, 1, 0, 0, 0, 0, 0]);
+        expect(setIntParams).toHaveBeenCalledWith(official([0, 1, 1, 20000, 1, 3, 3, 4, 10, 300, 1, 0, 0, 0, 0, 0]));
         expect(setStringParam).toHaveBeenCalledWith('custom:300\t\t\t');
     });
 
@@ -99,7 +107,7 @@ describe('WiredExtraVariableFxView', () => {
     });
 
     it('offers only user-made variables for the audience and the room ones for a room-wide override', () => {
-        trigger = { stringData: '', intData: [0, 4, 0, 3000, 0, -1, 2, 0, 0, 100, 0, 1, 0, 1, 0, 0] };
+        trigger = { stringData: '', intData: official([0, 4, 0, 3000, 0, -1, 2, 0, 0, 100, 0, 1, 0, 1, 0, 0]) };
 
         render(<WiredExtraVariableFxView category={WIRED_FX_CATEGORY.STATUS_BAR} />);
 
@@ -114,7 +122,7 @@ describe('WiredExtraVariableFxView', () => {
 
         baseProps.save();
 
-        expect(setIntParams).toHaveBeenCalledWith([0, 4, 0, 3000, 0, -1, 2, 0, 0, 100, 0, 1, 0, 1, 5, 0]);
+        expect(setIntParams).toHaveBeenCalledWith(official([0, 4, 0, 3000, 0, -1, 2, 0, 0, 100, 0, 1, 0, 1, 5, 0]));
         expect(setStringParam).toHaveBeenCalledWith('\tcustom:500\tcustom:300\t');
     });
 

@@ -12,10 +12,11 @@ export const WiredActionFurniAreaView: FC<{}> = (props) => {
     const [areaHeight, setAreaHeight] = useState(0);
     const [filterExisting, setFilterExisting] = useState(false);
     const [invert, setInvert] = useState(false);
-    const { trigger = null, setIntParams } = useWired();
+    const { trigger = null, setIntParams, setSelectorOptions = null } = useWired();
 
     const save = useCallback(() => {
-        setIntParams([rootX, rootY, areaWidth, areaHeight, filterExisting ? 1 : 0, invert ? 1 : 0]);
+        setIntParams([rootX, rootY, areaWidth, areaHeight]);
+        setSelectorOptions({ filter: filterExisting, invert });
     }, [rootX, rootY, areaWidth, areaHeight, filterExisting, invert, setIntParams]);
 
     // Activate the area selection manager when dialog opens, deactivate on close
@@ -58,8 +59,8 @@ export const WiredActionFurniAreaView: FC<{}> = (props) => {
             setAreaHeight(0);
         }
 
-        setFilterExisting(trigger.intData.length >= 5 && trigger.intData[4] === 1);
-        setInvert(trigger.intData.length >= 6 && trigger.intData[5] === 1);
+        setFilterExisting(trigger.isFilter ?? false);
+        setInvert(trigger.isInvert ?? false);
     }, [trigger]);
 
     useEffect(() => {

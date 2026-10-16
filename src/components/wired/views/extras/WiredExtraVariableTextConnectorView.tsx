@@ -5,7 +5,7 @@ import { useWired } from '../../../../hooks';
 import { WiredTextFormattingHelp } from '../common/WiredTextFormattingHelp';
 import { WiredExtraBaseView } from './WiredExtraBaseView';
 
-const DEFAULT_CONNECTOR_PLACEHOLDER = '0=text 1\n1=text 2\n2 = text 3';
+const DEFAULT_CONNECTOR_PLACEHOLDER = '0=text 1\n1=text 2\n2 = text 3\n_=any other value';
 const MAX_CONNECTOR_LINES = 30;
 const MAX_CONNECTOR_CHARACTERS = 1000;
 
@@ -26,15 +26,19 @@ const getLineCount = (value: string) => {
 export const WiredExtraVariableTextConnectorView: FC<{}> = () => {
     const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
     const [mappingsText, setMappingsText] = useState('');
+    const [fieldId, setFieldId] = useState(0);
 
     useEffect(() => {
         if (!trigger) return;
 
+        // Official: the "value=text" lines as plain text ("_=text" for any other value); ours
+        // follows: [array field id].
         setMappingsText(truncateMappingsText(trigger.stringData || ''));
+        setFieldId(trigger.intData?.[0] ?? 0);
     }, [trigger]);
 
     const save = () => {
-        setIntParams([]);
+        setIntParams(fieldId > 0 ? [fieldId] : []);
         setStringParam(mappingsText ?? '');
     };
 

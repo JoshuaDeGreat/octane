@@ -156,7 +156,7 @@ export const WiredActionPlaceTemporaryFurniView: FC<{}> = () =>
     );
 
     return (
-        <WiredActionBaseView hasSpecialInput={ true } requiresFurni={ WiredFurniType.STUFF_SELECTION_OPTION_BY_ID } save={ save } validate={ validate }>
+        <WiredActionBaseView hasSpecialInput={ true } requiresFurni={ WiredFurniType.STUFF_SELECTION_OPTION_BY_ID } save={ save } validate={ validate } widthModifier={ 1.2 }>
             <div className="flex flex-col gap-2">
                 <Text small>{ localizeWithFallback('wiredfurni.params.place_furni.usage_info', 'Places temporary copies of the picked furni, as they are when you save.') }</Text>
 

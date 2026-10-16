@@ -3,6 +3,7 @@ import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 /** How the team is picked: the chosen one, the one with the fewest members, or a random one. */
@@ -14,31 +15,31 @@ export const JOIN_TEAM_MODES: Array<{ fallback: string; value: number }> = [
 
 const normalizeJoinMode = (value: number): number => (value === 1 || value === 2 ? value : 0);
 
-export const WiredActionJoinTeamView: FC<{}> = (props) => {
+/**
+ * Official: the team (two columns) first, then the team type; [team, team type]. Ours follows: the
+ * join mode, as a third int. The user source is the official source slot.
+ */
+export const WiredActionJoinTeamView: FC<{}> = () => {
     const [selectedTeamType, setSelectedTeamType] = useState(0);
     const [selectedTeam, setSelectedTeam] = useState(1);
     const [joinMode, setJoinMode] = useState(0);
-    const { trigger = null, setIntParams = null } = useWired();
-    const [userSource, setUserSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 2) return trigger.intData[2];
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return 0;
-    });
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [userSource, setUserSource] = useState<number>(() => slotUserSource(trigger));
 
-    const save = () => setIntParams([selectedTeamType, selectedTeam, userSource, joinMode]);
+    const save = () => {
+        setIntParams([selectedTeam, selectedTeamType, joinMode]);
+        setSourceTypes({ furni: [], users: [userSource] });
+    };
 
     useEffect(() => {
-        if (trigger.intData.length > 2) {
-            setSelectedTeamType(trigger.intData[0]);
-            setSelectedTeam(trigger.intData[1]);
-            setUserSource(trigger.intData[2]);
-            setJoinMode(normalizeJoinMode(trigger.intData[3]));
-        } else {
-            setJoinMode(0);
-            setSelectedTeamType(0);
-            setSelectedTeam(trigger.intData.length > 0 ? trigger.intData[0] : 1);
-            setUserSource(trigger.intData.length > 1 ? trigger.intData[1] : 0);
-        }
+        if (!trigger) return;
+
+        const team = trigger.intData?.[0] ?? 1;
+
+        setSelectedTeam(team >= 1 && team <= 4 ? team : 1);
+        setSelectedTeamType(trigger.intData?.[1] ?? 0);
+        setJoinMode(normalizeJoinMode(trigger.intData?.[2]));
+        setUserSource(slotUserSource(trigger));
     }, [trigger]);
 
     return (
@@ -49,31 +50,48 @@ export const WiredActionJoinTeamView: FC<{}> = (props) => {
             footer={<WiredSourcesSelector showUsers={true} userSource={userSource} onChangeUsers={setUserSource} />}
         >
             <div className="flex flex-col gap-1">
+                <Text bold>{LocalizeText('wiredfurni.params.team')}</Text>
+                <div className="grid grid-cols-2 gap-1">
+                    {[1, 2, 3, 4].map((team) => (
+                        <label key={team} className="flex gap-1">
+                            <input
+                                checked={selectedTeam === team}
+                                className="form-check-input"
+                                disabled={joinMode !== 0}
+                                id={`selectedTeam${team}`}
+                                name="selectedTeam"
+                                type="radio"
+                                onChange={() => setSelectedTeam(team)}
+                            />
+                            <Text>{LocalizeText(`wiredfurni.params.team.${team}`)}</Text>
+                        </label>
+                    ))}
+                </div>
+            </div>
+            <div className="flex flex-col gap-1">
                 <Text bold>{LocalizeText('wiredfurni.params.choose_type')}</Text>
                 {[
-                    { value: 0, key: 'wiredfurni.params.team.game.0', label: 'Wired' },
-                    { value: 1, key: 'wiredfurni.params.team.game.1', label: 'Banzai' },
-                    { value: 2, key: 'wiredfurni.params.team.game.2', label: 'Freeze' }
-                ].map((option) => {
-                    return (
-                        <div key={option.value} className="flex gap-1">
-                            <input
-                                checked={selectedTeamType === option.value}
-                                className="form-check-input"
-                                id={`selectedTeamType${option.value}`}
-                                name="selectedTeamType"
-                                type="radio"
-                                onChange={() => setSelectedTeamType(option.value)}
-                            />
-                            <Text>{localizeWithFallback(option.key, option.label)}</Text>
-                        </div>
-                    );
-                })}
+                    { value: 0, label: 'Wired' },
+                    { value: 1, label: 'Banzai' },
+                    { value: 2, label: 'Freeze' }
+                ].map((option) => (
+                    <label key={option.value} className="flex gap-1">
+                        <input
+                            checked={selectedTeamType === option.value}
+                            className="form-check-input"
+                            id={`selectedTeamType${option.value}`}
+                            name="selectedTeamType"
+                            type="radio"
+                            onChange={() => setSelectedTeamType(option.value)}
+                        />
+                        <Text>{localizeWithFallback(`wiredfurni.params.team_type.${option.value}`, option.label)}</Text>
+                    </label>
+                ))}
             </div>
             <div className="flex flex-col gap-1">
                 <Text bold>{localizeWithFallback('wiredfurni.params.team.join_mode', 'Join')}</Text>
                 {JOIN_TEAM_MODES.map((mode) => (
-                    <div key={mode.value} className="flex gap-1">
+                    <label key={mode.value} className="flex gap-1">
                         <input
                             checked={joinMode === mode.value}
                             className="form-check-input"
@@ -83,27 +101,8 @@ export const WiredActionJoinTeamView: FC<{}> = (props) => {
                             onChange={() => setJoinMode(mode.value)}
                         />
                         <Text>{localizeWithFallback(`wiredfurni.params.team.join_mode.${mode.value}`, mode.fallback)}</Text>
-                    </div>
+                    </label>
                 ))}
-            </div>
-            <div className="flex flex-col gap-1">
-                <Text bold>{LocalizeText('wiredfurni.params.team')}</Text>
-                {[1, 2, 3, 4].map((team) => {
-                    return (
-                        <div key={team} className="flex gap-1">
-                            <input
-                                checked={selectedTeam === team}
-                                className="form-check-input"
-                                disabled={joinMode !== 0}
-                                id={`selectedTeam${team}`}
-                                name="selectedTeam"
-                                type="radio"
-                                onChange={(event) => setSelectedTeam(team)}
-                            />
-                            <Text>{LocalizeText(`wiredfurni.params.team.${team}`)}</Text>
-                        </div>
-                    );
-                })}
             </div>
         </WiredActionBaseView>
     );

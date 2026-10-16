@@ -20,13 +20,17 @@ interface WiredTriggerToggleFurniViewProps {
 export const WiredTriggerToggleFurniView: FC<WiredTriggerToggleFurniViewProps> = ({ includesWiredChanges = false }) => {
     const [triggerMode, setTriggerMode] = useState(0);
     const [furniSource, setFurniSource] = useState(100);
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
 
-    const save = () => setIntParams([triggerMode, furniSource]);
+    // Official: [mode]; the furni source in the official source slot.
+    const save = () => {
+        setIntParams([triggerMode]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+    };
 
     useEffect(() => {
         setTriggerMode(trigger?.intData?.length > 0 ? trigger.intData[0] : 0);
-        setFurniSource(trigger?.intData?.length > 1 ? normalizeFurniSource(trigger.intData[1]) : 100);
+        setFurniSource(normalizeFurniSource(trigger?.furniSourceTypes?.[0] ?? 100));
     }, [trigger]);
 
     return (
@@ -40,7 +44,7 @@ export const WiredTriggerToggleFurniView: FC<WiredTriggerToggleFurniViewProps> =
                 <Text small>{localizeWithFallback('wiredfurni.params.state_change.info', 'Fires on every state change of the furni, including changes made by wired.')}</Text>
             )}
             <div className="flex flex-col gap-1">
-                <Text bold>{LocalizeText('wiredfurni.params.condition.state')}</Text>
+                <Text bold>{LocalizeText(includesWiredChanges ? 'wiredfurni.params.select_options' : 'wiredfurni.params.condition.state')}</Text>
                 <div className="flex items-center gap-1">
                     <input
                         checked={triggerMode === 1}

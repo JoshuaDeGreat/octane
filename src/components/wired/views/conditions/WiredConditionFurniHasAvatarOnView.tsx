@@ -10,28 +10,24 @@ interface WiredConditionFurniHasAvatarOnViewProps {
 }
 
 export const WiredConditionFurniHasAvatarOnView: FC<WiredConditionFurniHasAvatarOnViewProps> = ({ negative = false }) => {
-    const { trigger = null, setIntParams = null } = useWired();
+    // Official layout: param 0 "all", the furni in the official source slot.
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
     const [requireAll, setRequireAll] = useState(0);
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        if (trigger?.intData?.length >= 1 && trigger.intData[0] > 1) return trigger.intData[0];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const [furniSource, setFurniSource] = useState<number>(() => trigger?.furniSourceTypes?.[0] ?? ((trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0));
 
     useEffect(() => {
         if (!trigger) return;
 
-        if (trigger.intData.length >= 1) setRequireAll(trigger.intData[0] === 1 ? 1 : 0);
-        else setRequireAll(0);
-
-        if (trigger.intData.length > 1) setFurniSource(trigger.intData[1]);
-        else if (trigger.intData.length >= 1 && trigger.intData[0] > 1) setFurniSource(trigger.intData[0]);
-        else setFurniSource((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
+        setRequireAll(trigger.intData?.[0] === 1 ? 1 : 0);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0));
     }, [trigger]);
 
     const onChangeFurniSource = (next: number) => setFurniSource(next);
 
-    const save = () => setIntParams([requireAll, furniSource]);
+    const save = () => {
+        setIntParams([requireAll]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+    };
 
     const requiresFurni = WiredFurniType.STUFF_SELECTION_OPTION_BY_ID;
 

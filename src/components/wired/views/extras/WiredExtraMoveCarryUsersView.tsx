@@ -17,18 +17,18 @@ const USER_SOURCES: WiredSourceOption[] = [
 ];
 
 const normalizeCarryMode = (value: number) => (value === CARRY_MODE_SAME_TILE ? CARRY_MODE_SAME_TILE : CARRY_MODE_DIRECT);
-const normalizeUserSource = (value: number) => (USER_SOURCES.some((option) => option.value === value) ? value : 0);
+const normalizeUserSource = (value: number) => (USER_SOURCES.some((option) => option.value === value) ? value : SOURCE_ALL_ROOM_USERS);
 
 export const WiredExtraMoveCarryUsersView: FC<{}> = () => {
     const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
     const [carryMode, setCarryMode] = useState(CARRY_MODE_DIRECT);
-    const [userSource, setUserSource] = useState(0);
+    const [userSource, setUserSource] = useState(SOURCE_ALL_ROOM_USERS);
 
     useEffect(() => {
         if (!trigger) return;
 
         setCarryMode(normalizeCarryMode(trigger.intData.length > 0 ? trigger.intData[0] : CARRY_MODE_DIRECT));
-        setUserSource(normalizeUserSource(trigger.intData.length > 1 ? trigger.intData[1] : 0));
+        setUserSource(normalizeUserSource(trigger.intData.length > 1 ? trigger.intData[1] : SOURCE_ALL_ROOM_USERS));
     }, [trigger]);
 
     const save = () => {

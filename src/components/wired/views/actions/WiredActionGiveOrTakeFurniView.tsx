@@ -3,6 +3,7 @@ import { localizeWithFallback, WiredFurniType } from '../../../../api';
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 const MODE_GIVE = 0;
@@ -10,7 +11,7 @@ const MODE_TAKE = 1;
 
 export const WiredActionGiveOrTakeFurniView: FC<{}> = props =>
 {
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
     const [ baseItemId, setBaseItemId ] = useState<number>(0);
     const [ quantity, setQuantity ] = useState<number>(1);
     const [ giveOrTake, setGiveOrTake ] = useState<number>(MODE_GIVE);
@@ -23,10 +24,14 @@ export const WiredActionGiveOrTakeFurniView: FC<{}> = props =>
         setBaseItemId((trigger.intData?.length ?? 0) > 0 ? trigger.intData[0] : 0);
         setQuantity((trigger.intData?.length ?? 0) > 1 ? trigger.intData[1] : 1);
         setGiveOrTake((trigger.intData?.length ?? 0) > 2 ? trigger.intData[2] : MODE_GIVE);
-        setUserSource((trigger.intData?.length ?? 0) > 3 ? trigger.intData[3] : 0);
+        setUserSource(slotUserSource(trigger));
     }, [ trigger ]);
 
-    const save = () => setIntParams([ baseItemId, quantity, giveOrTake, userSource ]);
+    // Ours: [base item, quantity, give or take]; the user source is the official source slot.
+    const save = () => {
+        setIntParams([ baseItemId, quantity, giveOrTake ]);
+        setSourceTypes({ furni: [], users: [ userSource ] });
+    };
 
     return (
         <WiredActionBaseView

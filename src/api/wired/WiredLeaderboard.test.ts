@@ -45,6 +45,14 @@ describe('WiredLeaderboard codec', () =>
         expect(decodeLeaderboardConfig(intParams, stringParam, 0, 0)).toEqual(sample());
     });
 
+    it('reads the official split of string fields and variable ids', () =>
+    {
+        const { intParams, stringParam } = encodeLeaderboardConfig(sample());
+        const fields = stringParam.split('\t');
+
+        expect(decodeLeaderboardConfig(intParams, fields.slice(0, 17).join('\t'), 0, 0, fields.slice(17))).toEqual(sample());
+    });
+
     it('clears what a disabled option does not use', () =>
     {
         const { intParams, stringParam } = encodeLeaderboardConfig({ ...sample(), filterEnabled: false });

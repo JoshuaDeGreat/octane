@@ -28,24 +28,22 @@ interface WiredConditionActorIsWearingBadgeViewProps {
 export const WiredConditionActorIsWearingBadgeView: FC<WiredConditionActorIsWearingBadgeViewProps> = ({ negative = false, field = 'badge' }) => {
     const [badge, setBadge] = useState('');
     const [quantifier, setQuantifier] = useState(1);
-    const { trigger = null, setStringParam = null, setIntParams = null } = useWired();
-    const [userSource, setUserSource] = useState<number>(() => {
-        if (trigger?.intData?.length >= 1) return trigger.intData[0];
-        return 0;
-    });
+    // Official layout: the badge in the string, [our quantifier], the users in the official source slot.
+    const { trigger = null, setStringParam = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [userSource, setUserSource] = useState<number>(() => trigger?.userSourceTypes?.[0] ?? 0);
 
     const text = field ? TEXT_FIELDS[field] : null;
 
     const save = () => {
         setStringParam(text ? badge : '');
-        setIntParams([userSource, quantifier]);
+        setIntParams([quantifier]);
+        setSourceTypes({ furni: [], users: [userSource] });
     };
 
     useEffect(() => {
         setBadge(trigger.stringData);
-        if (trigger.intData.length >= 1) setUserSource(trigger.intData[0]);
-        else setUserSource(0);
-        setQuantifier(trigger.intData.length >= 2 ? (trigger.intData[1] === 1 ? 1 : 0) : 1);
+        setUserSource(trigger.userSourceTypes?.[0] ?? 0);
+        setQuantifier(trigger.intData[0] === 1 ? 1 : 0);
     }, [trigger]);
 
     return (

@@ -1,9 +1,23 @@
 import { FC } from 'react';
-import { WiredFurniType } from '../../../../api';
+import { CreateLinkEvent, LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
+import { Button, Text } from '../../../../common';
 import { WiredTriggerBaseView } from './WiredTriggerBaseView';
 
+/**
+ * Official: no params, the usage info and a "view in menu" button to the variable overview, where
+ * the failure reason (@event.transaction_failed.reason) is listed.
+ */
 export const WiredTriggerTransactionFailView: FC = () => {
     return (
-        <WiredTriggerBaseView hasSpecialInput={false} requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE} save={null} />
+        <WiredTriggerBaseView hasSpecialInput={true} requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE} save={null}>
+            <div className="flex flex-col gap-2">
+                <Text small>{localizeWithFallback('wiredfurni.params.transaction_failed.usage_info', 'Fires when a transaction of this room fails.')}</Text>
+                <div className="flex justify-center">
+                    <Button variant="secondary" onClick={() => CreateLinkEvent('wired-tools/tab/variables')}>
+                        {LocalizeText('wiredfurni.view_in_menu')}
+                    </Button>
+                </div>
+            </div>
+        </WiredTriggerBaseView>
     );
 };

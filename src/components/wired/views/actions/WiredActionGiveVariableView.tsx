@@ -6,7 +6,6 @@ import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_f
 import userVariableIcon from '../../../../assets/images/wired/var/icon_source_user.png';
 import { Button, Slider, Text } from '../../../../common';
 import { useWired, useWiredTools } from '../../../../hooks';
-import { OctaneInput } from '../../../../layout';
 import { CLICKED_USER_SOURCE, FURNI_SOURCES, sortWiredSourceOptions, USER_SOURCES, useAvailableUserSources } from '../WiredSourcesSelector';
 import { WiredVariablePicker } from '../WiredVariablePicker';
 import {
@@ -17,13 +16,16 @@ import {
     getCustomVariableItemId,
     normalizeVariableTokenFromWire
 } from '../WiredVariablePickerData';
+import { normalizeWiredValueTarget, variableTokenFromId, WiredValueOrVariableSection } from '../WiredValueOrVariableSection';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 type VariableTargetType = 'user' | 'furni' | 'context';
 
-const TARGET_USER = 0;
-const TARGET_FURNI = 1;
-const TARGET_CONTEXT = 2;
+// Official variable targets (1 user, 0 furni, -20 context).
+const TARGET_USER = 1;
+const TARGET_FURNI = 0;
+const TARGET_CONTEXT = -20;
+const REFERENCE_GLOBAL = -10;
 const SOURCE_SELECTED = 100;
 
 const TARGET_BUTTONS: Array<{ key: VariableTargetType; icon: string }> = [
@@ -62,7 +64,8 @@ export const WiredActionGiveVariableView: FC<{}> = () => {
         setActionDelay = null,
         setIntParams = null,
         setFurniIds = null,
-        setStringParam = null
+        setStringParam = null,
+        setSourceTypes = null
     } = useWired();
     const { userVariableDefinitions = [], furniVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const [selectedTargetType, setSelectedTargetType] = useState<VariableTargetType>('user');
@@ -71,6 +74,10 @@ export const WiredActionGiveVariableView: FC<{}> = () => {
     const [initialValueInput, setInitialValueInput] = useState('0');
     const [userSource, setUserSource] = useState(0);
     const [furniSource, setFurniSource] = useState(0);
+    const [fromVariable, setFromVariable] = useState(false);
+    const [referenceTarget, setReferenceTarget] = useState(REFERENCE_GLOBAL);
+    const [referenceToken, setReferenceToken] = useState('');
+    const [sameHolder, setSameHolder] = useState(false);
 
     const targetDefinitions = useMemo(() => {
         if (selectedTargetType === 'furni') return furniVariableDefinitions;
@@ -123,7 +130,10 @@ export const WiredActionGiveVariableView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
-        const parsedVariableItemId = parseInt((trigger.stringData || '').trim(), 10);
+        // Official layout: [target, initialHigh, initialLow, override, fromVariable, referenceTarget, sameHolder];
+        // string "variable\treferenceVariable"; furni / user slot 0 are the targets.
+        const [variableText = '', referenceText = ''] = (trigger.stringData || '').split('\t');
+        const parsedVariableItemId = parseInt(variableText.trim(), 10);
         const nextTargetType = normalizeTargetType(trigger.intData.length > 0 ? trigger.intData[0] : TARGET_USER);
 
         setSelectedTargetType(nextTargetType);
@@ -136,10 +146,14 @@ export const WiredActionGiveVariableView: FC<{}> = () => {
                       : ''
             )
         );
-        setOverrideExisting(trigger.intData.length > 1 ? trigger.intData[1] === 1 : false);
         setInitialValueInput((trigger.intData.length > 2 ? trigger.intData[2] : 0).toString());
-        setUserSource(trigger.intData.length > 3 ? trigger.intData[3] : 0);
-        setFurniSource(trigger.intData.length > 4 ? trigger.intData[4] : (trigger.selectedItems?.length ?? 0) > 0 ? SOURCE_SELECTED : 0);
+        setOverrideExisting(trigger.intData.length > 3 ? trigger.intData[3] === 1 : false);
+        setFromVariable(trigger.intData[4] === 1);
+        setReferenceTarget(trigger.intData.length > 5 ? normalizeWiredValueTarget(trigger.intData[5]) : REFERENCE_GLOBAL);
+        setSameHolder(trigger.intData[6] === 1);
+        setReferenceToken(variableTokenFromId(referenceText));
+        setUserSource(trigger.userSourceTypes?.[0] ?? 0);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? SOURCE_SELECTED : 0));
     }, [trigger]);
 
     useEffect(() => {
@@ -154,12 +168,16 @@ export const WiredActionGiveVariableView: FC<{}> = () => {
         const parsedInitialValue = parseInt(initialValueInput.trim(), 10);
         const variableItemId = getCustomVariableItemId(selectedVariableToken);
 
-        setStringParam(variableItemId ? String(variableItemId) : '');
-        setIntParams([targetValue, overrideExisting ? 1 : 0, Number.isFinite(parsedInitialValue) ? parsedInitialValue : 0, userSource, furniSource]);
+        const initialValue = Number.isFinite(parsedInitialValue) ? parsedInitialValue : 0;
+        const referenceItemId = fromVariable ? getCustomVariableItemId(referenceToken) : 0;
+
+        setStringParam(`${variableItemId || ''}\t${referenceItemId}`);
+        setIntParams([targetValue, initialValue < 0 ? -1 : 0, initialValue, overrideExisting ? 1 : 0, fromVariable ? 1 : 0, referenceTarget, fromVariable && sameHolder ? 1 : 0]);
+        setSourceTypes({ furni: [furniSource], users: [userSource] });
         setFurniIds(selectedTargetType === 'furni' && furniSource === SOURCE_SELECTED ? [...furniIds] : []);
     };
 
-    const validate = () => getCustomVariableItemId(selectedVariableToken) > 0;
+    const validate = () => getCustomVariableItemId(selectedVariableToken) > 0 && (!fromVariable || getCustomVariableItemId(referenceToken) > 0);
 
     const requiresFurni =
         selectedTargetType === 'furni' ? WiredFurniType.STUFF_SELECTION_OPTION_BY_ID_BY_TYPE_OR_FROM_CONTEXT : WiredFurniType.STUFF_SELECTION_OPTION_NONE;
@@ -236,16 +254,34 @@ export const WiredActionGiveVariableView: FC<{}> = () => {
 
                     <div className="octane-wired__give-var-section">
                         <div className="octane-wired__give-var-section-title">{LocalizeText('wiredfurni.params.variables.value_settings')}</div>
-                        <div className="octane-wired__give-var-input-row">
-                            <Text>{LocalizeText('wiredfurni.params.variables.value_settings.initial_value')}</Text>
-                            <OctaneInput
-                                className={`octane-wired__give-var-number ${!selectedVariableDefinition?.hasValue ? 'octane-wired__give-var-number--blurred' : ''}`}
-                                readOnly={!selectedVariableDefinition?.hasValue}
-                                type="number"
-                                value={initialValueInput}
-                                onChange={(event) => setInitialValueInput(event.target.value)}
-                            />
-                        </div>
+                        {selectedVariableDefinition?.hasValue ? (
+                            <>
+                                <WiredValueOrVariableSection
+                                    name="giveVariableInitial"
+                                    hideSources={true}
+                                    isVariable={fromVariable}
+                                    value={initialValueInput}
+                                    target={referenceTarget}
+                                    token={referenceToken}
+                                    furniSource={furniSource}
+                                    userSource={userSource}
+                                    onIsVariableChange={setFromVariable}
+                                    onValueChange={setInitialValueInput}
+                                    onTargetChange={setReferenceTarget}
+                                    onTokenChange={setReferenceToken}
+                                    onFurniSourceChange={() => null}
+                                    onUserSourceChange={() => null}
+                                />
+                                {fromVariable && (
+                                    <label className="octane-wired__give-var-checkbox">
+                                        <input checked={sameHolder} className="form-check-input" type="checkbox" onChange={(event) => setSameHolder(event.target.checked)} />
+                                        <Text>{localizeWithFallback('wiredfurni.params.variables.same_holder', 'Read it on each target itself')}</Text>
+                                    </label>
+                                )}
+                            </>
+                        ) : (
+                            <Text small>{localizeWithFallback('wiredfurni.params.variables.value_settings.no_value', 'This variable has no value.')}</Text>
+                        )}
                     </div>
 
                     <div className="octane-wired__divider" />

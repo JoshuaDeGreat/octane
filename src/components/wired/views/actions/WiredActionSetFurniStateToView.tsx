@@ -3,6 +3,7 @@ import { LocalizeText, WiredFurniType } from '../../../../api';
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotFurniSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 export const WiredActionSetFurniStateToView: FC<{}> = (props) => {
@@ -10,24 +11,21 @@ export const WiredActionSetFurniStateToView: FC<{}> = (props) => {
     const [directionFlag, setDirectionFlag] = useState(0);
     const [positionFlag, setPositionFlag] = useState(0);
     const [altitudeFlag, setAltitudeFlag] = useState(0);
-    const { trigger = null, setIntParams = null } = useWired();
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 4) return trigger.intData[4];
-        if (trigger?.intData?.length > 3) return trigger.intData[3];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [furniSource, setFurniSource] = useState<number>(() => slotFurniSource(trigger));
 
-    const save = () => setIntParams([stateFlag, directionFlag, positionFlag, altitudeFlag, furniSource]);
+    // Official layout: [state, direction, position, altitude]; the furni source is the official slot.
+    const save = () => {
+        setIntParams([stateFlag, directionFlag, positionFlag, altitudeFlag]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+    };
 
     useEffect(() => {
         setStateFlag(trigger.getBoolean(0) ? 1 : 0);
         setDirectionFlag(trigger.getBoolean(1) ? 1 : 0);
         setPositionFlag(trigger.getBoolean(2) ? 1 : 0);
-        setAltitudeFlag(trigger.intData.length > 4 && trigger.getBoolean(3) ? 1 : 0);
-
-        if (trigger.intData.length > 4) setFurniSource(trigger.intData[4]);
-        else if (trigger.intData.length > 3) setFurniSource(trigger.intData[3]);
-        else setFurniSource((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
+        setAltitudeFlag(trigger.getBoolean(3) ? 1 : 0);
+        setFurniSource(slotFurniSource(trigger));
     }, [trigger]);
 
     const onChangeFurniSource = (next: number) => setFurniSource(next);

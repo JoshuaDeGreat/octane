@@ -7,18 +7,18 @@ import { WiredConditionBaseView } from './WiredConditionBaseView';
 
 export const WiredConditionFurniHasNotFurniOnView: FC<{}> = (props) => {
     const [requireAll, setRequireAll] = useState(-1);
-    const { trigger = null, setIntParams = null } = useWired();
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    // Official layout: param 0 "all", the furni in the official source slot.
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
+    const [furniSource, setFurniSource] = useState<number>(() => trigger?.furniSourceTypes?.[0] ?? ((trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0));
 
-    const save = () => setIntParams([requireAll, furniSource]);
+    const save = () => {
+        setIntParams([requireAll]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+    };
 
     useEffect(() => {
         setRequireAll(trigger.intData.length > 0 ? trigger.intData[0] : 0);
-        if (trigger.intData.length > 1) setFurniSource(trigger.intData[1]);
-        else setFurniSource((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0));
     }, [trigger]);
 
     const onChangeFurniSource = (next: number) => setFurniSource(next);

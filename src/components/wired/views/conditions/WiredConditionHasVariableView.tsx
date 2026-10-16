@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
+import { fromOfficialVariableTarget, LocalizeText, localizeWithFallback, toOfficialVariableTarget, WiredFurniType } from '../../../../api';
 import contextVariableIcon from '../../../../assets/images/wired/var/icon_source_context_clean.png';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import userVariableIcon from '../../../../assets/images/wired/var/icon_source_user.png';
@@ -94,7 +94,8 @@ const getSourceTitle = (targetType: ConditionVariableTargetType) => {
 };
 
 export const WiredConditionHasVariableView: FC<WiredConditionHasVariableViewProps> = ({ negative = false }) => {
-    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null } = useWired();
+    // Official layout: [variable target, our quantifier], the furni and users in the official source slots.
+    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const { userVariableDefinitions = [], furniVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const [targetType, setTargetType] = useState<ConditionVariableTargetType>('user');
     const [variableToken, setVariableToken] = useState('');
@@ -139,10 +140,10 @@ export const WiredConditionHasVariableView: FC<WiredConditionHasVariableViewProp
         if (!trigger) return;
 
         const intData = trigger.intData || [];
-        const nextTargetType = normalizeTargetType(intData.length > 0 ? intData[0] : TARGET_USER);
-        const nextUserSource = intData.length > 1 ? intData[1] : SOURCE_TRIGGER;
-        const nextFurniSource = intData.length > 2 ? intData[2] : (trigger.selectedItems?.length ?? 0) > 0 ? SOURCE_SELECTED : SOURCE_TRIGGER;
-        const nextQuantifier = intData.length > 3 && intData[3] === QUANTIFIER_ANY ? QUANTIFIER_ANY : QUANTIFIER_ALL;
+        const nextTargetType = normalizeTargetType(intData.length > 0 ? fromOfficialVariableTarget(intData[0]) : TARGET_USER);
+        const nextUserSource = trigger.userSourceTypes?.[0] ?? SOURCE_TRIGGER;
+        const nextFurniSource = trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? SOURCE_SELECTED : SOURCE_TRIGGER);
+        const nextQuantifier = intData.length > 1 && intData[1] === QUANTIFIER_ANY ? QUANTIFIER_ANY : QUANTIFIER_ALL;
 
         setTargetType(nextTargetType);
         setVariableToken(normalizeVariableTokenFromWire(trigger.stringData || ''));
@@ -160,7 +161,8 @@ export const WiredConditionHasVariableView: FC<WiredConditionHasVariableViewProp
 
     const save = () => {
         setStringParam(variableToken);
-        setIntParams([getTargetValue(targetType), userSource, furniSource, quantifier]);
+        setIntParams([toOfficialVariableTarget(getTargetValue(targetType)), quantifier]);
+        setSourceTypes({ furni: [furniSource], users: [userSource] });
 
         if (requiresFurni <= WiredFurniType.STUFF_SELECTION_OPTION_NONE) setFurniIds([]);
     };

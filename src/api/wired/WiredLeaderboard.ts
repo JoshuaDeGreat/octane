@@ -106,14 +106,19 @@ export const defaultLeaderboardConfig = (tileX: number, tileY: number): ILeaderb
 
 const canonicalId = (id: string): string => ((!id || id === 'n') ? LEADERBOARD_NULL_VARIABLE_ID : id);
 
-/** Reads a box from the editor packet; the defaults when it was never configured or does not read. */
-export const decodeLeaderboardConfig = (intParams: number[], stringParam: string, tileX: number, tileY: number): ILeaderboardConfig =>
+/**
+ * Reads a box from the editor packet; the defaults when it was never configured or does not read.
+ * The official definition carries the string fields alone and the variable ids as its own list.
+ */
+export const decodeLeaderboardConfig = (intParams: number[], stringParam: string, tileX: number, tileY: number, variableIds: string[] = []): ILeaderboardConfig =>
 {
     const fallback = defaultLeaderboardConfig(tileX, tileY);
 
     if(!stringParam) return fallback;
 
-    const fields = stringParam.split(SEPARATOR);
+    let fields = stringParam.split(SEPARATOR);
+
+    if(fields.length === STRING_FIELD_COUNT && variableIds?.length === VARIABLE_ID_COUNT) fields = [ ...fields, ...variableIds ];
 
     if(fields.length !== (STRING_FIELD_COUNT + VARIABLE_ID_COUNT) || !intParams || intParams.length < 14) return fallback;
 

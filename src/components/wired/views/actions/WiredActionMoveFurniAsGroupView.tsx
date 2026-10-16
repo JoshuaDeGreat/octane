@@ -4,28 +4,29 @@ import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WIRED_DIRECTION_GRID, WiredDirectionIcon } from '../WiredDirectionIcon';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotFurniSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 // Server WiredEffectMoveFurniAsGroup: intParams = [direction (0-7, N/NE/E/SE/S/SW/W/NW), furniSource].
 // directionDeltaX/Y handle all 8 compass points, so expose the full grid (was only 0/2/4/6).
 export const WiredActionMoveFurniAsGroupView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
     const [direction, setDirection] = useState(-1);
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const [furniSource, setFurniSource] = useState<number>(() => slotFurniSource(trigger));
 
     useEffect(() => {
         if (!trigger) return;
 
         setDirection(trigger.intData.length > 0 ? trigger.intData[0] : -1);
 
-        if (trigger.intData.length > 1) setFurniSource(trigger.intData[1]);
-        else setFurniSource((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
+        setFurniSource(slotFurniSource(trigger));
     }, [trigger]);
 
-    const save = () => setIntParams([direction, furniSource]);
+    // Ours: [direction]; the furni source is the official source slot.
+    const save = () => {
+        setIntParams([direction]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+    };
 
     return (
         <WiredActionBaseView

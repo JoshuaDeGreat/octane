@@ -77,7 +77,10 @@ interface WiredConditionHasAltitudeViewProps {
 export const WiredConditionHasAltitudeView: FC<WiredConditionHasAltitudeViewProps> = ({ variant = 'altitude' }) => {
     const spec = VARIANTS[variant];
 
-    const { trigger = null, setIntParams = null, setStringParam = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
+    // The official has-altitude box: [altitude in hundredths, comparison, our quantifier], the furni in the
+    // official source slot. Our range / property variants keep their own layout.
+    const official = variant === 'altitude';
     const [comparison, setComparison] = useState(1);
     const [furniSource, setFurniSource] = useState<number>(() => {
         if (trigger?.intData?.length > 1) return trigger.intData[1];
@@ -103,6 +106,20 @@ export const WiredConditionHasAltitudeView: FC<WiredConditionHasAltitudeViewProp
     useEffect(() => {
         if (!trigger) return;
 
+        if (official) {
+            const nextAltitude = clampAltitude((trigger.intData[0] ?? 0) / 100);
+            const nextSource = trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
+            const nextQuantifier = trigger.intData[2] === 1 ? 1 : 0;
+
+            setComparison(trigger.intData.length > 1 ? trigger.intData[1] : 1);
+            setFurniSource(nextSource);
+            setQuantifier(nextQuantifier);
+            setShowAdvanced(nextSource !== 0 || nextQuantifier !== 0);
+            setAltitude(nextAltitude);
+            setAltitudeInput(formatAltitude(nextAltitude));
+            return;
+        }
+
         const sourceSlot = spec.comparison ? 1 : 0;
         const quantifierSlot = sourceSlot + 1;
         const fallbackSource = (trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0;
@@ -119,7 +136,7 @@ export const WiredConditionHasAltitudeView: FC<WiredConditionHasAltitudeViewProp
         const nextAltitude = parseAltitude(trigger.stringData);
         setAltitude(nextAltitude);
         setAltitudeInput(formatAltitude(nextAltitude));
-    }, [spec.comparison, trigger]);
+    }, [official, spec.comparison, trigger]);
 
     const updateAltitude = (value: number) => {
         const nextValue = clampAltitude(value);
@@ -151,6 +168,13 @@ export const WiredConditionHasAltitudeView: FC<WiredConditionHasAltitudeViewProp
     };
 
     const save = () => {
+        if (official) {
+            setIntParams([Math.round(altitude * 100), comparison, quantifier]);
+            setStringParam('');
+            setSourceTypes({ furni: [furniSource], users: [] });
+            return;
+        }
+
         // furniProperty reads [source, quantifier]; the others keep the comparison in slot 0.
         setIntParams(spec.comparison ? [comparison, furniSource, quantifier] : [furniSource, quantifier]);
         setStringParam(spec.value ? formatAltitude(altitude) : '');

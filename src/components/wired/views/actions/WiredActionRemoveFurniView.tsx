@@ -15,7 +15,7 @@ const normalizeFurniSource = (value: number) =>
     FURNI_SOURCES.some((option) => option.value === value) ? value : SOURCE_SELECTED;
 
 export const WiredActionRemoveFurniView: FC<{}> = () => {
-    const { trigger = null, setFurniIds = null, setIntParams = null } = useWired();
+    const { trigger = null, setFurniIds = null, setIntParams = null, setSourceTypes = null } = useWired();
     const [mode, setMode] = useState<number>(MODE_RETURN);
     const [furniSource, setFurniSource] = useState<number>(SOURCE_SELECTED);
 
@@ -24,13 +24,15 @@ export const WiredActionRemoveFurniView: FC<{}> = () => {
 
         const data = trigger.intData ?? [];
         setMode(data.length > 0 ? data[0] : MODE_RETURN);
-        setFurniSource(data.length > 1 ? normalizeFurniSource(data[1]) : SOURCE_SELECTED);
+        setFurniSource(normalizeFurniSource(trigger.furniSourceTypes?.[0] ?? SOURCE_SELECTED));
     }, [trigger]);
 
     const requiresFurni = furniSource === SOURCE_SELECTED ? WiredFurniType.STUFF_SELECTION_OPTION_BY_ID : WiredFurniType.STUFF_SELECTION_OPTION_NONE;
 
     const save = () => {
-        setIntParams([mode, furniSource]);
+        // Ours: [mode]; the furni source is the official source slot.
+        setIntParams([mode]);
+        setSourceTypes({ furni: [furniSource], users: [] });
         if (furniSource !== SOURCE_SELECTED) setFurniIds?.([]);
     };
 

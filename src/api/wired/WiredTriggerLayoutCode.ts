@@ -45,4 +45,6 @@ export class WiredTriggerLayout {
      * answers a user's click. The emulator registers it on wf_trg_state_changed.
      */
     public static STATE_CHANGE: number = 20;
+    /** Official: fires once when the room loads, before any other trigger. */
+    public static ROOM_INITIALIZED: number = 28;
 }

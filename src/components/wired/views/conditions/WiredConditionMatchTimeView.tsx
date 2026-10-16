@@ -8,6 +8,9 @@ const MODE_SKIP = 0;
 const MODE_EXACT = 1;
 const MODE_RANGE = 2;
 const MODE_OPTIONS = [MODE_SKIP, MODE_EXACT, MODE_RANGE];
+/** An official "use" flag and range as the editor's mode: off, a single value, or a range. */
+const toMode = (use: boolean, from: number, to: number) => (!use ? MODE_SKIP : from === to ? MODE_EXACT : MODE_RANGE);
+
 
 const clampValue = (value: number, min: number, max: number) => {
     if (isNaN(value)) return min;
@@ -121,28 +124,33 @@ export const WiredConditionMatchTimeView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
-        setHourMode(MODE_OPTIONS.includes(trigger.intData[0]) ? trigger.intData[0] : MODE_SKIP);
-        setHourFrom(clampValue(trigger.intData[1] ?? 0, 0, 23));
-        setHourTo(clampValue(trigger.intData[2] ?? 0, 0, 23));
-        setMinuteMode(MODE_OPTIONS.includes(trigger.intData[3]) ? trigger.intData[3] : MODE_SKIP);
-        setMinuteFrom(clampValue(trigger.intData[4] ?? 0, 0, 59));
-        setMinuteTo(clampValue(trigger.intData[5] ?? 0, 0, 59));
-        setSecondMode(MODE_OPTIONS.includes(trigger.intData[6]) ? trigger.intData[6] : MODE_SKIP);
-        setSecondFrom(clampValue(trigger.intData[7] ?? 0, 0, 59));
-        setSecondTo(clampValue(trigger.intData[8] ?? 0, 0, 59));
+        // Official layout: [useSeconds, useMinutes, useHours, secondMin, secondMax, minuteMin, minuteMax, hourMin, hourMax].
+        const d = trigger.intData;
+        const [secFrom, secTo] = [clampValue(d[3] ?? 0, 0, 59), clampValue(d[4] ?? 59, 0, 59)];
+        const [minFrom, minTo] = [clampValue(d[5] ?? 0, 0, 59), clampValue(d[6] ?? 59, 0, 59)];
+        const [hrFrom, hrTo] = [clampValue(d[7] ?? 0, 0, 23), clampValue(d[8] ?? 23, 0, 23)];
+
+        setSecondMode(toMode(d[0] === 1, secFrom, secTo));
+        setSecondFrom(secFrom);
+        setSecondTo(secTo);
+        setMinuteMode(toMode(d[1] === 1, minFrom, minTo));
+        setMinuteFrom(minFrom);
+        setMinuteTo(minTo);
+        setHourMode(toMode(d[2] === 1, hrFrom, hrTo));
+        setHourFrom(hrFrom);
+        setHourTo(hrTo);
     }, [trigger]);
 
     const save = () => {
+        const range = (mode: number, from: number, to: number, max: number) => [clampValue(from, 0, max), clampValue(mode === MODE_RANGE ? to : from, 0, max)];
+
         setIntParams([
-            hourMode,
-            clampValue(hourFrom, 0, 23),
-            clampValue(hourTo, 0, 23),
-            minuteMode,
-            clampValue(minuteFrom, 0, 59),
-            clampValue(minuteTo, 0, 59),
-            secondMode,
-            clampValue(secondFrom, 0, 59),
-            clampValue(secondTo, 0, 59)
+            secondMode !== MODE_SKIP ? 1 : 0,
+            minuteMode !== MODE_SKIP ? 1 : 0,
+            hourMode !== MODE_SKIP ? 1 : 0,
+            ...range(secondMode, secondFrom, secondTo, 59),
+            ...range(minuteMode, minuteFrom, minuteTo, 59),
+            ...range(hourMode, hourFrom, hourTo, 23)
         ]);
     };
 

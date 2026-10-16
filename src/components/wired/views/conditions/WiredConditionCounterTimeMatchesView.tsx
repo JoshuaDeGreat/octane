@@ -33,12 +33,10 @@ const formatSeconds = (halfSeconds: number) => {
 };
 
 export const WiredConditionCounterTimeMatchesView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
+    // Official layout: [seconds, minutes, half second, comparison, our quantifier], the counters in the official source slot.
+    const { trigger = null, setIntParams = null, setSourceTypes = null, setAllowedInteractionTypes = null, setAllowedInteractionErrorKey = null } = useWired();
     const [comparison, setComparison] = useState(1);
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 3) return trigger.intData[3];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const [furniSource, setFurniSource] = useState<number>(() => trigger?.furniSourceTypes?.[0] ?? ((trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0));
     const [minutes, setMinutes] = useState(0);
     const [halfSeconds, setHalfSeconds] = useState(0);
     const [quantifier, setQuantifier] = useState(0);
@@ -46,17 +44,20 @@ export const WiredConditionCounterTimeMatchesView: FC<{}> = () => {
     const secondsLabel = useMemo(() => formatSeconds(halfSeconds), [halfSeconds]);
 
     const save = () => {
-        setIntParams([normalizeComparison(comparison), normalizeMinutes(minutes), normalizeHalfSeconds(halfSeconds), furniSource, quantifier]);
+        const steps = normalizeHalfSeconds(halfSeconds);
+
+        setIntParams([Math.floor(steps / 2), normalizeMinutes(minutes), steps % 2, normalizeComparison(comparison), quantifier]);
+        setSourceTypes({ furni: [furniSource], users: [] });
     };
 
     useEffect(() => {
         if (!trigger) return;
 
-        setComparison(trigger.intData.length > 0 ? normalizeComparison(trigger.intData[0]) : 1);
+        setHalfSeconds(normalizeHalfSeconds((trigger.intData[0] ?? 0) * 2 + (trigger.intData[2] ?? 0)));
         setMinutes(trigger.intData.length > 1 ? normalizeMinutes(trigger.intData[1]) : 0);
-        setHalfSeconds(trigger.intData.length > 2 ? normalizeHalfSeconds(trigger.intData[2]) : 0);
-        setFurniSource(trigger.intData.length > 3 ? trigger.intData[3] : (trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
-        setQuantifier(trigger.intData.length > 4 && trigger.intData[4] === 1 ? 1 : 0);
+        setComparison(trigger.intData.length > 3 ? normalizeComparison(trigger.intData[3]) : 1);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0));
+        setQuantifier(trigger.intData.length > 4 ? (trigger.intData[4] === 1 ? 1 : 0) : 1);
     }, [trigger]);
 
     useEffect(() => {

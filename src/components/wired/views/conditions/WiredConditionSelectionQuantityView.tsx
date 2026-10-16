@@ -52,7 +52,8 @@ const normalizeSourceType = (value: number, allowed: number[]) => {
 };
 
 export const WiredConditionSelectionQuantityView: FC<{}> = () => {
-    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null } = useWired();
+    // Official layout: [merged, amount, comparison], what is counted in the official furni or user source slot.
+    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const rawAvailableUserSources = useAvailableUserSources(trigger, USER_SOURCES);
     const availableUserSources = useMemo(() => sortWiredSourceOptions(rawAvailableUserSources, 'users'), [rawAvailableUserSources]);
     const [comparison, setComparison] = useState(1);
@@ -65,10 +66,10 @@ export const WiredConditionSelectionQuantityView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
-        const nextComparison = trigger.intData.length > 0 ? trigger.intData[0] : 1;
+        const nextComparison = trigger.intData.length > 2 ? trigger.intData[2] : 1;
         const nextQuantity = clampQuantity(trigger.intData.length > 1 ? trigger.intData[1] : 0);
-        const nextSourceGroup = trigger.intData.length > 2 && trigger.intData[2] === SOURCE_GROUP_FURNI ? SOURCE_GROUP_FURNI : SOURCE_GROUP_USERS;
-        const nextSourceType = trigger.intData.length > 3 ? trigger.intData[3] : SOURCE_TRIGGER;
+        const nextSourceGroup = (trigger.furniSourceTypes?.length ?? 0) > 0 ? SOURCE_GROUP_FURNI : SOURCE_GROUP_USERS;
+        const nextSourceType = (nextSourceGroup === SOURCE_GROUP_FURNI ? trigger.furniSourceTypes?.[0] : trigger.userSourceTypes?.[0]) ?? SOURCE_TRIGGER;
 
         setComparison(COMPARISON_OPTIONS.includes(nextComparison) ? nextComparison : 1);
         setQuantity(nextQuantity);
@@ -146,8 +147,9 @@ export const WiredConditionSelectionQuantityView: FC<{}> = () => {
     };
 
     const save = () => {
-        setIntParams([comparison, clampQuantity(quantity), sourceGroup, isUserGroup ? userSource : furniSource]);
+        setIntParams([0, clampQuantity(quantity), comparison]);
         setStringParam('');
+        setSourceTypes(isUserGroup ? { furni: [], users: [userSource] } : { furni: [furniSource], users: [] });
 
         if (requiresFurni <= WiredFurniType.STUFF_SELECTION_OPTION_NONE) setFurniIds([]);
     };

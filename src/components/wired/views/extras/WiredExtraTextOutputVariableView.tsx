@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
+import { fromOfficialVariableTarget, LocalizeText, localizeWithFallback, toOfficialVariableTarget, WiredFurniType } from '../../../../api';
 import contextVariableIcon from '../../../../assets/images/wired/var/icon_source_context_clean.png';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import globalVariableIcon from '../../../../assets/images/wired/var/icon_source_global.png';
@@ -135,7 +135,7 @@ const serializeStringData = (variableToken: string, placeholderName: string, del
     `${variableToken || ''}\t${normalizePlaceholderName(placeholderName)}\t${normalizeDelimiter(delimiter)}`;
 
 export const WiredExtraTextOutputVariableView: FC<{}> = () => {
-    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null } = useWired();
+    const { trigger = null, furniIds = [], setFurniIds = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const { userVariableDefinitions = [], furniVariableDefinitions = [], roomVariableDefinitions = [], contextVariableDefinitions = [] } = useWiredTools();
     const [targetType, setTargetType] = useState<VariableTargetType>('user');
     const [variableToken, setVariableToken] = useState('');
@@ -175,12 +175,14 @@ export const WiredExtraTextOutputVariableView: FC<{}> = () => {
 
         const [nextVariableToken, nextPlaceholderName, nextDelimiter] = splitStringData(trigger.stringData);
 
-        setTargetType(normalizeTargetType(trigger.intData.length > 0 ? trigger.intData[0] : TARGET_USER));
+        // Official layout: [every holder 0/1, variable target (official ids), text mode 0/1]; the
+        // holders' sources in the official slots.
+        setTargetType(normalizeTargetType(trigger.intData.length > 1 ? fromOfficialVariableTarget(trigger.intData[1]) : TARGET_USER));
         setVariableToken(normalizeVariableTokenFromWire(nextVariableToken));
-        setDisplayType(normalizeDisplayType(trigger.intData.length > 1 ? trigger.intData[1] : DISPLAY_NUMERIC));
-        setPlaceholderType(normalizePlaceholderType(trigger.intData.length > 2 ? trigger.intData[2] : TYPE_SINGLE));
-        setUserSource(normalizeUserSource(trigger.intData.length > 3 ? trigger.intData[3] : 0));
-        setFurniSource(normalizeFurniSource(trigger.intData.length > 4 ? trigger.intData[4] : 0));
+        setDisplayType(trigger.intData[2] === 1 ? DISPLAY_TEXTUAL : DISPLAY_NUMERIC);
+        setPlaceholderType(trigger.intData[0] === 1 ? TYPE_MULTIPLE : TYPE_SINGLE);
+        setUserSource(normalizeUserSource(trigger.userSourceTypes?.[0] ?? 0));
+        setFurniSource(normalizeFurniSource(trigger.furniSourceTypes?.[0] ?? 0));
         setPlaceholderName(normalizePlaceholderName(nextPlaceholderName));
         setDelimiter(normalizeDelimiter(nextDelimiter));
         setFurniIds([...(trigger.selectedItems ?? [])]);
@@ -202,12 +204,11 @@ export const WiredExtraTextOutputVariableView: FC<{}> = () => {
 
     const save = () => {
         setIntParams([
-            getTargetValue(targetType),
-            canUseTextDisplay ? normalizeDisplayType(displayType) : DISPLAY_NUMERIC,
-            normalizePlaceholderType(placeholderType),
-            normalizeUserSource(userSource),
-            normalizeFurniSource(furniSource)
+            normalizePlaceholderType(placeholderType) === TYPE_MULTIPLE ? 1 : 0,
+            toOfficialVariableTarget(getTargetValue(targetType)),
+            canUseTextDisplay && normalizeDisplayType(displayType) === DISPLAY_TEXTUAL ? 1 : 0
         ]);
+        setSourceTypes({ furni: [normalizeFurniSource(furniSource)], users: [normalizeUserSource(userSource)] });
         setStringParam(serializeStringData(variableToken, placeholderName, delimiter));
         setFurniIds(targetType === 'furni' && furniSource === 100 ? [...furniIds] : []);
     };

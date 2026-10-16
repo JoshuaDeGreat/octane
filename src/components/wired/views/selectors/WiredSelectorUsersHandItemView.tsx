@@ -9,7 +9,7 @@ export const WiredSelectorUsersHandItemView: FC<{}> = () => {
     const [handItemId, setHandItemId] = useState(0);
     const [filterExisting, setFilterExisting] = useState(false);
     const [invert, setInvert] = useState(false);
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSelectorOptions = null } = useWired();
 
     useEffect(() => {
         if (!trigger) return;
@@ -17,12 +17,13 @@ export const WiredSelectorUsersHandItemView: FC<{}> = () => {
         const params = trigger.intData;
 
         setHandItemId(params.length > 0 ? params[0] : 0);
-        setFilterExisting(params.length > 1 ? params[1] === 1 : false);
-        setInvert(params.length > 2 ? params[2] === 1 : false);
+        setFilterExisting(trigger.isFilter ?? false);
+        setInvert(trigger.isInvert ?? false);
     }, [trigger]);
 
     const save = useCallback(() => {
-        setIntParams([handItemId, filterExisting ? 1 : 0, invert ? 1 : 0]);
+        setIntParams([handItemId]);
+        setSelectorOptions({ filter: filterExisting, invert });
     }, [handItemId, filterExisting, invert, setIntParams]);
 
     return (

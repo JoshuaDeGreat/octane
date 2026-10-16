@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { LocalizeText, localizeWithFallback, WiredFurniType } from '../../../../api';
+import { fromOfficialVariableTarget, LocalizeText, localizeWithFallback, toOfficialVariableTarget, WiredFurniType } from '../../../../api';
 import furniVariableIcon from '../../../../assets/images/wired/var/icon_source_furni.png';
 import globalVariableIcon from '../../../../assets/images/wired/var/icon_source_global.png';
 import userVariableIcon from '../../../../assets/images/wired/var/icon_source_user.png';
@@ -25,9 +25,11 @@ const TARGET_GLOBAL = 3;
 // the origins it listens to (-1 = every origin, which is also what a box saved before the mask means).
 const ORIGIN_ALL = -1;
 const ORIGIN_OPTIONS = [
+    // The official bits: 0 this room, 1 another room (never happens here, so not offered), 2
+    // inspection (our creator tools), 3 external (our web API).
     { bit: 0, key: 'wiredfurni.params.variables.trigger_origin.0', fallback: 'A wired box in this room' },
-    { bit: 1, key: 'wiredfurni.params.variables.trigger_origin.1', fallback: 'The web API' },
-    { bit: 2, key: 'wiredfurni.params.variables.trigger_origin.2', fallback: 'The creator tools' }
+    { bit: 2, key: 'wiredfurni.params.variables.trigger_origin.2', fallback: 'The creator tools' },
+    { bit: 3, key: 'wiredfurni.params.variables.trigger_origin.3', fallback: 'The web API' }
 ] as const;
 const ORIGIN_EVERY_BIT = ORIGIN_OPTIONS.reduce((mask, option) => mask | (1 << option.bit), 0);
 
@@ -114,15 +116,19 @@ export const WiredTriggerVariableChangedView: FC<{}> = () => {
 
         const intData = trigger.intData || [];
 
-        setTargetType(normalizeTargetType(intData.length > 0 ? intData[0] : TARGET_USER));
+        // Official layout: [created, value changed, deleted, (bit 0 increased, 1 decreased, 2
+        // unchanged), origins (-1 every one), mode]; ours follows: [variable target (official ids)].
+        const changes = intData.length > 3 ? intData[3] : 7;
+
+        setTargetType(normalizeTargetType(intData.length > 6 ? fromOfficialVariableTarget(intData[6]) : TARGET_USER));
         setVariableToken(normalizeVariableTokenFromWire(trigger.stringData || ''));
-        setCreatedEnabled(intData.length <= 1 || intData[1] === 1);
-        setValueChangedEnabled(intData.length <= 2 || intData[2] === 1);
-        setIncreasedEnabled(intData.length <= 3 || intData[3] === 1);
-        setDecreasedEnabled(intData.length <= 4 || intData[4] === 1);
-        setUnchangedEnabled(intData.length <= 5 || intData[5] === 1);
-        setDeletedEnabled(intData.length <= 6 || intData[6] === 1);
-        setOriginMask(intData.length > 7 ? intData[7] : ORIGIN_ALL);
+        setCreatedEnabled(intData.length <= 0 || intData[0] === 1);
+        setValueChangedEnabled(intData.length <= 1 || intData[1] === 1);
+        setDeletedEnabled(intData.length <= 2 || intData[2] === 1);
+        setIncreasedEnabled((changes & 1) !== 0);
+        setDecreasedEnabled((changes & 2) !== 0);
+        setUnchangedEnabled((changes & 4) !== 0);
+        setOriginMask(intData.length > 4 ? intData[4] : ORIGIN_ALL);
     }, [trigger]);
 
     useEffect(() => {
@@ -135,14 +141,13 @@ export const WiredTriggerVariableChangedView: FC<{}> = () => {
     const save = () => {
         setStringParam(variableToken);
         setIntParams([
-            getTargetValue(targetType),
             effectiveCreatedEnabled ? 1 : 0,
             valueChangedEnabled ? 1 : 0,
-            effectiveIncreasedEnabled ? 1 : 0,
-            effectiveDecreasedEnabled ? 1 : 0,
-            effectiveUnchangedEnabled ? 1 : 0,
             effectiveDeletedEnabled ? 1 : 0,
-            originMask
+            (effectiveIncreasedEnabled ? 1 : 0) | (effectiveDecreasedEnabled ? 2 : 0) | (effectiveUnchangedEnabled ? 4 : 0),
+            originMask,
+            0,
+            toOfficialVariableTarget(getTargetValue(targetType))
         ]);
     };
 

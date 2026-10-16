@@ -8,12 +8,15 @@ import {
     WiredUserVariableManageComposer,
     WiredUserVariablesDataEvent,
     WiredUserVariablesRequestComposer,
+    UserSettingsEvent,
+    WiredMenuSettingsComposer,
     WiredUserVariableUpdateComposer
 } from '@octane/renderer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { registerSharedHook } from '@/state/useSharedHook';
 import {
     createPacketCooldownGate,
+    decodeWiredMenuPreferences,
     LocalizeText,
     NotificationAlertType,
     normalizeWiredStyle,
@@ -155,6 +158,13 @@ export const useWiredToolsStore = () => {
     const { roomSession = null } = useRoom();
     const { simpleAlert = null } = useNotification();
     const [accountPreferences, setAccountPreferences] = useState<IWiredAccountPreferences>(DEFAULT_ACCOUNT_PREFERENCES);
+    const accountPreferencesRef = useRef<IWiredAccountPreferences>(DEFAULT_ACCOUNT_PREFERENCES);
+    // Once the server sent stored preferences, the local copy no longer overrides them.
+    const serverPreferencesAppliedRef = useRef(false);
+
+    useEffect(() => {
+        accountPreferencesRef.current = accountPreferences;
+    }, [accountPreferences]);
     const [roomSettings, setRoomSettings] = useState<IWiredRoomSettings>(DEFAULT_ROOM_SETTINGS);
     const [userVariableDefinitions, setUserVariableDefinitions] = useState<IWiredUserVariableDefinition[]>([]);
     const [userVariableAssignments, setUserVariableAssignments] = useState<Record<number, IWiredUserVariableAssignment[]>>({});
@@ -185,6 +195,8 @@ export const useWiredToolsStore = () => {
     }, []);
 
     useEffect(() => {
+        if (serverPreferencesAppliedRef.current) return;
+
         try {
             const rawValue = window.localStorage.getItem(storageKey);
 
@@ -295,11 +307,46 @@ export const useWiredToolsStore = () => {
         setAreUserVariablesLoaded(true);
     });
 
-    const updateAccountPreferences = useCallback((partialPreferences: Partial<IWiredAccountPreferences>) => {
+    // The official client keeps the wired menu preferences on the server; the whisper switch rides
+    // along in the same packet, so the last value the server sent is kept here.
+    const wiredWhisperDisabledRef = useRef(false);
+    const playTestModeRef = useRef(false);
+
+    useMessageEvent<UserSettingsEvent>(UserSettingsEvent, (event) => {
+        const parser = event.getParser();
+
+        wiredWhisperDisabledRef.current = !!parser.wiredWhisperDisabled;
+
+        const stored = decodeWiredMenuPreferences(parser.wiredMenuPreferences ?? '');
+
+        if (!stored) return;
+
+        playTestModeRef.current = stored.playTestMode;
+        serverPreferencesAppliedRef.current = true;
         setAccountPreferences((prevValue) => ({
             ...prevValue,
-            ...partialPreferences
+            showToolbarButton: stored.showToolbarButton,
+            showInspectButton: stored.showInspectButton,
+            showSystemNotifications: stored.showSystemNotifications,
+            wiredStyle: stored.wiredStyle
         }));
+    });
+
+    const updateAccountPreferences = useCallback((partialPreferences: Partial<IWiredAccountPreferences>) => {
+        const next = { ...accountPreferencesRef.current, ...partialPreferences };
+
+        accountPreferencesRef.current = next;
+        setAccountPreferences(next);
+        SendMessageComposer(
+            new WiredMenuSettingsComposer(
+                next.showToolbarButton,
+                next.showInspectButton,
+                playTestModeRef.current,
+                wiredWhisperDisabledRef.current,
+                next.showSystemNotifications,
+                next.wiredStyle
+            )
+        );
     }, []);
 
     // The official permissions packet carries the timezone too, so every save sends all three and

@@ -6,7 +6,7 @@ import { WiredSourceOption, WiredSourcesSelector } from '../WiredSourcesSelector
 import { WiredExtraBaseView } from './WiredExtraBaseView';
 
 const SOURCE_ALL_ROOM = 900;
-const DEFAULT_SOURCE = 0;
+const DEFAULT_SOURCE = SOURCE_ALL_ROOM;
 
 const FURNI_SOURCES: WiredSourceOption[] = [
     { value: SOURCE_ALL_ROOM, label: 'wiredfurni.params.sources.furni.900' },
@@ -26,7 +26,7 @@ const normalizeSource = (value: number, options: WiredSourceOption[]) => (option
 const getFlag = (value: number) => value === 1;
 
 export const WiredExtraMovePhysicsView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const [keepAltitude, setKeepAltitude] = useState(false);
     const [moveThroughFurni, setMoveThroughFurni] = useState(false);
     const [moveThroughUsers, setMoveThroughUsers] = useState(false);
@@ -42,9 +42,10 @@ export const WiredExtraMovePhysicsView: FC<{}> = () => {
         setMoveThroughFurni(getFlag(trigger.intData[1] ?? 0));
         setMoveThroughUsers(getFlag(trigger.intData[2] ?? 0));
         setBlockByFurni(getFlag(trigger.intData[3] ?? 0));
-        setMoveThroughFurniSource(normalizeSource(trigger.intData[4] ?? DEFAULT_SOURCE, FURNI_SOURCES));
-        setBlockByFurniSource(normalizeSource(trigger.intData[5] ?? DEFAULT_SOURCE, FURNI_SOURCES));
-        setMoveThroughUsersSource(normalizeSource(trigger.intData[6] ?? DEFAULT_SOURCE, USER_SOURCES));
+        // Official sources: furni slot 0 moves through, furni slot 1 blocks, user slot 0 moves through.
+        setMoveThroughFurniSource(normalizeSource(trigger.furniSourceTypes?.[0] ?? DEFAULT_SOURCE, FURNI_SOURCES));
+        setBlockByFurniSource(normalizeSource(trigger.furniSourceTypes?.[1] ?? DEFAULT_SOURCE, FURNI_SOURCES));
+        setMoveThroughUsersSource(normalizeSource(trigger.userSourceTypes?.[0] ?? DEFAULT_SOURCE, USER_SOURCES));
     }, [trigger]);
 
     const save = () => {
@@ -52,11 +53,12 @@ export const WiredExtraMovePhysicsView: FC<{}> = () => {
             keepAltitude ? 1 : 0,
             moveThroughFurni ? 1 : 0,
             moveThroughUsers ? 1 : 0,
-            blockByFurni ? 1 : 0,
-            normalizeSource(moveThroughFurniSource, FURNI_SOURCES),
-            normalizeSource(blockByFurniSource, FURNI_SOURCES),
-            normalizeSource(moveThroughUsersSource, USER_SOURCES)
+            blockByFurni ? 1 : 0
         ]);
+        setSourceTypes({
+            furni: [normalizeSource(moveThroughFurniSource, FURNI_SOURCES), normalizeSource(blockByFurniSource, FURNI_SOURCES)],
+            users: [normalizeSource(moveThroughUsersSource, USER_SOURCES)]
+        });
         setStringParam('');
     };
 

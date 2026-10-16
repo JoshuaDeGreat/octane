@@ -25,7 +25,8 @@ import {
     useCatalogSkipPurchaseConfirmation,
     useChatWindow,
     useKeyboardMovement,
-    useMessageEvent
+    useMessageEvent,
+    useWiredToolsState
 } from '../../hooks';
 import { AirSettingsVolumeRow } from './AirSettingsVolumeRow';
 import { SoundboardVolumeControl } from './SoundboardVolumeControl';
@@ -72,6 +73,7 @@ export const UserSettingsView: FC<{}> = () => {
     const { density: catalogGridDensity, setDensity: setCatalogGridDensity, showTilePrices, setShowTilePrices } = useCatalogDisplayPreferences();
     const [chatWindowEnabled, setChatWindowEnabled] = useChatWindow();
     const [keyboardMovement, setKeyboardMovement] = useKeyboardMovement();
+    const { accountPreferences: wiredAccountPreferences } = useWiredToolsState();
 
     const closeView = () => {
         setIsVisible(false);
@@ -134,8 +136,17 @@ export const UserSettingsView: FC<{}> = () => {
                 break;
             case 'wired_whisper_disabled':
                 clone.wiredWhisperDisabled = value as boolean;
-                // The server keeps only the whisper switch of the official wired menu preferences.
-                SendMessageComposer(new WiredMenuSettingsComposer(true, true, false, clone.wiredWhisperDisabled, true, 'default'));
+                // The official wired menu preferences travel together; send the stored ones along.
+                SendMessageComposer(
+                    new WiredMenuSettingsComposer(
+                        wiredAccountPreferences.showToolbarButton,
+                        wiredAccountPreferences.showInspectButton,
+                        false,
+                        clone.wiredWhisperDisabled,
+                        wiredAccountPreferences.showSystemNotifications,
+                        wiredAccountPreferences.wiredStyle
+                    )
+                );
                 break;
         }
 

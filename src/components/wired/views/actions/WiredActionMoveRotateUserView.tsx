@@ -7,10 +7,12 @@ import { useWired } from '../../../../hooks';
 import { OctaneInput } from '../../../../layout';
 import { WIRED_DIRECTION_GRID, WiredDirectionIcon } from '../WiredDirectionIcon';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
-const ROTATION_CLOCKWISE = 8;
-const ROTATION_COUNTER_CLOCKWISE = 9;
+// The official turn values (ours on the server are 8 and 9; the server converts).
+const ROTATION_CLOCKWISE = 9;
+const ROTATION_COUNTER_CLOCKWISE = 10;
 
 interface DirectionExtraOption {
     value: number;
@@ -89,24 +91,21 @@ const clampTileCount = (value: number) => {
 export const WiredActionMoveRotateUserView: FC<{}> = (props) => {
     const [movementDirection, setMovementDirection] = useState(-1);
     const [rotationDirection, setRotationDirection] = useState(-1);
-    const { trigger = null, setIntParams = null } = useWired();
+    const { trigger = null, setIntParams = null, setSourceTypes = null } = useWired();
     /**
      * "Move user N tiles" reads a fourth slot the window never sent, so it always moved exactly one
      * tile whatever the box was meant to do. The server keeps it between 1 and 10.
      */
     const hasTileCount = trigger?.code === WiredActionLayoutCode.MOVE_USER_TILES;
     const [tileCount, setTileCount] = useState(MIN_TILE_COUNT);
-    const [userSource, setUserSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 2) return trigger.intData[2];
-        return 0;
-    });
+    const [userSource, setUserSource] = useState<number>(() => slotUserSource(trigger));
 
-    const save = () =>
-        setIntParams(
-            hasTileCount
-                ? [movementDirection, rotationDirection, userSource, tileCount]
-                : [movementDirection, rotationDirection, userSource]
-        );
+    // Official layout: [movement, rotation]; ours (move user N tiles) follows: [tiles]. The user source
+    // is the official source slot.
+    const save = () => {
+        setIntParams(hasTileCount ? [movementDirection, rotationDirection, tileCount] : [movementDirection, rotationDirection]);
+        setSourceTypes({ furni: [], users: [userSource] });
+    };
 
     const rotationExtraOptions: DirectionExtraOption[] = [
         { value: ROTATION_CLOCKWISE, icon: iconRotateClockwise, label: LocalizeText('wiredfurni.params.rotatefurni.1') },
@@ -116,8 +115,8 @@ export const WiredActionMoveRotateUserView: FC<{}> = (props) => {
     useEffect(() => {
         setMovementDirection(trigger.intData.length > 0 ? trigger.intData[0] : -1);
         setRotationDirection(trigger.intData.length > 1 ? trigger.intData[1] : -1);
-        setUserSource(trigger.intData.length > 2 ? trigger.intData[2] : 0);
-        setTileCount(clampTileCount(trigger.intData.length > 3 ? trigger.intData[3] : MIN_TILE_COUNT));
+        setUserSource(slotUserSource(trigger));
+        setTileCount(clampTileCount(trigger.intData.length > 2 ? trigger.intData[2] : MIN_TILE_COUNT));
     }, [trigger]);
 
     return (

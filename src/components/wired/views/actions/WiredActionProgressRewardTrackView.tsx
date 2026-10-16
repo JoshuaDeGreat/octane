@@ -3,42 +3,60 @@ import { localizeWithFallback, WiredFurniType } from '../../../../api';
 import { Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotUserSource } from '../WiredSourceSlots';
+import { getCustomVariableItemId } from '../WiredVariablePickerData';
+import { variableTokenFromId, WiredValueOrVariableSection } from '../WiredValueOrVariableSection';
 import { clampProgressAmount, PROGRESS_ACHIEVEMENT_MAX_AMOUNT } from './WiredActionProgressAchievementView';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 /**
  * Habbo's progress-reward-track action (`wf_act_progress_reward_track`): moves one task of a reward
- * track for the chosen users. Server: WiredEffectProgressRewardTrack. String param `track\ttask`,
- * int params `[add to existing, amount, user source]`. The hotel decides which tracks wired may move.
+ * track for the chosen users. Server: WiredEffectProgressRewardTrack. String param `track\ttask`, then a
+ * tab and the value variable's id; official int params `[add to existing, amount from a variable,
+ * amount, variable target (global -10 / context -20)]`; the user source is the official slot.
+ * The hotel decides which tracks wired may move.
  */
 
 export const REWARD_TRACK_ID_MAX_LENGTH = 64;
 
+// The official reward track reads its value variable on a global or a context holder only.
+const GLOBAL_TARGET = -10;
+const CONTEXT_TARGET = -20;
+
 export const normalizeRewardTrackId = (value: string): string => (value ?? '').replace(/[^\p{L}\p{N}_.-]/gu, '').slice(0, REWARD_TRACK_ID_MAX_LENGTH);
 
 export const WiredActionProgressRewardTrackView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
     const [trackId, setTrackId] = useState('');
     const [taskId, setTaskId] = useState('');
-    const [addToExisting, setAddToExisting] = useState(true);
-    const [amount, setAmount] = useState(1);
+    const [addToExisting, setAddToExisting] = useState(false);
+    const [amount, setAmount] = useState('1');
+    const [isVariable, setIsVariable] = useState(false);
+    const [valueTarget, setValueTarget] = useState(GLOBAL_TARGET);
+    const [valueToken, setValueToken] = useState('');
     const [userSource, setUserSource] = useState(0);
 
     useEffect(() => {
         if (!trigger) return;
 
-        const [track = '', task = ''] = (trigger.stringData ?? '').split('\t');
+        const [track = '', task = '', variableId = ''] = (trigger.stringData ?? '').split('\t');
 
         setTrackId(normalizeRewardTrackId(track));
         setTaskId(normalizeRewardTrackId(task));
-        setAddToExisting((trigger.intData?.[0] ?? 1) !== 0);
-        setAmount(clampProgressAmount(trigger.intData?.[1] ?? 1));
-        setUserSource(trigger.intData?.[2] ?? 0);
+        setAddToExisting((trigger.intData?.[0] ?? 0) !== 0);
+        setIsVariable(trigger.intData?.[1] === 1);
+        setAmount(String(clampProgressAmount(trigger.intData?.[2] ?? 1)));
+        setValueTarget(trigger.intData?.[3] === CONTEXT_TARGET ? CONTEXT_TARGET : GLOBAL_TARGET);
+        setValueToken(variableTokenFromId(variableId));
+        setUserSource(slotUserSource(trigger));
     }, [trigger]);
 
     const save = () => {
-        setStringParam(`${trackId}\t${taskId}`);
-        setIntParams([addToExisting ? 1 : 0, clampProgressAmount(amount), userSource]);
+        const variableId = isVariable ? getCustomVariableItemId(valueToken) : 0;
+
+        setStringParam(isVariable ? `${trackId}\t${taskId}\t${variableId}` : `${trackId}\t${taskId}`);
+        setIntParams([addToExisting ? 1 : 0, isVariable ? 1 : 0, clampProgressAmount(parseInt(amount, 10)), valueTarget]);
+        setSourceTypes({ furni: [], users: [userSource] });
     };
 
     return (
@@ -47,7 +65,7 @@ export const WiredActionProgressRewardTrackView: FC<{}> = () => {
             hasSpecialInput={true}
             requiresFurni={WiredFurniType.STUFF_SELECTION_OPTION_NONE}
             save={save}
-            validate={() => trackId.length > 0 && taskId.length > 0}
+            validate={() => trackId.length > 0 && taskId.length > 0 && (!isVariable || getCustomVariableItemId(valueToken) > 0)}
         >
             <div className="flex flex-col gap-1">
                 <Text bold>{localizeWithFallback('wiredfurni.params.reward_track.progress.ids', 'Reward track')}</Text>
@@ -74,15 +92,22 @@ export const WiredActionProgressRewardTrackView: FC<{}> = () => {
             </label>
             <div className="flex flex-col gap-1">
                 <Text bold>{localizeWithFallback('wiredfurni.params.reward_track.score', 'Score')}</Text>
-                <input
-                    aria-label="score"
-                    type="number"
-                    min={1}
-                    max={PROGRESS_ACHIEVEMENT_MAX_AMOUNT}
-                    className="form-control form-control-sm"
-                    style={{ maxWidth: 140 }}
+                <WiredValueOrVariableSection
+                    name="rewardTrackValue"
+                    isVariable={isVariable}
                     value={amount}
-                    onChange={(event) => setAmount(clampProgressAmount(parseInt(event.target.value, 10)))}
+                    target={valueTarget}
+                    token={valueToken}
+                    furniSource={0}
+                    userSource={0}
+                    min={1}
+                    targets={[GLOBAL_TARGET, CONTEXT_TARGET]}
+                    onIsVariableChange={setIsVariable}
+                    onValueChange={setAmount}
+                    onTargetChange={setValueTarget}
+                    onTokenChange={setValueToken}
+                    onFurniSourceChange={() => undefined}
+                    onUserSourceChange={() => undefined}
                 />
             </div>
         </WiredActionBaseView>

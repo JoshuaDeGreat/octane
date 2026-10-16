@@ -20,7 +20,8 @@ export const WiredConditionTeamHasRankView: FC<{}> = () => {
         if (!trigger) return;
 
         const nextTeam = trigger.intData.length > 0 ? trigger.intData[0] : 1;
-        const nextPlacement = trigger.intData.length > 1 ? trigger.intData[1] : 1;
+        // Officially the placement is 0 (first) .. 3 (fourth); the editor shows 1-4.
+        const nextPlacement = trigger.intData.length > 1 ? trigger.intData[1] + 1 : 1;
         const nextUserSource = trigger.intData.length > 2 ? trigger.intData[2] : 0;
         const nextQuantifier = trigger.intData.length > 3 ? trigger.intData[3] : 0;
 
@@ -32,7 +33,7 @@ export const WiredConditionTeamHasRankView: FC<{}> = () => {
     }, [trigger]);
 
     const save = () => {
-        setIntParams([team, placement, userSource, quantifier]);
+        setIntParams([team, placement - 1, userSource, quantifier]);
     };
 
     return (

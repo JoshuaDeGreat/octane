@@ -16,16 +16,18 @@ const normalizeBotSource = (value: number) => (BOT_SOURCE_OPTIONS.some((option) 
 export const WiredTriggerBotReachedAvatarView: FC<{}> = (props) => {
     const [botName, setBotName] = useState('');
     const [botSource, setBotSource] = useState(100);
-    const { trigger = null, setStringParam = null, setIntParams = null } = useWired();
+    const { trigger = null, setStringParam = null, setIntParams = null, setSourceTypes = null } = useWired();
 
     const save = () => {
-        setStringParam(botSource === 100 ? botName : '');
-        setIntParams([botSource]);
+        // Official: the bot name, no int params; the bot source in the official user slot.
+        setStringParam(botName);
+        setIntParams([]);
+        setSourceTypes({ furni: [], users: [botSource] });
     };
 
     useEffect(() => {
-        setBotName(trigger.stringData);
-        setBotSource(trigger?.intData?.length > 0 ? normalizeBotSource(trigger.intData[0]) : 100);
+        setBotName(trigger?.stringData ?? '');
+        setBotSource(normalizeBotSource(trigger?.userSourceTypes?.[0] ?? 100));
     }, [trigger]);
 
     return (
@@ -43,12 +45,10 @@ export const WiredTriggerBotReachedAvatarView: FC<{}> = (props) => {
                 />
             }
         >
-            {botSource === 100 && (
-                <div className="flex flex-col gap-1">
-                    <Text bold>{LocalizeText('wiredfurni.params.bot.name')}</Text>
-                    <OctaneInput maxLength={32} type="text" value={botName} onChange={(event) => setBotName(event.target.value)} />
-                </div>
-            )}
+            <div className="flex flex-col gap-1">
+                <Text bold>{LocalizeText('wiredfurni.params.bot.name')}</Text>
+                <OctaneInput maxLength={32} title={LocalizeText('wiredfurni.tooltip.botname')} type="text" value={botName} onChange={(event) => setBotName(event.target.value)} />
+            </div>
         </WiredTriggerBaseView>
     );
 };

@@ -6,25 +6,27 @@ import { WiredSourcesSelector } from '../WiredSourcesSelector';
 import { WiredSelectorBaseView } from './WiredSelectorBaseView';
 
 export const WiredSelectorFurniOnFurniView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null } = useWired();
+    // Official layout: [selection type], the furni in the official source slot, filter / invert in the official fields.
+    const { trigger = null, setIntParams = null, setSelectorOptions = null, setSourceTypes = null } = useWired();
     const [selectionType, setSelectionType] = useState(0);
     const [filterExisting, setFilterExisting] = useState(false);
     const [invert, setInvert] = useState(false);
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const [furniSource, setFurniSource] = useState<number>(() => trigger?.furniSourceTypes?.[0] ?? ((trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0));
 
     useEffect(() => {
         if (!trigger) return;
 
         setSelectionType(trigger.intData.length > 0 ? trigger.intData[0] : 0);
-        setFurniSource(trigger.intData.length > 1 ? trigger.intData[1] : (trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
-        setFilterExisting(trigger.intData.length > 2 ? trigger.intData[2] === 1 : false);
-        setInvert(trigger.intData.length > 3 ? trigger.intData[3] === 1 : false);
+        setFurniSource(trigger.furniSourceTypes?.[0] ?? ((trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0));
+        setFilterExisting(trigger.isFilter ?? false);
+        setInvert(trigger.isInvert ?? false);
     }, [trigger]);
 
-    const save = () => setIntParams([selectionType, furniSource, filterExisting ? 1 : 0, invert ? 1 : 0]);
+    const save = () => {
+        setIntParams([selectionType]);
+        setSourceTypes({ furni: [furniSource], users: [] });
+        setSelectorOptions({ filter: filterExisting, invert });
+    };
 
     return (
         <WiredSelectorBaseView

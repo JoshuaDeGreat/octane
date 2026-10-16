@@ -8,7 +8,6 @@ import { WiredActionBaseView } from './WiredActionBaseView';
 const SOURCE_TRIGGER = 0;
 const SOURCE_SELECTED = 100;
 const SOURCE_SECONDARY_SELECTED = 101;
-const FURNI_DELIMITER = ';';
 
 const TARGET_FURNI_SOURCES: WiredSourceOption[] = sortWiredSourceOptions(
     [
@@ -38,12 +37,6 @@ const parseIds = (data: string): number[] => {
     return Array.from(ids);
 };
 
-const serializeIds = (ids: number[]): string => {
-    if (!ids || !ids.length) return '';
-
-    return ids.filter((id) => id > 0).join(FURNI_DELIMITER);
-};
-
 export const WiredActionFurniToFurniView: FC<{}> = () => {
     const [moveSource, setMoveSource] = useState<number>(SOURCE_TRIGGER);
     const [targetSource, setTargetSource] = useState<number>(SOURCE_TRIGGER);
@@ -53,7 +46,7 @@ export const WiredActionFurniToFurniView: FC<{}> = () => {
 
     const highlightedIds = useRef<number[]>([]);
 
-    const { trigger = null, furniIds = [], setFurniIds, setIntParams, setStringParam, setAllowsFurni } = useWired();
+    const { trigger = null, furniIds = [], setFurniIds, setFurniIds2, setIntParams, setStringParam, setSourceTypes, setAllowsFurni } = useWired();
 
     const syncHighlights = useCallback((nextMoveIds: number[], nextTargetIds: number[]) => {
         if (highlightedIds.current.length) {
@@ -92,10 +85,13 @@ export const WiredActionFurniToFurniView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
+        // Official: no int params. Furni source slot 0 is the furni to move, slot 1 the target, whose
+        // picks are the second pick list (stuffIds2); a box from an older server sent them as text.
         const nextMoveIds = trigger.selectedItems ?? [];
-        const nextTargetIds = parseIds(trigger.stringData);
-        const nextMoveSource = trigger.intData.length >= 1 ? trigger.intData[0] : nextMoveIds.length ? SOURCE_SELECTED : SOURCE_TRIGGER;
-        const nextTargetSourceRaw = trigger.intData.length >= 2 ? trigger.intData[1] : nextTargetIds.length ? SOURCE_SECONDARY_SELECTED : SOURCE_TRIGGER;
+        const nextTargetIds = trigger.selectedItems2?.length ? [...trigger.selectedItems2] : parseIds(trigger.stringData);
+        const slots = trigger.furniSourceTypes ?? [];
+        const nextMoveSource = slots.length >= 1 ? slots[0] : nextMoveIds.length ? SOURCE_SELECTED : SOURCE_TRIGGER;
+        const nextTargetSourceRaw = slots.length >= 2 ? slots[1] : nextTargetIds.length ? SOURCE_SECONDARY_SELECTED : SOURCE_TRIGGER;
         const nextTargetSource = nextTargetSourceRaw === SOURCE_SELECTED ? SOURCE_SECONDARY_SELECTED : nextTargetSourceRaw;
 
         setMoveSource(nextMoveSource);
@@ -155,10 +151,11 @@ export const WiredActionFurniToFurniView: FC<{}> = () => {
             setFurniIds([...nextMoveIds]);
         }
 
-        setIntParams([moveSource, targetSource]);
-
-        setStringParam(serializeIds(nextTargetIds));
-    }, [selectionMode, furniIds, moveFurniIds, moveSource, targetSource, targetFurniIds, setFurniIds, setIntParams, setStringParam]);
+        setIntParams([]);
+        setStringParam('');
+        setSourceTypes({ furni: [moveSource, targetSource === SOURCE_SECONDARY_SELECTED ? SOURCE_SELECTED : targetSource], users: [] });
+        setFurniIds2(targetSource === SOURCE_SECONDARY_SELECTED ? nextTargetIds.filter((id) => id > 0) : []);
+    }, [selectionMode, furniIds, moveFurniIds, moveSource, targetSource, targetFurniIds, setFurniIds, setFurniIds2, setIntParams, setStringParam, setSourceTypes]);
 
     const selectionLimit = trigger?.maximumItemSelectionCount ?? 0;
 

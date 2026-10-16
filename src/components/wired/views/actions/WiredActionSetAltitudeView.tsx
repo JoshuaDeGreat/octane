@@ -3,6 +3,7 @@ import { LocalizeText, WiredFurniType } from '../../../../api';
 import { Slider, Text } from '../../../../common';
 import { useWired } from '../../../../hooks';
 import { WiredSourcesSelector } from '../WiredSourcesSelector';
+import { slotFurniSource } from '../WiredSourceSlots';
 import { WiredActionBaseView } from './WiredActionBaseView';
 
 const MIN_ALTITUDE = 0;
@@ -48,13 +49,10 @@ const normalizeOperator = (value: number) => {
 };
 
 export const WiredActionSetAltitudeView: FC<{}> = () => {
-    const { trigger = null, setIntParams = null, setStringParam = null } = useWired();
+    const { trigger = null, setIntParams = null, setStringParam = null, setSourceTypes = null } = useWired();
 
     const [operator, setOperator] = useState(2);
-    const [furniSource, setFurniSource] = useState<number>(() => {
-        if (trigger?.intData?.length > 1) return trigger.intData[1];
-        return (trigger?.selectedItems?.length ?? 0) > 0 ? 100 : 0;
-    });
+    const [furniSource, setFurniSource] = useState<number>(() => slotFurniSource(trigger));
     const [altitude, setAltitude] = useState(0);
     const [altitudeInput, setAltitudeInput] = useState('0');
 
@@ -63,10 +61,13 @@ export const WiredActionSetAltitudeView: FC<{}> = () => {
     useEffect(() => {
         if (!trigger) return;
 
-        setOperator(trigger.intData.length > 0 ? normalizeOperator(trigger.intData[0]) : 2);
-        setFurniSource(trigger.intData.length > 1 ? trigger.intData[1] : (trigger.selectedItems?.length ?? 0) > 0 ? 100 : 0);
+        // Official layout: [altitude in hundredths, operator]; the furni source is the official slot.
+        const official = (trigger.intData?.length ?? 0) > 1;
 
-        const nextAltitude = parseAltitude(trigger.stringData);
+        setOperator(normalizeOperator(official ? trigger.intData[1] : (trigger.intData?.[0] ?? 2)));
+        setFurniSource(slotFurniSource(trigger));
+
+        const nextAltitude = official ? clampAltitude(trigger.intData[0] / 100) : parseAltitude(trigger.stringData);
         setAltitude(nextAltitude);
         setAltitudeInput(formatAltitude(nextAltitude));
     }, [trigger]);
@@ -101,9 +102,9 @@ export const WiredActionSetAltitudeView: FC<{}> = () => {
     };
 
     const save = () => {
-        setIntParams([operator, furniSource]);
-
-        setStringParam(normalizedAltitudeText);
+        setIntParams([Math.round(clampAltitude(altitude) * 100), operator]);
+        setStringParam('');
+        setSourceTypes({ furni: [furniSource], users: [] });
     };
 
     return (
@@ -114,6 +115,7 @@ export const WiredActionSetAltitudeView: FC<{}> = () => {
             footer={<WiredSourcesSelector showFurni={true} furniSource={furniSource} onChangeFurni={setFurniSource} />}
         >
             <div className="flex flex-col gap-2">
+                <Text bold>{LocalizeText('wiredfurni.params.choose_type')}</Text>
                 {OPERATOR_OPTIONS.map((option) => {
                     return (
                         <div key={option.value} className="flex items-center gap-1">

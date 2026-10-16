@@ -4,11 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const setIntParams = vi.fn();
 const setStringParam = vi.fn();
-let trigger: { stringData: string; intData: number[] } | null = null;
+const setSourceTypes = vi.fn();
+let trigger: { stringData: string; intData: number[]; userSourceTypes?: number[] } | null = null;
 let baseProps: { save: () => void; validate?: () => boolean } | null = null;
 
 vi.mock('../../../../hooks', () => ({
-    useWired: () => ({ trigger, setIntParams, setStringParam })
+    useWired: () => ({ trigger, setIntParams, setStringParam, setSourceTypes })
 }));
 
 vi.mock('../../../../common', () => ({
@@ -37,26 +38,26 @@ describe('WiredActionWriteToLogsView', () => {
         baseProps = null;
     });
 
-    it('opens a fresh box at info and refuses to save without a message', () => {
+    it('opens a fresh box at the first level, as the official dropdown does', () => {
         trigger = { stringData: '', intData: [] };
         render(<WiredActionWriteToLogsView />);
 
-        expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('1');
-        expect(baseProps.validate()).toBe(false);
+        expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('0');
     });
 
-    it('shows what the box stored and saves the level, then the user source', () => {
-        trigger = { stringData: 'door opened', intData: [2, 5] };
+    it('shows what the box stored and saves the level, the message as typed and the user source slot', () => {
+        trigger = { stringData: 'door opened', intData: [2], userSourceTypes: [5] };
         render(<WiredActionWriteToLogsView />);
 
         expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('2');
-        expect((screen.getByRole('textbox') as HTMLTextAreaElement).value).toBe('door opened');
+        expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe('door opened');
 
         fireEvent.change(screen.getByRole('combobox'), { target: { value: '3' } });
         fireEvent.change(screen.getByRole('textbox'), { target: { value: '  boss escaped  ' } });
         baseProps.save();
 
-        expect(setIntParams).toHaveBeenCalledWith([3, 5]);
-        expect(setStringParam).toHaveBeenCalledWith('boss escaped');
+        expect(setIntParams).toHaveBeenCalledWith([3]);
+        expect(setStringParam).toHaveBeenCalledWith('  boss escaped  ');
+        expect(setSourceTypes).toHaveBeenCalledWith({ furni: [], users: [5] });
     });
 });
