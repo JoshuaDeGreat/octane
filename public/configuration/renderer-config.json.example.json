@@ -587,5 +587,5 @@
 			}
 		]
 	},
-	"preload.assets.urls": []
+    "preload.assets.urls": []
 }
