@@ -3,6 +3,6 @@
   "secureAssetsEnabled": false,
   "secureApiEnabled": false,
   "apiBaseUrl": "https://nitro.example.com:2096",
-  ""plainConfigBaseUrl": "https://octane.joshua-h1997.workers.dev/configuration/",,
+  "plainConfigBaseUrl": "https://octane.joshua-h1997.workers.dev/configuration/",
   "plainGamedataBaseUrl": "https://hotel.example.com/client/nitro/gamedata/"
 }
