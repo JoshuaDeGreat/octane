@@ -78,5 +78,12 @@ export const TurnstileWidget: FC<TurnstileWidgetProps> = (props) => {
 
     if (!siteKey) return null;
 
-    return <div ref={containerRef} className="turnstile-slot" />;
+    return (
+        <>
+            <div ref={containerRef} className="turnstile-slot" />
+            <small className="d-block text-center">
+                Protected by Cloudflare Turnstile. <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy notice</a>
+            </small>
+        </>
+    );
 };
