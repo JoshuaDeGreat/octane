@@ -278,7 +278,7 @@ export const YouTubePlayerView: FC<{}> = () => {
                                 <span className="text-blue-300">📺 Connected with YouTube TV</span>
                                 <div className="flex gap-2">
                                     {isPlaying && <span className="text-green-400">▶ {LocalizeText('connection.login.play')}</span>}
-                                    {isPaused && <span className="text-yellow-400">⏸ {LocalizeText('wiredfurni.params.clock_control.3')}</span>}
+                                    {isPaused && <span className="text-yellow-400">⏸ {LocalizeText('youtube.player.paused')}</span>}
                                     {isMyRoom && <span className="text-green-400 text-xs">✓ {LocalizeText('navigator.filter.owner')}</span>}
                                 </div>
                             </div>
@@ -361,7 +361,7 @@ export const YouTubePlayerView: FC<{}> = () => {
                                     className="px-3 bg-purple-600 rounded text-white text-sm whitespace-nowrap"
                                     title="Speel deze video voor iedereen in de kamer"
                                 >
-                                    📡 {LocalizeText('wiredchests.logs.type.1')}
+                                    📡 {LocalizeText('youtube.player.broadcast')}
                                 </button>
                             )}
                         </div>
