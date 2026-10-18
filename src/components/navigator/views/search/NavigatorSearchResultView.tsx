@@ -1,4 +1,4 @@
-import { NavigatorSearchResultList, NavigatorSearchSaveComposer } from '@octane/renderer';
+import { NavigatorSearchSaveComposer } from '@octane/renderer';
 import { FC } from 'react';
 import { LocalizeText, localizeWithFallback, NavigatorSearchResultViewDisplayMode, SendMessageComposer } from '../../../../api';
 import categoryCollapse from '../../../../assets/images/navigator/air/category-collapse.png';
@@ -10,9 +10,10 @@ import navViewThumbs from '../../../../assets/images/navigator/air/nav-view-thum
 import { LayoutSearchSavesView } from '../../../../common';
 import { useNavigatorData, useNavigatorUiStore } from '../../../../hooks';
 import { NavigatorSearchResultItemView } from './NavigatorSearchResultItemView';
+import { NavigatorCategoryResult, resolveNavigatorCategoryTitle } from './navigatorCategoryResults';
 
 export interface NavigatorSearchResultViewProps {
-    searchResult: NavigatorSearchResultList;
+    searchResult: NavigatorCategoryResult;
     parentCode?: string;
     parentFilter?: string;
     forceOpen?: boolean;
@@ -30,14 +31,7 @@ export const NavigatorSearchResultView: FC<NavigatorSearchResultViewProps> = (pr
     });
     const displayMode = useNavigatorUiStore((state) => state.resultViewModes[searchResult.code] ?? searchResult.mode);
 
-    const getResultTitle = () => {
-        const name = searchResult.code;
-
-        if (!name || !name.length) return searchResult.data;
-        if (name.startsWith('${')) return name.slice(2, name.length - 1);
-
-        return localizeWithFallback('navigator.searchcode.title.' + name, searchResult.data || name);
-    };
+    const getResultTitle = () => resolveNavigatorCategoryTitle(searchResult.code, searchResult.data, LocalizeText);
 
     const toggleDisplayMode = () => {
         const nextMode =
@@ -125,6 +119,7 @@ export const NavigatorSearchResultView: FC<NavigatorSearchResultViewProps> = (pr
             </header>
             {isExtended && (
                 <div className={isTileMode ? 'octane-navigator-air__tiles' : 'octane-navigator-air__rows'}>
+                    {searchResult.rooms.length === 0 && <div className="octane-navigator-air__empty">{LocalizeText('navigator.category.empty')}</div>}
                     {searchResult.rooms.map((room, index) => (
                         <NavigatorSearchResultItemView
                             key={room.roomId || index}
