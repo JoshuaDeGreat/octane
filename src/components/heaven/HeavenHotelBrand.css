@@ -1,201 +1,86 @@
-/* Heaven Hotel: self-contained, classic pixel-inspired wordmark.
-   This does not replace or modify Octane's underlying renderer assets. */
+/* Both screens use the same font-independent vector artwork. */
 .heaven-hotel-brand {
-    --heaven-word-size: 49px;
-    position: relative;
-    isolation: isolate;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    width: max-content;
+    width: 280px;
     max-width: 100%;
-    padding: 16px 17px 13px;
     user-select: none;
     pointer-events: none;
-    font-family: Volter, "Arial Black", Impact, sans-serif;
-    -webkit-font-smoothing: none;
-    letter-spacing: 0.015em;
-    filter: drop-shadow(0 7px 1px rgba(10, 43, 71, 0.55));
+    filter: drop-shadow(0 5px 2px rgba(16, 35, 57, 0.35));
 }
 
-.heaven-hotel-brand__word {
-    position: relative;
-    z-index: 2;
+.heaven-hotel-brand__image {
     display: block;
-    line-height: 0.94;
-    font-size: var(--heaven-word-size);
-    font-weight: 900;
-    white-space: nowrap;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 2px #172d45;
-    text-shadow:
-        -3px 0 #172d45, 3px 0 #172d45,
-        0 -3px #172d45, 0 3px #172d45,
-        3px 3px #172d45, -3px 3px #172d45,
-        4px 5px #0b1627, 5px 7px #0b1627;
-}
-
-.heaven-hotel-brand__word--heaven {
-    color: #ffc139;
-    background: linear-gradient(180deg, #fff4a6 0%, #ffd044 42%, #f5a725 68%, #cb671b 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.heaven-hotel-brand__word--hotel {
-    margin-top: 3px;
-    font-size: calc(var(--heaven-word-size) * 0.65);
-    letter-spacing: 0.11em;
-    color: #bfefff;
-    background: linear-gradient(180deg, #fff 10%, #c2f1ff 48%, #63bce6 80%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    image-rendering: auto;
+    -webkit-user-drag: none;
 }
 
 .heaven-hotel-brand__tagline {
-    position: relative;
-    z-index: 2;
-    margin-top: 13px;
-    color: #fff;
-    font-family: Volter, monospace;
-    font-size: 11px;
+    display: block;
+    width: 100%;
+    margin-top: -5px;
+    color: #ffffff;
+    font-family: Volter, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
     line-height: 1.2;
-    letter-spacing: 0.025em;
+    letter-spacing: 0;
+    text-align: center;
     white-space: nowrap;
-    text-shadow: -1px -1px #153954, 1px 2px #153954, 2px 3px #153954;
+    text-shadow: -1px -1px #214663, 1px 1px #214663, 1px 2px #153b58;
 }
-
-.heaven-hotel-brand__halo {
-    position: absolute;
-    z-index: 0;
-    top: -5px;
-    left: 50%;
-    width: 86px;
-    height: 24px;
-    transform: translateX(-50%) rotate(-7deg);
-    border: 6px solid #ffdd57;
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px #7c4a1a, inset 0 1px 0 1px #fff3b0, 0 0 13px #ffe9a3;
-}
-
-.heaven-hotel-brand__cloud {
-    position: absolute;
-    z-index: 0;
-    bottom: 34px;
-    height: 30px;
-    width: 83px;
-    border: 3px solid #1d4965;
-    border-radius: 17px;
-    background: #edfbff;
-    box-shadow: 3px 5px 0 #62b4d5, 5px 8px 0 #14364c;
-}
-
-.heaven-hotel-brand__cloud::before,
-.heaven-hotel-brand__cloud::after {
-    content: '';
-    position: absolute;
-    background: #edfbff;
-    border-top: 3px solid #1d4965;
-    border-radius: 50% 50% 0 0;
-}
-
-.heaven-hotel-brand__cloud::before {
-    left: 10px;
-    top: -19px;
-    width: 31px;
-    height: 19px;
-}
-
-.heaven-hotel-brand__cloud::after {
-    right: 9px;
-    top: -13px;
-    width: 22px;
-    height: 13px;
-}
-
-.heaven-hotel-brand__cloud--left { left: -25px; }
-.heaven-hotel-brand__cloud--right { right: -25px; transform: scaleX(-1); }
 
 .heaven-login-brand-position {
     position: absolute;
+    top: 13px;
+    left: 17px;
     z-index: 35;
-    top: 19px;
-    left: 20px;
     pointer-events: none;
 }
 
 .heaven-hotel-brand--loading {
-    --heaven-word-size: clamp(50px, 8vw, 94px);
-    padding: 32px 42px 24px;
-}
-
-.heaven-hotel-brand--loading .heaven-hotel-brand__halo {
-    width: 125px;
-    height: 38px;
-    border-width: 8px;
-}
-
-.heaven-hotel-brand--loading .heaven-hotel-brand__cloud {
-    transform: scale(1.4);
-}
-
-.heaven-hotel-brand--loading .heaven-hotel-brand__cloud--right {
-    transform: scale(-1.4, 1.4);
+    width: min(75vw, 540px);
 }
 
 .heaven-hotel-brand--loading .heaven-hotel-brand__tagline {
-    margin-top: 22px;
-    font-size: 14px;
+    margin-top: -3px;
+    font-size: clamp(11px, 2.5vw, 16px);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
     .heaven-login-brand-position {
-        top: 10px;
-        left: 7px;
+        top: 8px;
+        left: 8px;
     }
+
     .heaven-hotel-brand--login {
-        --heaven-word-size: clamp(25px, 6vw, 38px);
-        padding: 13px 12px 9px;
+        width: min(35vw, 195px);
     }
-    .heaven-hotel-brand--login .heaven-hotel-brand__halo {
-        width: 60px;
-        height: 18px;
-        border-width: 4px;
-    }
-    .heaven-hotel-brand--login .heaven-hotel-brand__cloud {
-        width: 45px;
-        height: 19px;
-        bottom: 25px;
-    }
-    .heaven-hotel-brand--login .heaven-hotel-brand__cloud::before {
-        top: -13px;
-        width: 20px;
-        height: 13px;
-    }
-    .heaven-hotel-brand--login .heaven-hotel-brand__cloud::after {
-        top: -10px;
-        width: 15px;
-        height: 10px;
-    }
+
     .heaven-hotel-brand--login .heaven-hotel-brand__tagline {
-        margin-top: 10px;
-        font-size: 8px;
+        margin-top: -3px;
+        font-size: clamp(7px, 1.5vw, 9px);
     }
+}
+
+@media (max-width: 540px) {
+    .heaven-hotel-brand--login {
+        width: min(37vw, 156px);
+    }
+
     .heaven-hotel-brand--loading {
-        --heaven-word-size: clamp(36px, 9vw, 65px);
-        padding: 25px 18px 20px;
-    }
-    .heaven-hotel-brand--loading .heaven-hotel-brand__tagline {
-        font-size: 10px;
+        width: min(82vw, 400px);
     }
 }
 
 @media (max-height: 450px) {
     .heaven-login-brand-position {
-        transform: scale(0.73);
+        transform: scale(0.8);
         transform-origin: left top;
     }
 }
