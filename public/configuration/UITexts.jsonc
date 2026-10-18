@@ -1504,5 +1504,24 @@
     // --- Wired variable leaderboard (2026-10-13) ---
     "wiredfurni.params.variable_leaderboard.filter.operand.literal": "Number",
     "wiredfurni.params.variable_leaderboard.filter.operand.global": "Global variable",
-    "wiredfurni.variable_leaderboard.untitled": "Leaderboard"
+    "wiredfurni.variable_leaderboard.untitled": "Leaderboard",
+
+    // Navigator and room controls
+    "generic.help": "Help",
+    "generic.copy": "Copy",
+    "generic.clear": "Clear",
+    "generic.refresh": "Refresh",
+    "navigator.roomsettings.moderation": "Moderation",
+    "navigator.roomsettings.mute_all_pets": "Mute all pets",
+    "navigator.roomsettings.room_behavior": "Room behaviour",
+    "navigator.roomsettings.do_not_leave_on_door_tile": "Stay in the room when standing on the door tile",
+    "navigator.roomsettings.idle_sleep": "Sleep when idle after",
+    "navigator.roomsettings.timeout.seconds": "seconds",
+    "navigator.roomsettings.idle_autokick": "Remove idle visitors after",
+    "navigator.more.rooms": "More rooms",
+    "navigator.room.popup.room.info": "Room information",
+    "room.zoom.text": "Zoom: %zoom_level%",
+    "room.zoom.zoom_in.tooltip": "Zoom in",
+    "room.zoom.zoom_out.tooltip": "Zoom out",
+    "navigator.category.empty": "No rooms in this category yet."
 }

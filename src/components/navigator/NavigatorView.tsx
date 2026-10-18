@@ -11,7 +11,7 @@ import {
     RemoveLinkEventTracker,
     RoomSessionEvent
 } from '@octane/renderer';
-import { CSSProperties, FC, PointerEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { CSSProperties, FC, PointerEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CreateLinkEvent, LocalizeText, localizeWithFallback, SendMessageComposer, TryVisitRoom } from '../../api';
 import createRoomImg from '../../assets/images/navigator/air/create-room.png';
 import promoteRoomImg from '../../assets/images/navigator/air/promote-room.png';
@@ -36,6 +36,7 @@ import { NavigatorEnforceCategoryView } from './views/NavigatorEnforceCategoryVi
 import { NavigatorEmptyStateView } from './views/search/NavigatorEmptyStateView';
 import { NavigatorRoomInfoPopupView } from './views/search/NavigatorRoomInfoPopupView';
 import { NavigatorSearchResultView } from './views/search/NavigatorSearchResultView';
+import { buildNavigatorCategoryResults } from './views/search/navigatorCategoryResults';
 import { NavigatorSearchSavesResultView } from './views/search/NavigatorSearchSavesResultView';
 import { NavigatorSearchView } from './views/search/NavigatorSearchView';
 
@@ -51,8 +52,9 @@ const persistNavigatorBounds = (element: HTMLElement | null) => {
 };
 
 export const NavigatorView: FC<{}> = () => {
-    const { topLevelContext, topLevelContexts, navigatorData, navigatorSearches } = useNavigatorData();
+    const { topLevelContext, topLevelContexts, navigatorData, navigatorSearches, categories } = useNavigatorData();
     const { searchResult, isFetching } = useNavigatorSearch();
+    const displayedResults = useMemo(() => buildNavigatorCategoryResults(searchResult?.results ?? [], categories, searchResult?.code ?? '', searchResult?.data ?? ''), [searchResult, categories]);
     const { isVisible, isCreatorOpen, isRoomInfoOpen, isRoomLinkOpen, isOpenSavesSearches, needsInit, currentTabCode, windowHeight } = useNavigatorUiState();
     const canGoBack = useNavigatorUiStore((state) => state.searchHistoryOffset > 0);
     const canGoForward = useNavigatorUiStore((state) => state.searchHistoryOffset < state.searchHistory.length - 1);
@@ -204,7 +206,7 @@ export const NavigatorView: FC<{}> = () => {
         updateScrollState();
 
         return () => observer.disconnect();
-    }, [isVisible, isCreatorOpen, searchResult]);
+    }, [isVisible, isCreatorOpen, displayedResults]);
 
     const quickLinksLabel = localizeWithFallback('navigator.quick.links.title', 'Quick links');
     const navigatorLabel = localizeWithFallback('navigator.title', 'Navigator');
@@ -359,16 +361,16 @@ export const NavigatorView: FC<{}> = () => {
                                         <div ref={elementRef} className="octane-navigator-air__results has-air-scrollbar" data-scrollable={resultsScrollable}>
                                             {isFetching && <div className="octane-navigator-air__busy-mask" aria-hidden="true" />}
                                             {searchResult &&
-                                                searchResult.results.map((result, index) => (
+                                                displayedResults.map((result, index) => (
                                                     <NavigatorSearchResultView
                                                         key={result.code || index}
                                                         searchResult={result}
                                                         parentCode={searchResult.code}
                                                         parentFilter={searchResult.data}
-                                                        forceOpen={searchResult.results.length === 1}
+                                                        forceOpen={displayedResults.length === 1}
                                                     />
                                                 ))}
-                                            {searchResult && (!searchResult.results || searchResult.results.length === 0) && (
+                                            {searchResult && displayedResults.length === 0 && (
                                                 <NavigatorEmptyStateView code={searchResult.code} />
                                             )}
                                         </div>
