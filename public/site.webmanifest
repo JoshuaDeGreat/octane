@@ -4,6 +4,12 @@
     "short_name": "Heaven",
     "icons": [
         {
+            "src": "heaven-favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
             "src": "android-chrome-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
