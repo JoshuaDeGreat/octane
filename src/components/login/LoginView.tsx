@@ -12,6 +12,7 @@ import flagDe from '../../assets/images/flag_icon/flag_icon_de.png';
 import flagAr from '../../assets/images/flag_icon/flag_icon_ar.png';
 import { applyTextTranslationLocale } from '../../hooks/translation/useTranslation';
 import { configFileUrl } from '../../secure-assets';
+import { HeavenHotelBrand } from '../heaven/HeavenHotelBrand';
 import { LoginModal } from './components/LoginModal';
 import { LoginWidgetSlot } from './components/LoginWidgetSlot';
 import { NewsWindow } from './components/NewsWindow';
@@ -763,6 +764,9 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
             )}
 
             {newsUrl && <NewsWindow newsUrl={newsUrl} />}
+            <div className="heaven-login-brand-position">
+                <HeavenHotelBrand />
+            </div>
 
             <div
                 className={`login-language-picker octane-card-shell${languageWindow.dragging ? ' is-dragging' : ''}`}
@@ -803,7 +807,7 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
                     style={authWindow.style}
                 >
                     <div className="card-title octane-card-header-shell login-drag-handle" title={dragHint} {...authWindow.handleProps}>
-                        <span className="octane-card-title">{t('nitro.login.card.title', "What's your Habbo called?")}</span>
+                        <span className="octane-card-title">{t('heaven.login.card.title', 'Welcome to Heaven Hotel')}</span>
                     </div>
                     <form className="card-body octane-card-content-shell" action={submitLoginAction} autoComplete="on">
                         <div className="field">
