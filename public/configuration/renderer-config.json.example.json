@@ -89,7 +89,7 @@
 	"account.change-email.endpoint": "${api.url}/api/auth/change-email",
 	"account.change-username.endpoint": "${api.url}/api/auth/change-username",
 	"login.turnstile.enabled": true,
-    "login.turnstile.sitekey": "1x00000000000000000000AA",
+    "login.turnstile.sitekey": "0x4AAAAAAFaUUvcgD5oePRSO",
 	"avatar.mandatory.libraries": [
         "bd:1",
         "li:0"
