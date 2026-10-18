@@ -34,7 +34,7 @@
     "furni.asset.icon.url": "${hof.furni.url}/icons/%libname%%param%_icon.png",
     "pet.asset.url": "${asset.url}/pet/%libname%.nitro",
     "generic.asset.url": "${asset.url}/generic/%libname%.nitro",
-    "badge.asset.url": "${image.library.url}album1584/%badgename%.gif",
+    "badge.asset.url": "https://heaven-badges.joshua-h1997.workers.dev/client/c_images/album1584/%badgename%.gif",
 	"radio.url": "${gamedata.url}/radio-stations.jsonc?t=%timestamp%",
 	"soundboard.url": "${gamedata.url}/soundboard-sounds.jsonc?t=%timestamp%",
     "furni.rotation.bounce.steps": 20,
