@@ -1,6 +1,6 @@
 import { GetConfiguration } from '@octane/renderer';
 import { FC, useMemo } from 'react';
-import octaneLogo from '@/assets/images/loading/octane-logo.png';
+import { HeavenHotelBrand } from '../heaven/HeavenHotelBrand';
 import { Base, Column, Text } from '../../common';
 
 interface LoadingViewProps {
@@ -67,12 +67,16 @@ export const LoadingView: FC<LoadingViewProps> = (props) => {
                     ) : (
                         <>
                             <Column alignItems="center" justifyContent="center" className="z-[3] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                <img
-                                    src={customLogoUrl || octaneLogo}
-                                    alt="Octane"
-                                    draggable={false}
-                                    className="block w-auto h-auto max-w-[min(80vw,780px)] max-h-[32vh] select-none pointer-events-none drop-shadow-[0_10px_24px_rgba(0,0,0,0.5)]"
-                                />
+                                {customLogoUrl ? (
+                                    <img
+                                        src={customLogoUrl}
+                                        alt="Heaven Hotel"
+                                        draggable={false}
+                                        className="block w-auto h-auto max-w-[min(80vw,780px)] max-h-[32vh] select-none pointer-events-none drop-shadow-[0_10px_24px_rgba(0,0,0,0.5)]"
+                                    />
+                                ) : (
+                                    <HeavenHotelBrand variant="loading" />
+                                )}
                                 {message && message.length ? (
                                     <Text
                                         fontSizeCustom={22}
