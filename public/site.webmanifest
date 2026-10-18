@@ -1,8 +1,14 @@
 {
     "start_url": "/",
-    "name": "Nitro",
-    "short_name": "Nitro",
+    "name": "Heaven Hotel",
+    "short_name": "Heaven",
     "icons": [
+        {
+            "src": "heaven-favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
         {
             "src": "android-chrome-192x192.png",
             "sizes": "192x192",
@@ -14,7 +20,7 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
+    "theme_color": "#6ec5ee",
+    "background_color": "#74c9f0",
     "display": "standalone"
 }

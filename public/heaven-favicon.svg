@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Heaven Hotel icon">
+  <rect width="64" height="64" rx="10" fill="#317eaa"/>
+  <rect x="4" y="4" width="56" height="56" rx="7" fill="#70cfff"/>
+  <path d="M7 48h50v5H7zM12 43h13v5H12zm26 0h14v5H38z" fill="#fff"/>
+  <path d="M11 18h42v5H11z" fill="#154263"/>
+  <ellipse cx="32" cy="13" rx="15" ry="6" fill="none" stroke="#f4aa1d" stroke-width="5"/>
+  <ellipse cx="32" cy="12" rx="14" ry="5" fill="none" stroke="#ffe679" stroke-width="3"/>
+  <path d="M15 25h8v11h18V25h8v28h-8V43H23v10h-8z" fill="#132d44"/>
+  <path d="M17 23h7v11h17V23h7v28h-7V41H24v10h-7z" fill="#ffd04b"/>
+  <path d="M17 23h7v6h-7zm24 0h7v6h-7zM24 34h17v5H24z" fill="#fff1a2"/>
+</svg>
