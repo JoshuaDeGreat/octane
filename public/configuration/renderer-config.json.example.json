@@ -14,7 +14,7 @@
     "soundboard.manifest.url": "${gamedata.url}/SoundData.json?t=%timestamp%",
     "external.texts.url": [
         "${gamedata.url}/ExternalTexts.json?t=%timestamp%",
-        "${gamedata.url}/UITexts.jsonc?t=%timestamp%"
+        "https://octane.joshua-h1997.workers.dev/configuration/UITexts.jsonc?t=%timestamp%"
     ],
 	  "base.locale": "en",
 	// Leave this blank if you’re not using a CMS. If you are, enter the URL of your logout page.
