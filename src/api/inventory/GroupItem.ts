@@ -1,5 +1,6 @@
 import { IObjectData, IRoomEngine } from '@octane/renderer';
 import { LocalizeText } from '../utils';
+import { classicPosterIcon } from '../catalog/ClassicPosters';
 import { FurniCategory } from './FurniCategory';
 import { FurnitureItem } from './FurnitureItem';
 import { IFurnitureItem } from './IFurnitureItem';
@@ -314,7 +315,8 @@ export class GroupItem {
         let url = null;
 
         if (this.isWallItem) {
-            url = this._roomEngine.getFurnitureWallIconUrl(this._type, this._stuffData.getLegacyString());
+            url = (this._category === FurniCategory.POSTER ? classicPosterIcon(this._stuffData.getLegacyString()) : null)
+                || this._roomEngine.getFurnitureWallIconUrl(this._type, this._stuffData.getLegacyString());
         } else {
             url = this._roomEngine.getFurnitureFloorIconUrl(this._type);
         }

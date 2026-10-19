@@ -200,7 +200,7 @@ describe('catalogStore page override and search', () => {
         expect(useCatalogStore.getState().purchaseOptions).toEqual({ quantity: 1, extraData: null, extraParamRequired: false, previewStuffData: null });
     });
 
-    it('selectCatalogOffer resets purchaseOptions.extraData to null for a WALL offer, matching the old reset-effect outcome', () => {
+    it('selectCatalogOffer resets unrelated wall item purchase data', () => {
         useCatalogStore.setState({ purchaseOptions: { quantity: 4, extraData: 'stale', extraParamRequired: true, previewStuffData: null } });
 
         const wallOffer = { offerId: 5, isLazy: false, product: { productType: ProductTypeEnum.WALL, extraParam: 'some_param' } } as any;
@@ -209,6 +209,15 @@ describe('catalogStore page override and search', () => {
 
         expect(useCatalogStore.getState().purchaseOptions).toEqual({ quantity: 1, extraData: null, extraParamRequired: false, previewStuffData: null });
         expect(useCatalogStore.getState().currentOffer).toBe(wallOffer);
+    });
+
+    it('keeps the selected classic poster design for normal purchases and gifts', () => {
+        const poster = { offerId: 10275, isLazy: false, product: { productType: ProductTypeEnum.WALL, furnitureData: { className: 'poster' }, extraParam: '12' } } as any;
+        useCatalogStore.setState({ purchaseOptions: { quantity: 4, extraData: '99', extraParamRequired: true, previewStuffData: null } });
+        useCatalogStore.getState().selectCatalogOffer(poster);
+        expect(useCatalogStore.getState().purchaseOptions).toEqual({ quantity: 1, extraData: '12', extraParamRequired: false, previewStuffData: null });
+        useCatalogStore.getState().setCurrentOffer({ ...poster, product: { ...poster.product, extraParam: '13' } });
+        expect(useCatalogStore.getState().purchaseOptions.extraData).toBe('13');
     });
 });
 

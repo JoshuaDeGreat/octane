@@ -13,6 +13,7 @@ import {
     SearchResult
 } from '../../api';
 import { createOctaneStore } from '../../state/createOctaneStore';
+import { classicPosterDesign } from '../../api/catalog/ClassicPosters';
 import {
     findNodeById,
     findNodeByName,
@@ -344,18 +345,13 @@ export const useCatalogStore = createOctaneStore<CatalogStoreState>((set, get) =
 
     setCurrentPage: (page) => set({ pageOverride: page }),
 
-    setCurrentOffer: (offer) => set({ currentOffer: offer, purchaseOptions: offer ? { ...DEFAULT_PURCHASE_OPTIONS } : get().purchaseOptions }),
+    setCurrentOffer: (offer) => set({ currentOffer: offer, purchaseOptions: offer ? { ...DEFAULT_PURCHASE_OPTIONS, extraData: classicPosterDesign(offer.product) } : get().purchaseOptions }),
 
     selectCatalogOffer: (offer) => {
         if (!offer) return;
 
-        // Matches the old hook's effective behaviour: it used to set
-        // purchaseOptions.extraData from the WALL product's extraParam here,
-        // but the reset effect that ran right after always overwrote it back
-        // to the defaults before the purchase payload was ever read - so the
-        // wire-visible value was always null. Keep that outcome explicitly
-        // rather than reintroducing the now-dead assignment.
-        const purchaseOptions: IPurchaseOptions = { ...DEFAULT_PURCHASE_OPTIONS };
+        // Poster offers share a class id; retain the selected artwork for purchases and gifts.
+        const purchaseOptions: IPurchaseOptions = { ...DEFAULT_PURCHASE_OPTIONS, extraData: classicPosterDesign(offer.product) };
 
         set({ currentOffer: offer, purchaseOptions });
 
