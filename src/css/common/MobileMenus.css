@@ -26,6 +26,13 @@
     }
 
     /* These windows have desktop minimum heights or special viewport rules. */
+    .draggable-window:has(> .octane-catalog-window) {
+        width: var(--menu-width) !important;
+        min-width: 0 !important;
+        max-width: var(--menu-width) !important;
+        height: var(--menu-height) !important;
+    }
+
     .draggable-window > .octane-catalog-window {
         width: var(--menu-width) !important;
         height: var(--menu-height) !important;
