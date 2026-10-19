@@ -2,7 +2,7 @@ import { getAccessToken } from '../auth/accessToken';
 
 const trimSlash = (value: string) => value.replace(/\/$/, '');
 
-const resolveBaseUrl = (): string => {
+export const resolveHousekeepingBaseUrl = (): string => {
     const mode = (window as any).OctaneClientMode;
 
     if (mode && typeof mode.apiBaseUrl === 'string' && mode.apiBaseUrl.length) return trimSlash(mode.apiBaseUrl);
@@ -15,7 +15,7 @@ const resolveBaseUrl = (): string => {
 };
 
 const buildUrl = (path: string): string => {
-    const base = resolveBaseUrl();
+    const base = resolveHousekeepingBaseUrl();
     const normalized = path.startsWith('/') ? path : `/${path}`;
 
     return `${base}${normalized}`;

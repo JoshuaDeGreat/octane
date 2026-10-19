@@ -101,6 +101,7 @@ import './css/catalog/CatalogGiftView.css';
 import './css/navigator/NavigatorView.css';
 import './css/common/ClassicScrollbar.css';
 import './css/common/MobileMenus.css';
+import './css/navigator/PublicRoomGallery.css';
 
 document.documentElement.classList.add('has-classic-scrollbar');
 
