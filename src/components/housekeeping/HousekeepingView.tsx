@@ -247,9 +247,9 @@ export const HousekeepingView: FC = () => {
                 windowPosition={DraggableWindowPosition.TOP_CENTER}
             >
                 <OctaneCardHeaderView headerText={LocalizeText('housekeeping.title')} onCloseClick={() => closePanel()} />
-                <div className="relative flex min-h-0 grow text-black">
+                <div className="octane-hk-layout relative flex min-h-0 grow text-black">
                     <HousekeepingSidebar active={activeTab} groups={navGroups} onSelect={setActiveTab} />
-                    <div className="flex min-w-0 grow flex-col">
+                    <div className="octane-hk-main flex min-w-0 grow flex-col">
                         <HousekeepingStatusBanner />
                         <HousekeepingPasswordReveal />
                         <OctaneCardContentView className="min-h-0 grow text-black" gap={2}>

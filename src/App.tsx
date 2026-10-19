@@ -29,22 +29,18 @@ import { MainView } from './components/MainView';
 import { ReconnectView } from './components/reconnect/ReconnectView';
 import { ClearStoredChatHistory, getConnectionFailureAction, shouldClearLoginAfterDisconnect, useConnectionState, useDevicePixelRatio, useMessageEvent, useOctaneEvent } from './hooks';
 import { SharedHookRegistry } from './state/useSharedHook';
+import { getWindowViewport, syncWindowViewport } from './common/draggable-window/WindowViewport';
 
 OctaneVersion.UI_VERSION = GetUIVersion();
 
 const getViewportDimensions = () => {
-    const viewport = window.visualViewport;
-    const width = Math.max(1, Math.floor(viewport?.width ?? window.innerWidth));
-    const height = Math.max(1, Math.floor(viewport?.height ?? window.innerHeight));
+    const { width, height } = getWindowViewport();
 
     return { width, height };
 };
 
 const syncViewportCssVars = () => {
-    const { width, height } = getViewportDimensions();
-
-    document.documentElement.style.setProperty('--octane-app-width', `${width}px`);
-    document.documentElement.style.setProperty('--octane-app-height', `${height}px`);
+    syncWindowViewport();
 };
 
 const preloadUrl = async (url: string): Promise<void> => {

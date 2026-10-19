@@ -33,7 +33,7 @@ export const HousekeepingSidebar: FC<{
     onSelect: (id: HousekeepingTabId) => void;
     footer?: ReactNode;
 }> = ({ groups, active, onSelect, footer }) => (
-    <nav aria-label={LocalizeText('housekeeping.title')} className="flex w-[172px] shrink-0 flex-col gap-2 border-r border-zinc-300 bg-zinc-100/80 p-2">
+    <nav aria-label={LocalizeText('housekeeping.title')} className="octane-hk-sidebar flex w-[172px] shrink-0 flex-col gap-2 border-r border-zinc-300 bg-zinc-100/80 p-2">
         <HousekeepingGlobalSearch />
         <div className="flex grow flex-col gap-2 overflow-y-auto">
             {groups

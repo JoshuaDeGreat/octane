@@ -610,14 +610,6 @@
     touch-action: none;
 }
 
-@media (max-width: 640px) {
-    .draggable-window:not([data-window-key='octane-radio']) {
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-    }
-}
-
 .octane-card-shell.octane-card-frame-3 > .octane-card-resize-handle {
     position: absolute;
     right: 3px;
