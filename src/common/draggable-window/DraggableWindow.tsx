@@ -152,6 +152,9 @@ export const DraggableWindow: FC<DraggableWindowProps> = (props) => {
         if (!dragHandler) return;
 
         const onPointerDown = (event: PointerEvent) => {
+            // Compact layouts are centred by MobileMenus.css. Avoid storing
+            // invisible drag offsets that would jump when returning to desktop.
+            if (window.matchMedia('(max-width: 640px), (pointer: coarse) and (max-height: 520px)').matches) return;
             if ((event.target as HTMLElement)?.closest?.('button, input, select, textarea, a')) return;
             if (event.pointerType === 'mouse' && event.button !== 0) return;
 

@@ -1,0 +1,61 @@
+/* Keep desktop window sizes and positions. On phones, use the visible area
+   rather than 100vh, which can extend behind Safari's keyboard and toolbar. */
+@media (max-width: 640px), (pointer: coarse) and (max-height: 520px) {
+    .draggable-window:not([data-window-key='octane-radio']) {
+        --menu-width: max(1px, calc(var(--octane-app-width, 100vw) - 16px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+        --menu-height: max(1px, calc(var(--octane-app-height, 100dvh) - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+        left: calc(var(--octane-viewport-left, 0px) + env(safe-area-inset-left, 0px) + (var(--octane-app-width, 100vw) - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)) / 2) !important;
+        top: calc(var(--octane-viewport-top, 0px) + env(safe-area-inset-top, 0px) + (var(--octane-app-height, 100dvh) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 2) !important;
+        transform: translate(-50%, -50%) !important;
+    }
+
+    .draggable-window > .octane-card-shell:not(.octane-navigator-air) {
+        box-sizing: border-box;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: var(--menu-width) !important;
+        max-height: var(--menu-height) !important;
+        resize: none !important;
+    }
+
+    .draggable-window .octane-card-resize-handle { display: none; }
+    .draggable-window .octane-card-content-shell {
+        min-height: 0;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* These windows have desktop minimum heights or special viewport rules. */
+    .draggable-window > .octane-catalog-window {
+        width: var(--menu-width) !important;
+        height: var(--menu-height) !important;
+    }
+
+    /* The navigator has an internally fixed pixel-art layout; preserve its
+       proportions, including quick links, while fitting the visible area. */
+    .draggable-window > .octane-navigator-air {
+        zoom: min(1, calc(var(--menu-width) / 425px), calc(var(--menu-height) / var(--navigator-height, 628px)));
+    }
+    .draggable-window > .octane-navigator-air.is-quick-links {
+        zoom: min(1, calc(var(--menu-width) / 578px), calc(var(--menu-height) / var(--navigator-height, 628px)));
+    }
+
+    /* Keep inventory controls reachable; its furniture preview retains its
+       natural size and can be reached by scrolling the content horizontally. */
+    .octane-inventory-window .octane-inventory-body { overflow: auto; }
+    .octane-inventory-window .octane-inventory-content { min-width: 468px; overflow: visible; }
+    .octane-inventory-window .octane-inventory-tabs-shell { overflow-x: auto; overflow-y: hidden; }
+
+    .octane-housekeeping > .octane-hk-layout { flex-direction: column; overflow: auto; }
+    .octane-housekeeping .octane-hk-sidebar {
+        width: 100%;
+        max-height: 150px;
+        border-right: 0;
+        border-bottom: 1px solid #d4d4d8;
+    }
+    .octane-housekeeping .octane-hk-main { min-height: 160px; flex-shrink: 0; }
+    .octane-housekeeping .grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
+    .octane-housekeeping .col-span-2 { grid-column: auto; }
+    .octane-housekeeping .hk-btn { min-height: 36px; height: auto; }
+    .octane-housekeeping :is(input, textarea, select) { font-size: 16px; }
+}
