@@ -5,12 +5,16 @@ import { ICatalogNode } from './ICatalogNode';
 import { IProduct } from './IProduct';
 import { IPurchasableOffer } from './IPurchasableOffer';
 import { ProductTypeEnum } from './ProductTypeEnum';
+import { classicPosterDesign, classicPosterIcon } from './ClassicPosters';
 
 // Official getPixelEffectIcon: the fx_icon of the effect.
 export const GetPixelEffectIcon = (id: number) => getAvatarEffectIconUrl(id);
 
 export const GetProductIconUrl = (product: IProduct, offer: IPurchasableOffer = null): string => {
     if (!product) return null;
+
+    const poster = classicPosterDesign(product);
+    if (poster && classicPosterIcon(poster)) return classicPosterIcon(poster);
 
     if (product.productType === ProductTypeEnum.FLOOR || product.productType === ProductTypeEnum.WALL) {
         const className = product.furnitureData?.className;

@@ -4,6 +4,7 @@ import { GetPixelEffectIcon, GetSubscriptionProductIcon } from './CatalogUtiliti
 import { IProduct } from './IProduct';
 import { IPurchasableOffer } from './IPurchasableOffer';
 import { ProductTypeEnum } from './ProductTypeEnum';
+import { classicPosterDesign, classicPosterIcon } from './ClassicPosters';
 
 export class Product implements IProduct {
     public static EFFECT_CLASSID_NINJA_DISAPPEAR: number = 108;
@@ -52,6 +53,9 @@ export class Product implements IProduct {
     }
 
     public getIconUrl(offer: IPurchasableOffer = null, stuffData: IObjectData = null): string {
+        const poster = classicPosterDesign(this);
+        if (poster && classicPosterIcon(poster)) return classicPosterIcon(poster);
+
         switch (this._productType) {
             case ProductTypeEnum.FLOOR:
                 return GetRoomEngine().getFurnitureFloorIconUrl(this.productClassId);
