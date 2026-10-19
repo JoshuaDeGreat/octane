@@ -11,6 +11,10 @@ import { DEFAULT_JSON_MODE, normalizeJsonModeAnswer, VALID_JSON_MODES } from './
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_RENDERER_REPO_URL = 'https://github.com/duckietm/Octane-Renderer.git';
+// Compatible renderer snapshot retained with this UI checkout.
+// Upstream main can remove exports that this UI still imports. Pin fresh
+// default clones; leave existing checkouts and custom repositories untouched.
+const DEFAULT_RENDERER_REVISION = '98401fdcdb12dfb034573864e85e9054dc47f756';
 // Sibling folder names the client's vite.config / tsconfig already know how to resolve.
 // Auto-detection walks these in order; a fresh clone defaults to the first one.
 const RENDERER_DIR_CANDIDATES = ['Octane-Renderer', 'renderer'];
@@ -342,6 +346,10 @@ async function cloneRenderer(opts) {
         return;
     }
     await runShell('git clone ' + RENDERER_REPO_URL + ' "' + RENDERER_DIR + '"', dirname(RENDERER_DIR));
+    if (RENDERER_REPO_URL === DEFAULT_RENDERER_REPO_URL) {
+        await runShell('git checkout --detach ' + DEFAULT_RENDERER_REVISION, RENDERER_DIR);
+        info('Pinned renderer revision: ' + DEFAULT_RENDERER_REVISION);
+    }
     summary.rendererCloned = true;
     ok('Cloned renderer to ' + RENDERER_DIR);
 }
