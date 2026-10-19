@@ -11,7 +11,7 @@ import {
     RemoveLinkEventTracker,
     RoomSessionEvent
 } from '@octane/renderer';
-import { CSSProperties, FC, PointerEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { CSSProperties, FC, PointerEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CreateLinkEvent, LocalizeText, localizeWithFallback, SendMessageComposer, TryVisitRoom } from '../../api';
 import createRoomImg from '../../assets/images/navigator/air/create-room.png';
 import promoteRoomImg from '../../assets/images/navigator/air/promote-room.png';
@@ -28,6 +28,7 @@ import {
     useOctaneEvent
 } from '../../hooks';
 import { NavigatorDoorStateView } from './views/NavigatorDoorStateView';
+import { NavigatorPublicGalleryView } from './views/NavigatorPublicGalleryView';
 import { NavigatorRoomCreatorView } from './views/NavigatorRoomCreatorView';
 import { NavigatorRoomInfoView } from './views/NavigatorRoomInfoView';
 import { NavigatorRoomLinkView } from './views/NavigatorRoomLinkView';
@@ -60,6 +61,9 @@ export const NavigatorView: FC<{}> = () => {
     const canGoForward = useNavigatorUiStore((state) => state.searchHistoryOffset < state.searchHistory.length - 1);
     const elementRef = useRef<HTMLDivElement>(null);
     const [resultsScrollable, setResultsScrollable] = useState(false);
+    const [publicGalleryAvailable, setPublicGalleryAvailable] = useState(true);
+    const onPublicGalleryUnavailable = useCallback(() => setPublicGalleryAvailable(false), []);
+    const showPublicGallery = publicGalleryAvailable && searchResult?.code === 'official_view' && !searchResult.data?.trim();
     const frameRef = useRef<HTMLDivElement>(null);
     const tabsRef = useRef<HTMLDivElement>(null);
     const resizeRef = useRef<{ y: number; height: number; scale: number } | null>(null);
@@ -360,7 +364,8 @@ export const NavigatorView: FC<{}> = () => {
                                         <NavigatorSearchView searchResult={searchResult} />
                                         <div ref={elementRef} className="octane-navigator-air__results has-air-scrollbar" data-scrollable={resultsScrollable}>
                                             {isFetching && <div className="octane-navigator-air__busy-mask" aria-hidden="true" />}
-                                            {searchResult &&
+                                            {showPublicGallery && <NavigatorPublicGalleryView onUnavailable={onPublicGalleryUnavailable} />}
+                                            {searchResult && !showPublicGallery &&
                                                 displayedResults.map((result, index) => (
                                                     <NavigatorSearchResultView
                                                         key={result.code || index}
@@ -370,7 +375,7 @@ export const NavigatorView: FC<{}> = () => {
                                                         forceOpen={displayedResults.length === 1}
                                                     />
                                                 ))}
-                                            {searchResult && displayedResults.length === 0 && (
+                                            {searchResult && !showPublicGallery && displayedResults.length === 0 && (
                                                 <NavigatorEmptyStateView code={searchResult.code} />
                                             )}
                                         </div>
