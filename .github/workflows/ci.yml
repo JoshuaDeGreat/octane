@@ -143,3 +143,7 @@ jobs:
       - name: Vitest
         working-directory: octane
         run: yarn test --run
+
+      - name: Production build
+        working-directory: octane
+        run: yarn build
