@@ -216,6 +216,33 @@ export const UserAccountSettingsView: FC<{}> = () =>
         }
     };
 
+    const requestEmailVerification = async () => {
+        const token = getAccessToken();
+        if (!token) {
+            setFeedback({ kind: 'error', message: 'Please log in again before verifying your email.' });
+            return;
+        }
+        const loginEndpoint = GetConfigurationValue<string>('login.endpoint', '/api/auth/login');
+        const endpoint = GetConfigurationValue<string>('login.request-email-verification.endpoint', '')
+            || loginEndpoint.replace(/\/api\/auth\/login(?:\?.*)?$/, '/api/auth/request-email-verification');
+        setSubmitting(true);
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                credentials: 'omit',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'X-Requested-With': 'OctaneUserAccountSettings' },
+                body: '{}'
+            });
+            setFeedback(response.ok
+                ? { kind: 'success', message: 'If your email needs verification, a link will arrive shortly. Check your inbox.' }
+                : { kind: 'error', message: 'Unable to send verification right now. Please try again.' });
+        } catch {
+            setFeedback({ kind: 'error', message: 'Unable to contact the hotel. Please try again.' });
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     const submitEmailChange = async () =>
     {
         if(submitting) return;
@@ -658,6 +685,7 @@ export const UserAccountSettingsView: FC<{}> = () =>
                             </div>
                         ) }
 
+                        <button type="button" disabled={ submitting } onKeyDown={ event => event.stopPropagation() } onClick={ requestEmailVerification } className="text-left text-xs underline text-[#23668c] disabled:opacity-50">Send verification link to my current email</button>
                         <div className="flex justify-end gap-2 pt-1">
                             <Button variant="secondary" disabled={ submitting } onClick={ () => { resetForm(); setSection('menu'); } }>
                                 { localizeWithFallback('usersettings.btn.cancel', "Cancel") }
