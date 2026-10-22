@@ -1,9 +1,10 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { GetConfigurationValue } from '../../api';
 
 /** One-time mailbox ownership proof. The secret is never sent in the HTTP URL. */
 export const EmailVerificationView: FC = () => {
     const [status, setStatus] = useState('Verifying your email address…');
+    const requestRef = useRef<Promise<{ ok: boolean; message: string }> | null>(null);
     useEffect(() => {
         const token = new URLSearchParams(window.location.hash.replace(/^#/, '')).get('token') || '';
         window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
@@ -15,17 +16,27 @@ export const EmailVerificationView: FC = () => {
         const endpoint = GetConfigurationValue<string>('login.verify-email.endpoint', '')
             || loginEndpoint.replace(/\/api\/auth\/login(?:\?.*)?$/, '/api/auth/verify-email');
         let active = true;
-        fetch(endpoint, {
-            method: 'POST',
-            credentials: 'omit',
-            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'OctaneLoginView' },
-            body: JSON.stringify({ token })
-        }).then(async response => {
-            const data = await response.json().catch(() => ({})) as { message?: string; error?: string };
-            if (active) setStatus(response.ok
-                ? (data.message || 'Email verified. Please log in again.')
-                : (data.error || 'Verification failed. Please request another link.'));
-        }).catch(() => { if (active) setStatus('The hotel could not be reached. Please try again.'); });
+        if (!requestRef.current) {
+            requestRef.current = fetch(endpoint, {
+                method: 'POST',
+                credentials: 'omit',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'OctaneLoginView' },
+                body: JSON.stringify({ token })
+            }).then(async response => {
+                const data = await response.json().catch(() => ({})) as { message?: string; error?: string };
+                return {
+                    ok: response.ok,
+                    message: response.ok
+                        ? (data.message || 'Email verified. Please log in again.')
+                        : (data.error || 'Verification failed. Please request another link.')
+                };
+            });
+        }
+        requestRef.current.then(result => {
+            if (active) setStatus(result.message);
+        }).catch(() => {
+            if (active) setStatus('The hotel could not be reached. Please try again.');
+        });
         return () => { active = false; };
     }, []);
 
