@@ -438,6 +438,7 @@
     "housekeeping.audit.action.ban.revoke": "Ban revocato",
 
     "housekeeping.hotel.section.alert": "Avvisi",
+  "housekeeping.hotel.section.public_rooms": "Stanze pubbliche",
     "housekeeping.hotel.section.maintenance": "Manutenzione",
     "housekeeping.hotel.section.reload": "Ricariche",
     "housekeeping.hotel.section.wordfilter": "Filtro parole",
