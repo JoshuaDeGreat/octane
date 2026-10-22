@@ -62,6 +62,10 @@ jobs:
       #          otherwise `Dev`. A stale generic fork branch must never
       #          shadow the current upstream integration branch.
       #
+      # Heaven Hotel companion renderer branch:
+      # JoshuaDeGreat/Octane-Renderer@feature/heaven-password-recovery.
+      # resolve-renderer.mjs automatically prefers the same-name branch
+      # when it exists in the repository owner's renderer fork.
       # The two repos must stay wire-aligned (composer/parser
       # signatures); pairing the client with a stale renderer is what
       # produced the "Expected 14-15 arguments, but got 16" failure on
