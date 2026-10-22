@@ -1178,15 +1178,13 @@ export const WiredCreatorToolsView: FC<{}> = () => {
         return MONITOR_LOG_ORDER.map((type) => {
             const log = monitorSnapshot.logs.find((entry) => entry.type === type);
             const fallbackInfo = MONITOR_ERROR_INFO[type];
-            const amount = log?.amount;
+            const amount = Number(log?.amount ?? 0);
 
             return {
                 type,
                 category: String(log?.severity ?? fallbackInfo?.severity ?? 'ERROR'),
-                amount: amount === undefined ? (log ? '—' : '0') : String(amount),
-                latest: log?.latestOccurrenceSeconds
-                    ? formatMonitorLatestOccurrence(log.latestOccurrenceSeconds, globalClock)
-                    : '/',
+                amount: String(amount),
+                latest: amount > 0 ? formatMonitorLatestOccurrence(Number(log?.latestOccurrenceSeconds ?? 0), globalClock) : '/',
                 latestReason: normalizeMonitorReason(log?.latestReason),
                 latestSourceLabel: String(log?.latestSourceLabel ?? ''),
                 latestSourceId: Number(log?.latestSourceId ?? 0)
