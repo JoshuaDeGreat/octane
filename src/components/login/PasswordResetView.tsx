@@ -3,7 +3,7 @@ import { GetConfigurationValue } from '../../api';
 
 /** Dedicated recovery screen. Never store recovery tokens in localStorage. */
 export const PasswordResetView: FC = () => {
-    const [token] = useState(() => new URLSearchParams(window.location.search).get('token') || '');
+    const [token] = useState(() => new URLSearchParams(window.location.hash.replace(/^#/, '')).get('token') || '');
     const [password, setPassword] = useState('');
     const [confirm, setConfirm] = useState('');
     const [pending, setPending] = useState(false);
@@ -11,8 +11,9 @@ export const PasswordResetView: FC = () => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        // Keep reset credentials out of copied URLs, referrers, and browser history.
-        window.history.replaceState({}, '', window.location.pathname);
+        // Tokens arrive in the URL fragment, which is never sent to the web server.
+        // Remove the fragment from browser history immediately after React loads.
+        window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
     }, []);
 
     const submit = async (event: FormEvent<HTMLFormElement>) => {
