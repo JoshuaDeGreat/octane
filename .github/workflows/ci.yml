@@ -142,3 +142,17 @@ jobs:
       - name: Vitest
         working-directory: octane
         run: yarn test --run
+
+      # Validate the exact Renderer checkout used by the client. A typecheck
+      # alone cannot catch divergent protocol parser tests or build artifacts.
+      - name: Renderer protocol and unit tests
+        working-directory: octane-renderer
+        run: yarn test
+
+      - name: Renderer TypeScript compile
+        working-directory: octane-renderer
+        run: yarn compile
+
+      - name: Renderer production build
+        working-directory: octane-renderer
+        run: yarn build
