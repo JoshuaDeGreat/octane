@@ -5,8 +5,10 @@ import { GetConfigurationValue } from '../../api';
 export const EmailVerificationView: FC = () => {
     const [status, setStatus] = useState('Verifying your email address…');
     const requestRef = useRef<Promise<{ ok: boolean; message: string }> | null>(null);
+    // React StrictMode replays effects. Capture the secret before either effect clears the fragment.
+    const tokenRef = useRef(new URLSearchParams(window.location.hash.replace(/^#/, '')).get('token') || '');
     useEffect(() => {
-        const token = new URLSearchParams(window.location.hash.replace(/^#/, '')).get('token') || '';
+        const token = tokenRef.current;
         window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
         if (!/^[A-Za-z0-9_-]{43}$/.test(token)) {
             setStatus('This verification link is invalid. Request another from your account settings.');
