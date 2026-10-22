@@ -58,7 +58,7 @@ export const PasswordResetView: FC = () => {
                 <h2>Reset your password</h2>
                 {success ? (
                     <a href="./">Return to hotel login</a>
-                ) : token.length !== 43 ? (
+                ) : !/^[A-Za-z0-9_-]{43}$/.test(token) ? (
                     <p>This recovery link is missing or invalid. Please request a new one from the hotel login page.</p>
                 ) : (
                     <form onSubmit={submit}>
