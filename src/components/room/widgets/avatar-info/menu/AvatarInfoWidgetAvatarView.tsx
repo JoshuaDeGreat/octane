@@ -216,10 +216,10 @@ export const AvatarInfoWidgetAvatarView: FC<AvatarInfoWidgetAvatarViewProps> = (
                     break;
                 }
                 case 'ignore':
-                    GetSessionDataManager().ignoreUser(avatarInfo.name);
+                    GetSessionDataManager().ignoreUser(avatarInfo.webID);
                     break;
                 case 'unignore':
-                    GetSessionDataManager().unignoreUser(avatarInfo.name);
+                    GetSessionDataManager().unignoreUser(avatarInfo.webID);
                     break;
                 case 'kick':
                     roomSession.sendKickMessage(avatarInfo.webID);
