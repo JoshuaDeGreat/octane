@@ -90,12 +90,12 @@ export interface MonitorSnapshot {
     overloadConsecutiveWindowsThreshold: number;
     heavyDelayedThresholdPercent: number;
     logs: Array<{
-        amount: number;
-        latestOccurrenceSeconds: number;
+        amount?: number;
+        latestOccurrenceSeconds?: number;
         latestReason: string;
         latestSourceId: number;
         latestSourceLabel: string;
-        severity: string;
+        severity?: string;
         type: string;
     }>;
     history: Array<{
