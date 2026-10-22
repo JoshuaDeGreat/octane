@@ -1,9 +1,9 @@
 import {
-    IWiredTradeNode,
+    IHeavenWiredTradeNode,
     IWiredTradeOfferedItem,
     IWiredTradeRewardCurrency,
     IWiredTradeRewardFurni,
-    IWiredTradeRule,
+    IHeavenWiredTradeRule,
     WIRED_TRADE_FAILURE_SILENT,
     WIRED_TRADE_STATE_ADDING_ITEMS,
     WIRED_TRADE_STATE_CONFIRMING,
@@ -30,8 +30,8 @@ const useWiredTradingState = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [contractType, setContractType] = useState(0);
     const [rewardText, setRewardText] = useState('');
-    const [giveRules, setGiveRules] = useState<IWiredTradeRule[]>([]);
-    const [rewardRule, setRewardRule] = useState<IWiredTradeRule>(null);
+    const [giveRules, setGiveRules] = useState<IHeavenWiredTradeRule[]>([]);
+    const [rewardRule, setRewardRule] = useState<IHeavenWiredTradeRule>(null);
     const [showRequirements, setShowRequirements] = useState(false);
 
     const [state, setState] = useState(WIRED_TRADE_STATE_READY);
@@ -40,7 +40,7 @@ const useWiredTradingState = () => {
     const [offeredItems, setOfferedItems] = useState<IWiredTradeOfferedItem[]>([]);
     const [rewardFurni, setRewardFurni] = useState<IWiredTradeRewardFurni[]>([]);
     const [rewardCurrency, setRewardCurrency] = useState<IWiredTradeRewardCurrency[]>([]);
-    const [missing, setMissing] = useState<IWiredTradeNode[]>([]);
+    const [missing, setMissing] = useState<IHeavenWiredTradeNode[]>([]);
     const [countdown, setCountdown] = useState(0);
 
     const { simpleAlert = null } = useNotification();
