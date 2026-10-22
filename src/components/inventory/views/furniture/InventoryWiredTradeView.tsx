@@ -1,8 +1,8 @@
 import {
     FurnitureType,
-    IWiredTradeNode,
-    IWiredTradeRule,
-    WIRED_TRADE_NODE_FURNI,
+    IHeavenWiredTradeNode as IWiredTradeNode,
+    IHeavenWiredTradeRule as IWiredTradeRule,
+    HEAVEN_WIRED_TRADE_NODE_FURNI as WIRED_TRADE_NODE_FURNI,
     WIRED_TRADE_STATE_ADDING_ITEMS,
     WIRED_TRADE_STATE_CONFIRMING,
     WIRED_TRADE_STATE_COUNTDOWN,

@@ -441,6 +441,7 @@
     "housekeeping.hotel.section.maintenance": "Maintenance",
     "housekeeping.hotel.section.reload": "Reloads",
     "housekeeping.hotel.section.wordfilter": "Word filter",
+    "housekeeping.hotel.section.public_rooms": "Public rooms",
     "housekeeping.hotel.alert.scope.hotel": "Whole hotel",
     "housekeeping.hotel.alert.scope.user": "One user",
     "housekeeping.hotel.alert.scope.room": "One room",

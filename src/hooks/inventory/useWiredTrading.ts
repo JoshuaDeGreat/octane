@@ -1,9 +1,9 @@
 import {
-    IWiredTradeNode,
+    IHeavenWiredTradeNode as IWiredTradeNode,
     IWiredTradeOfferedItem,
     IWiredTradeRewardCurrency,
     IWiredTradeRewardFurni,
-    IWiredTradeRule,
+    IHeavenWiredTradeRule as IWiredTradeRule,
     WIRED_TRADE_FAILURE_SILENT,
     WIRED_TRADE_STATE_ADDING_ITEMS,
     WIRED_TRADE_STATE_CONFIRMING,
