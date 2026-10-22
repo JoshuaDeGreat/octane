@@ -95,7 +95,7 @@ export const InventoryWiredTradeView: FC<{}> = () => {
     };
 
     const nodeLabel = (node: IWiredTradeNode) =>
-        node.type === WIRED_TRADE_NODE_FURNI
+        node.kind === WIRED_TRADE_NODE_FURNI
             ? localizeWithFallback('inventory.wired_trading.node.furni', '%amount%x furni', ['amount'], [String(node.amount)])
             : localizeWithFallback('inventory.wired_trading.node.coins', '%amount%x coins', ['amount'], [String(node.amount)]);
 
@@ -106,8 +106,8 @@ export const InventoryWiredTradeView: FC<{}> = () => {
                     alt=""
                     className="max-h-[20px] max-w-[20px] object-contain"
                     src={ProductImageUtility.getProductImageUrl(
-                        node.itemType?.isWallItem ? FurnitureType.WALL : FurnitureType.FLOOR,
-                        node.itemType?.typeId ?? 0,
+                        node.wallItem ? FurnitureType.WALL : FurnitureType.FLOOR,
+                        node.spriteId,
                         '',
                     )}
                 />
