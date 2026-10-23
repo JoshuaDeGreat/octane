@@ -38,7 +38,8 @@
 .heaven-login-brand-position {
     position: absolute;
     top: 13px;
-    left: 17px;
+    right: 17px;
+    left: auto;
     z-index: 35;
     pointer-events: none;
 }
@@ -55,7 +56,8 @@
 @media (max-width: 900px) {
     .heaven-login-brand-position {
         top: 8px;
-        left: 8px;
+        right: 8px;
+        left: auto;
     }
 
     .heaven-hotel-brand--login {
@@ -81,6 +83,6 @@
 @media (max-height: 450px) {
     .heaven-login-brand-position {
         transform: scale(0.8);
-        transform-origin: left top;
+        transform-origin: right top;
     }
 }
