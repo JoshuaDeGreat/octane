@@ -225,6 +225,8 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
     const left = interpolate(loginImages['left'] || GetConfigurationValue<string>('login_left', ''));
     const rightRepeat = interpolate(loginImages['right.repeat'] || GetConfigurationValue<string>('login_right.repeat', ''));
     const right = interpolate(loginImages['right'] || GetConfigurationValue<string>('login_right', ''));
+    // The Habbo wordmark is painted into the left-hand reception billboard artwork.
+    const hasLegacyReceptionBillboard = /(?:^|\/)mute_reception_backdrop_left\.png(?:[?#]|$)/i.test(left);
     const widgetImageUrls = useMemo(
         () => loginWidgetSlots.map((slot) => (typeof slot.conf.image === 'string' ? interpolate(slot.conf.image) : '')).filter(Boolean),
         [loginWidgetSlots]
@@ -766,9 +768,15 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
             )}
 
             {newsUrl && <NewsWindow newsUrl={newsUrl} />}
-            <div className="heaven-login-brand-position">
-                <HeavenHotelBrand />
-            </div>
+            {hasLegacyReceptionBillboard ? (
+                <div className="heaven-login-billboard">
+                    <HeavenHotelBrand />
+                </div>
+            ) : (
+                <div className="heaven-login-brand-position">
+                    <HeavenHotelBrand />
+                </div>
+            )}
 
             <div
                 className={`login-language-picker octane-card-shell${languageWindow.dragging ? ' is-dragging' : ''}`}
