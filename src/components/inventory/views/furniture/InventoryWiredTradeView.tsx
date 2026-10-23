@@ -1,8 +1,8 @@
 import {
     FurnitureType,
-    IHeavenWiredTradeNode,
-    IHeavenWiredTradeRule,
-    WIRED_TRADE_NODE_FURNI,
+    IHeavenWiredTradeNode as IWiredTradeNode,
+    IHeavenWiredTradeRule as IWiredTradeRule,
+    HEAVEN_WIRED_TRADE_NODE_FURNI as WIRED_TRADE_NODE_FURNI,
     WIRED_TRADE_STATE_ADDING_ITEMS,
     WIRED_TRADE_STATE_CONFIRMING,
     WIRED_TRADE_STATE_COUNTDOWN,
@@ -94,12 +94,12 @@ export const InventoryWiredTradeView: FC<{}> = () => {
         setQuantity(Math.min(Math.max(isNaN(parsed) ? 1 : parsed, 1), ceiling));
     };
 
-    const nodeLabel = (node: IHeavenWiredTradeNode) =>
+    const nodeLabel = (node: IWiredTradeNode) =>
         node.kind === WIRED_TRADE_NODE_FURNI
             ? localizeWithFallback('inventory.wired_trading.node.furni', '%amount%x furni', ['amount'], [String(node.amount)])
             : localizeWithFallback('inventory.wired_trading.node.coins', '%amount%x coins', ['amount'], [String(node.amount)]);
 
-    const renderNode = (node: IHeavenWiredTradeNode, key: string) => (
+    const renderNode = (node: IWiredTradeNode, key: string) => (
         <span key={key} className="inline-flex items-center gap-1 rounded border border-[#cbcbcb] bg-white px-1 py-[1px]">
             {node.kind === WIRED_TRADE_NODE_FURNI && (
                 <img
@@ -117,7 +117,7 @@ export const InventoryWiredTradeView: FC<{}> = () => {
     );
 
     /** Rules are alternatives, so they read with `or` between them and `&` inside one. */
-    const renderRule = (rule: IHeavenWiredTradeRule, index: number) => (
+    const renderRule = (rule: IWiredTradeRule, index: number) => (
         <Fragment key={index}>
             {index > 0 && (
                 <div className="text-[10px] uppercase tracking-wide text-[#8c877d]">

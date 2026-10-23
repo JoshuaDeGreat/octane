@@ -29,7 +29,9 @@ import { recolorableObjectData, recolorablePlacementColor } from './recolorableC
 import { invalidateCatalogIndex, invalidateCatalogPage, readCatalogIndex, refetchCatalogPage } from './useCatalogQueries';
 
 export const DUMMY_PAGE_ID_FOR_OFFER_SEARCH = -12345678;
-const DRAG_AND_DROP_ENABLED = true;
+// Paid catalogue offers must be purchased before they can be placed from inventory.
+// Builders Club has its own server-authorized placement mechanism.
+const DRAG_AND_DROP_ENABLED = false;
 
 export type CatalogPendingRequest = { kind: 'id'; id: number } | { kind: 'name'; name: string } | { kind: 'offer'; offerId: number };
 

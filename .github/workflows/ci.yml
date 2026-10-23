@@ -140,7 +140,22 @@ jobs:
         working-directory: octane
         run: yarn lint:hooks
 
-      - name: Vitest
+      # Validate the exact Renderer checkout before running the wider
+      # (and slower) UI test suite; wire-format regressions show up early.
+      - name: Renderer protocol and unit tests
+        working-directory: octane-renderer
+        run: yarn test
+        timeout-minutes: 10
+
+      - name: Renderer TypeScript compile
+        working-directory: octane-renderer
+        run: yarn compile
+
+      - name: Renderer production build
+        working-directory: octane-renderer
+        run: yarn build
+
+      - name: Octane Vitest
         working-directory: octane
         run: yarn test --run
 
