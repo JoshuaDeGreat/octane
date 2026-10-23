@@ -72,9 +72,7 @@ const getDefaultLoginImages = (): Record<string, string> => {
         'background.colour': '#6eadc8',
         drape: `${imagesBase}/reception/drape.png`,
         left: `${imagesBase}/reception/mute_reception_backdrop_left.png`,
-        // The stock right-hand reception image contains third-party hotel branding.
-        // Reserve this side for the Heaven Hotel identity rather than displaying it.
-        right: ''
+        right: `${imagesBase}/reception/background_right.png`
     };
 };
 const LOGIN_LOCALES: LoginLocale[] = [
