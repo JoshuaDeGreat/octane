@@ -1,5 +1,6 @@
 import { FC, useEffect, useRef, useState } from 'react';
 import { GetConfigurationValue } from '../../api';
+import { RecoveryLayout } from './RecoveryLayout';
 
 /** One-time mailbox ownership proof. The secret is never sent in the HTTP URL. */
 export const EmailVerificationView: FC = () => {
@@ -43,11 +44,10 @@ export const EmailVerificationView: FC = () => {
     }, []);
 
     return (
-        <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, background: 'linear-gradient(#b6e2f0,#f7e9ca)', color: '#26364a', fontFamily: 'Arial, sans-serif' }}>
-            <section style={{ maxWidth: 420, padding: 28, background: '#fffdf7', border: '3px solid #54718a', borderRadius: 12 }}>
-                <h1>Heaven Hotel</h1><h2>Verify your email</h2><p role="status">{status}</p>
-                <a href="./">Return to hotel login</a>
-            </section>
-        </main>
+        <RecoveryLayout title="Verify your email">
+            <p>A little step to keep your Heaven account safe. A verified email helps you find your way back if you forget your password.</p>
+            <p className="recovery-message" role="status">{status}</p>
+            <a className="recovery-button" href="./">Return to hotel login</a>
+        </RecoveryLayout>
     );
 };
