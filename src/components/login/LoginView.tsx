@@ -694,8 +694,6 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
             {newsUrl && <NewsWindow newsUrl={newsUrl} />}
 
             <div
-                className={`login-language-picker
-            <div
                 className={`login-language-picker octane-card-shell${languageWindow.dragging ? ' is-dragging' : ''}`}
                 ref={languageWindowRef}
                 style={languageWindow.style}
