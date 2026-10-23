@@ -38,8 +38,8 @@
 .heaven-login-brand-position {
     position: absolute;
     top: 13px;
-    right: 17px;
-    left: auto;
+    left: 17px;
+    right: auto;
     z-index: 35;
     pointer-events: none;
 }
@@ -56,8 +56,8 @@
 @media (max-width: 900px) {
     .heaven-login-brand-position {
         top: 8px;
-        right: 8px;
-        left: auto;
+        left: 8px;
+        right: auto;
     }
 
     .heaven-hotel-brand--login {
@@ -83,6 +83,42 @@
 @media (max-height: 450px) {
     .heaven-login-brand-position {
         transform: scale(0.8);
-        transform-origin: right top;
+        transform-origin: left top;
     }
+}
+
+/*
+ * The legacy city reception image has HABBO printed directly on its large
+ * top-left yellow billboard. Cover only that billboard face and reuse the
+ * hotel's existing vector mark, rather than drawing over the entire scene.
+ *
+ * This is anchored to the lower-left of the viewport because .login-left
+ * uses object-fit:none and object-position:left bottom (pixel coordinates).
+ */
+.heaven-login-billboard {
+    position: absolute;
+    left: 14px;
+    bottom: 132px;
+    width: 278px;
+    height: 750px;
+    background: #e9d54e;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 139px), 0 100%);
+    z-index: 35;
+    pointer-events: none;
+    user-select: none;
+}
+
+.heaven-login-billboard .heaven-hotel-brand {
+    position: absolute;
+    left: 19px;
+    bottom: 95px;
+    width: 245px;
+    max-width: none;
+    transform: skewY(-18deg);
+    transform-origin: left bottom;
+    filter: drop-shadow(2px 4px 0 rgba(40, 54, 57, 0.22));
+}
+
+.heaven-login-billboard .heaven-hotel-brand__tagline {
+    display: none;
 }
