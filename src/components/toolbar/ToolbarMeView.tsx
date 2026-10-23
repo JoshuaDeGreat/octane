@@ -87,11 +87,6 @@ export const ToolbarMeView: FC<
                 onClick={(event) => CreateLinkEvent('navigator/search/myworld_view')}
             />
             <div className="navigation-item relative octane-icon icon-me-clothing cursor-pointer" onClick={(event) => CreateLinkEvent('avatar-editor/toggle')} />
-            <div
-                className="navigation-item relative octane-icon icon-me-badge-creator cursor-pointer"
-                onClick={(event) => CreateLinkEvent('badge-creator/toggle')}
-                title={LocalizeText('toolbar.icon.label.badge_creator')}
-            />
             <div className="navigation-item relative octane-icon icon-me-settings cursor-pointer" onClick={(event) => CreateLinkEvent('user-settings/toggle')} />
             <div
                 className="navigation-item relative octane-icon icon-me-forums cursor-pointer"
