@@ -39,6 +39,7 @@
     position: absolute;
     top: 13px;
     left: 17px;
+    right: auto;
     z-index: 35;
     pointer-events: none;
 }
@@ -56,6 +57,7 @@
     .heaven-login-brand-position {
         top: 8px;
         left: 8px;
+        right: auto;
     }
 
     .heaven-hotel-brand--login {
@@ -82,5 +84,34 @@
     .heaven-login-brand-position {
         transform: scale(0.8);
         transform-origin: left top;
+    }
+}
+
+/* The panorama itself contains the full Heaven Hotel billboard. On small
+   screens we present the accessible, reusable logo separately because the
+   panoramic billboard is intentionally cropped to focus on the hotel. */
+.heaven-login-mobile-brand {
+    display: none;
+    position: absolute;
+    z-index: 35;
+    top: 12px;
+    left: 12px;
+    pointer-events: none;
+}
+
+@media (max-width: 900px) {
+    .heaven-login-mobile-brand {
+        display: block;
+        top: max(10px, env(safe-area-inset-top, 0px));
+        left: max(10px, env(safe-area-inset-left, 0px));
+    }
+    .heaven-login-mobile-brand .heaven-hotel-brand--login {
+        width: clamp(105px, 32vw, 175px);
+    }
+}
+
+@media (max-width: 380px) {
+    .heaven-login-mobile-brand .heaven-hotel-brand--login {
+        width: 107px;
     }
 }

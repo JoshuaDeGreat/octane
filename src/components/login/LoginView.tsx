@@ -62,19 +62,6 @@ const CHAT_TRANSLATION_SETTINGS_KEY = 'chatTranslationSettings';
 const MAX_ATTEMPTS = 5;
 const LOCK_WINDOW_MS = 60_000;
 const LOCK_DURATION_MS = 2 * 60_000;
-const getDefaultLoginImages = (): Record<string, string> => {
-    const imagesBase = (GetConfigurationValue<string>('images.url', '') || '').replace(/\/$/, '');
-
-    if (!imagesBase.length) return { 'background.colour': '#6eadc8' };
-
-    return {
-        background: `${imagesBase}/reception/background_gradient_apr25.png`,
-        'background.colour': '#6eadc8',
-        drape: `${imagesBase}/reception/drape.png`,
-        left: `${imagesBase}/reception/mute_reception_backdrop_left.png`,
-        right: `${imagesBase}/reception/background_right.png`
-    };
-};
 const LOGIN_LOCALES: LoginLocale[] = [
     { code: 'it', file: 'it', label: 'Italiano', flag: flagIt },
     { code: 'en', file: 'com', label: 'English', flag: flagEn },
@@ -196,11 +183,6 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
     const initialLocaleRef = useRef(selectedLocale);
     const [loginViewConfig, setLoginViewConfig] = useState<Record<string, unknown>>(() => GetConfigurationValue<Record<string, unknown>>('loginview', {}));
     const submitTimeRef = useRef(0);
-    const preloadedLoginImagesRef = useRef<Set<string>>(new Set());
-
-    const configuredLoginImages = useMemo<Record<string, string>>(() => (loginViewConfig?.['images'] as Record<string, string>) ?? {}, [loginViewConfig]);
-    const loginImages = useMemo<Record<string, string>>(() => ({ ...getDefaultLoginImages(), ...configuredLoginImages }), [configuredLoginImages]);
-
     const configuredLoginWidgets = useMemo<Record<string, unknown>>(() => (loginViewConfig?.['widgets'] as Record<string, unknown>) ?? {}, [loginViewConfig]);
 
     const loginWidgetSlots = useMemo(() => {
@@ -216,22 +198,6 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
             .sort((a, b) => a.slotNum - b.slotNum);
     }, [configuredLoginWidgets]);
 
-    const backgroundColor = loginImages['background.colour'] || GetConfigurationValue<string>('login_background.colour', '#6eadc8');
-    const background = interpolate(loginImages['background'] || GetConfigurationValue<string>('login_background', ''));
-    const sun = interpolate(loginImages['sun'] || GetConfigurationValue<string>('login_sun', ''));
-    const drape = interpolate(loginImages['drape'] || GetConfigurationValue<string>('login_drape', ''));
-    const left = interpolate(loginImages['left'] || GetConfigurationValue<string>('login_left', ''));
-    const rightRepeat = interpolate(loginImages['right.repeat'] || GetConfigurationValue<string>('login_right.repeat', ''));
-    const right = interpolate(loginImages['right'] || GetConfigurationValue<string>('login_right', ''));
-    const widgetImageUrls = useMemo(
-        () => loginWidgetSlots.map((slot) => (typeof slot.conf.image === 'string' ? interpolate(slot.conf.image) : '')).filter(Boolean),
-        [loginWidgetSlots]
-    );
-    const loginImageUrls = useMemo(
-        () => [background, sun, drape, left, rightRepeat, right, ...widgetImageUrls].filter(Boolean),
-        [background, sun, drape, left, rightRepeat, right, widgetImageUrls]
-    );
-    const [loginImagesVersion, setLoginImagesVersion] = useState(0);
     const loginUrl = GetConfigurationValue<string>('login.endpoint', '/api/auth/login');
     const registerUrl = GetConfigurationValue<string>('login.register.endpoint', '/api/auth/register');
     const roomTemplatesUrl = GetConfigurationValue<string>('login.room_templates.endpoint', '/api/auth/room-templates');
@@ -331,39 +297,6 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
         },
         [localeApplying, selectedLocale]
     );
-
-    useEffect(() => {
-        if (!loginImageUrls.length) return;
-
-        let cancelled = false;
-        let remaining = 0;
-
-        loginImageUrls
-            .filter((url) => {
-                if (preloadedLoginImagesRef.current.has(url)) return false;
-
-                preloadedLoginImagesRef.current.add(url);
-
-                return true;
-            })
-            .forEach((url) => {
-                remaining++;
-
-                const image = new Image();
-
-                image.onload = image.onerror = () => {
-                    remaining--;
-
-                    if (!cancelled && remaining <= 0) setLoginImagesVersion((version) => version + 1);
-                };
-
-                image.src = url;
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [loginImageUrls]);
 
     useEffect(() => {
         if (!info) return;
@@ -723,17 +656,12 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
     );
 
     return (
-        <div className="octane-login-view" style={backgroundColor ? { background: backgroundColor } : undefined}>
-            {background ? <img className="login-background login-layer login-layer-img" src={background} alt="" draggable={false} /> : null}
-            {sun ? <img className="login-sun login-layer login-layer-img" src={sun} alt="" draggable={false} /> : null}
-            {drape ? <img className="login-drape login-layer login-layer-img" src={drape} alt="" draggable={false} /> : null}
-            {left ? <img className="login-left login-layer login-layer-img" src={left} alt="" draggable={false} /> : null}
-            {rightRepeat ? <div className="login-right-repeat login-layer" style={{ backgroundImage: `url(${rightRepeat})` }} /> : null}
-            {right ? <img className="login-right login-layer login-layer-img" src={right} alt="" draggable={false} /> : null}
-            <div className="login-image-preloader" aria-hidden="true" data-version={loginImagesVersion}>
-                {loginImageUrls.map((url) => (
-                    <img key={url} src={url} decoding="async" loading="eager" alt="" />
-                ))}
+        <div className="octane-login-view heaven-custom-login-view">
+            {/* Brand art is the real background asset; the former reception layers and logo overlay are no longer needed. */}
+            <div className="heaven-login-scene" aria-hidden="true" />
+
+            <div className="heaven-login-mobile-brand">
+                <HeavenHotelBrand />
             </div>
 
             {loginWidgetSlots.length > 0 && (
@@ -764,9 +692,6 @@ export const LoginView: FC<LoginViewProps> = ({ onAuthenticated, isEntering = fa
             )}
 
             {newsUrl && <NewsWindow newsUrl={newsUrl} />}
-            <div className="heaven-login-brand-position">
-                <HeavenHotelBrand />
-            </div>
 
             <div
                 className={`login-language-picker octane-card-shell${languageWindow.dragging ? ' is-dragging' : ''}`}
