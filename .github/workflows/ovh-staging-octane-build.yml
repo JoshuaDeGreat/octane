@@ -1,0 +1,96 @@
+name: OVH staging Octane and Renderer build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ovh-staging-octane-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build paired Heaven Hotel client and renderer
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+    steps:
+      - name: Checkout Heaven Hotel Octane branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/heaven-password-recovery
+          path: octane
+          persist-credentials: false
+
+      - name: Checkout matching Renderer branch
+        uses: actions/checkout@v4
+        with:
+          repository: JoshuaDeGreat/Octane-Renderer
+          ref: feature/heaven-password-recovery
+          path: octane-renderer
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: octane/.nvmrc
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install renderer dependencies
+        working-directory: octane-renderer
+        run: corepack yarn install --immutable
+
+      - name: Install client dependencies
+        working-directory: octane
+        run: corepack yarn install --immutable
+
+      - name: Link compatible renderer
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p octane/node_modules/@octane
+          ln -sfn "$GITHUB_WORKSPACE/octane-renderer" octane/node_modules/@octane/renderer
+          test -d octane/node_modules/@octane/renderer/packages/api/src
+
+      - name: Renderer tests
+        working-directory: octane-renderer
+        run: corepack yarn test
+
+      - name: Renderer compile and build
+        working-directory: octane-renderer
+        run: |
+          corepack yarn compile
+          corepack yarn build
+
+      - name: Octane tests
+        working-directory: octane
+        run: corepack yarn test --run
+
+      - name: Octane production build
+        working-directory: octane
+        run: corepack yarn build
+
+      - name: Octane type check
+        working-directory: octane
+        run: corepack yarn typecheck
+
+      - name: Verify static site output
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s octane/dist/index.html
+          du -sh octane/dist
+
+      - name: Upload Octane staging static site
+        uses: actions/upload-artifact@v4
+        with:
+          name: octane-staging-dist
+          path: octane/dist/
+          if-no-files-found: error
+          retention-days: 7
