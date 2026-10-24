@@ -1,16 +1,21 @@
 import { GetSessionDataManager, RoomObjectType } from '@octane/renderer';
 import { FC, useMemo, useState } from 'react';
-import { ChatEntryType, IReportedUser, LocalizeText, ReportState, SanitizeHtml } from '../../../api';
+import { ChatEntryType, IReportedUser, LocalizeText, ReportState, ReportType, SanitizeHtml } from '../../../api';
 import { AutoGrid, Button, Column, Flex, LayoutAvatarImageView, LayoutGridItem, Text } from '../../../common';
-import { useChatHistory, useHelp } from '../../../hooks';
+import { useChatHistory, useHelp, useRoomUserListSnapshot } from '../../../hooks';
 
 export const SelectReportedUserView: FC<{}> = (props) => {
     const [selectedUserId, setSelectedUserId] = useState(-1);
     const { chatHistory = [] } = useChatHistory();
-    const { activeReport = null, setActiveReport = null } = useHelp();
+    const { activeReport = null, setActiveReport = null, report } = useHelp();
+    const roomUsers = useRoomUserListSnapshot();
 
     const availableUsers = useMemo(() => {
         const users: Map<number, IReportedUser> = new Map();
+        roomUsers.forEach(user => {
+            if (user.type === RoomObjectType.USER && user.webID !== GetSessionDataManager().userId)
+                users.set(user.webID, { id: user.webID, username: user.name, look: user.figure });
+        });
 
         chatHistory.forEach((chat) => {
             if (
@@ -23,7 +28,7 @@ export const SelectReportedUserView: FC<{}> = (props) => {
         });
 
         return Array.from(users.values());
-    }, [chatHistory]);
+    }, [chatHistory, roomUsers]);
 
     const submitUser = (userId: number) => {
         if (userId <= 0) return;
@@ -55,6 +60,7 @@ export const SelectReportedUserView: FC<{}> = (props) => {
             </div>
             <Column gap={1} overflow="hidden">
                 {!!!availableUsers.length && <Text>{LocalizeText('report.user.error.nolist')}</Text>}
+                {!availableUsers.length && <Button onClick={() => report(ReportType.STAFF_HELP, { roomId: activeReport.roomId })}>Ask Heaven staff without selecting a player</Button>}
                 {availableUsers.length > 0 && (
                     <AutoGrid columnCount={1} columnMinHeight={25} gap={1}>
                         {availableUsers.map((user, index) => {

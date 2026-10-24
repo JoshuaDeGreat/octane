@@ -91,10 +91,10 @@ export const HelpView: FC<{}> = (props) => {
         <>
             {isVisible && (
                 <OctaneCardView
-                    className={`octane-help min-w-0 ${isReporting ? 'w-[min(448px,calc(100vw-16px))]' : 'w-[min(420px,calc(100vw-16px))]'} max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]`}
+                    className={`octane-help heaven-help min-w-0 ${isReporting ? 'w-[min(448px,calc(100vw-16px))]' : 'w-[min(440px,calc(100vw-16px))]'} max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)]`}
                     theme="primary-slim"
                 >
-                    <OctaneCardHeaderView headerText={LocalizeText('help.button.cfh')} onCloseClick={onClose} />
+                    <OctaneCardHeaderView headerText="Heaven Hotel · Help & Safety" onCloseClick={onClose} />
                     <OctaneCardContentView className="text-black">
                         {isReporting ? (
                             <Column grow gap={2} justifyContent="between" overflow="hidden">

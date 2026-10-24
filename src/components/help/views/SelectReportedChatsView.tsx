@@ -36,8 +36,6 @@ export const SelectReportedChatsView: FC<{}> = (props) => {
     };
 
     const submitChats = () => {
-        if (!selectedChats || selectedChats.length <= 0) return;
-
         setActiveReport((prevValue) => {
             return { ...prevValue, reportedChats: selectedChats, currentStep: ReportState.SELECT_TOPICS };
         });
@@ -79,7 +77,7 @@ export const SelectReportedChatsView: FC<{}> = (props) => {
                 </div>
             )}
             <Column gap={1} overflow="hidden">
-                {!userChats || (!userChats.length && <Text>{LocalizeText('help.cfh.error.no_user_data')}</Text>)}
+                {!userChats?.length && <Text>No chat messages are available. You can still describe the problem to Heaven staff.</Text>}
                 {userChats.length > 0 && (
                     <AutoGrid columnCount={1} columnMinHeight={25} gap={1} overflow="auto">
                         {userChats.map((chat, index) => {
@@ -96,7 +94,7 @@ export const SelectReportedChatsView: FC<{}> = (props) => {
                 <Button disabled={activeReport.reportType === ReportType.IM} variant="secondary" onClick={back}>
                     {LocalizeText('generic.back')}
                 </Button>
-                <Button disabled={selectedChats.length <= 0} onClick={submitChats}>
+                <Button onClick={submitChats}>
                     {LocalizeText('help.emergency.main.submit.button')}
                 </Button>
             </Flex>

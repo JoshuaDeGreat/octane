@@ -17,4 +17,5 @@ export interface IHelpReport {
     currentStep: number;
     /** The emergency report was sent with "I want to leave the room" ticked. */
     leaveRoom?: boolean;
+    urgent?: boolean;
 }

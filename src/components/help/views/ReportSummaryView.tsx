@@ -5,22 +5,25 @@ import {
     CallForHelpFromPhotoMessageComposer,
     CallForHelpMessageComposer
 } from '@octane/renderer';
-import { FC } from 'react';
-import { GoToDesktop, LocalizeText, ReportType, SendMessageComposer } from '../../../api';
+import { FC, useState } from 'react';
+import { getReportRoomId, GoToDesktop, LocalizeText, ReportType, SendMessageComposer } from '../../../api';
 import { Button, Text } from '../../../common';
 import { useHelp } from '../../../hooks';
 
 export const ReportSummaryView: FC<{}> = (props) => {
     const { activeReport = null, setActiveReport = null } = useHelp();
+    const [sending, setSending] = useState(false);
 
     const submitReport = () => {
+        if (sending) return;
+        setSending(true);
         const chats: (string | number)[] = [];
 
         switch (activeReport.reportType) {
             case ReportType.BULLY:
             case ReportType.EMERGENCY:
             case ReportType.ROOM: {
-                const reportedRoomId = activeReport.roomId <= 0 ? activeReport.reportedChats[0].roomId : activeReport.roomId;
+                const reportedRoomId = getReportRoomId(activeReport);
 
                 activeReport.reportedChats.forEach((entry) => chats.push(entry.webId, entry.message));
 
@@ -29,6 +32,9 @@ export const ReportSummaryView: FC<{}> = (props) => {
                 );
                 break;
             }
+            case ReportType.STAFF_HELP:
+                SendMessageComposer(new CallForHelpMessageComposer(activeReport.message, activeReport.cfhTopic, -1, getReportRoomId(activeReport), []));
+                break;
             case ReportType.IM:
                 activeReport.reportedChats.forEach((entry) => chats.push(entry.webId, entry.message));
 
@@ -71,11 +77,12 @@ export const ReportSummaryView: FC<{}> = (props) => {
     return (
         <>
             <div className="flex flex-col gap-1">
-                <Text fontSize={4}>{LocalizeText('help.cfh.button.send')}</Text>
-                <Text>{LocalizeText('help.main.summary')}</Text>
+                <Text fontSize={4}>{activeReport.urgent ? 'Send an urgent request to Heaven staff' : 'Send to the Heaven team'}</Text>
+                <p className="heaven-help-review">{activeReport.message}</p>
+                <Text>Your request is saved for our moderators and admins. Staff can reply in the hotel. Please do not include passwords or recovery codes.</Text>
             </div>
-            <Button variant="success" onClick={submitReport}>
-                {LocalizeText('guide.help.request.emergency.submit.button')}
+            <Button variant="success" disabled={sending} onClick={submitReport}>
+                {sending ? 'Sending…' : 'Send to Heaven staff'}
             </Button>
         </>
     );

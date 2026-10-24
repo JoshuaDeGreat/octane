@@ -1,4 +1,5 @@
 export class ReportType {
+    public static readonly STAFF_HELP = 10;
     public static readonly EMERGENCY = 1;
     public static readonly GUIDE = 2;
     public static readonly IM = 3;

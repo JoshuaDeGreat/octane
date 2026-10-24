@@ -234,13 +234,13 @@
     "modtools.roominfo.moderate.message.placeholder": "Required message sent along with the action…",
     "modtools.roominfo.moderate.send.caution": "Send caution",
     "modtools.roominfo.moderate.send.alert": "Send alert",
-    "modtools.user.message.title": "Send message",
+    "modtools.user.message.title": "Heaven Hotel · Reply to a player",
     "modtools.user.message.recipient": "Message to",
     "modtools.user.message.label": "Message",
     "modtools.user.message.placeholder": "Write something helpful — the user sees it as a moderator message.",
     "modtools.user.message.empty": "Empty",
     "modtools.user.message.chars": "%count% characters",
-    "modtools.user.message.send": "Send message",
+    "modtools.user.message.send": "Send staff reply",
     "modtools.user.modaction.title": "Mod action: %username%",
     "modtools.user.modaction.sanctioning": "Sanctioning",
     "modtools.user.modaction.step.topic": "1. CFH topic",
@@ -1805,4 +1805,22 @@
     "youtube.player.broadcast": "Play for everyone",
     "youtube.player.paused": "Paused",
     "hccenter.breakdown.total": "Total"
+,
+"help.cfh.reason.heaven_support":"Heaven Hotel support"
+,
+"help.cfh.topic.9001":"Ask the Heaven team"
+,
+"help.cfh.topic.9002":"Urgent in-hotel help"
+,
+"help.cfh.sent.title":"Heaven Hotel · Request received"
+,
+"help.cfh.sent.text":"Your request is saved for the Heaven Hotel team. Staff will respond when available."
+,
+"help.cfh.reply.title":"A reply from Heaven staff"
+,
+"help.cfh.error.title":"Heaven Hotel support"
+,
+"help.cfh.error.pending":"You already have an open request. Please wait for the Heaven team to reply, or withdraw your previous request before sending another."
+,
+"report.status.title":"My Heaven requests & reports"
 }
