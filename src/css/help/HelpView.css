@@ -70,6 +70,12 @@
 }
 
 /* A row of the user list and the bar of the selected user, with the head of the user. */
+.heaven-help { --octane-card-surface: #fff9e9; --octane-card-frame: #527080; }
+.heaven-help .octane-card-content-shell { background: #fff9e9; }
+.heaven-help .octane-card-header-shell { background: linear-gradient(#5aa1bc,#2d748e); }
+.heaven-help textarea { flex: 1; min-height: 140px; padding: 10px; border: 1px solid #9fb6b9; border-radius: 5px; background: white; color: #304550; font-family: 'Trebuchet MS', Ubuntu, sans-serif; }
+.heaven-help-review { max-height: 200px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; border: 1px solid #d5c9aa; border-radius: 5px; background: #fffdf6; }
+
 .octane-help-user {
     display: flex;
     align-items: center;

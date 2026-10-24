@@ -1,107 +1,55 @@
 import { GetCfhStatusMessageComposer, GetMyReportsStatusMessageComposer } from '@octane/renderer';
 import { FC, useState } from 'react';
-import { CreateLinkEvent, DispatchUiEvent, GetConfigurationValue, localizeWithFallback, ReportState, ReportType, SendMessageComposer } from '../../../api';
+import { GetRoomSession, ReportType, SendMessageComposer } from '../../../api';
 import bullyImage from '../../../assets/images/help/help-bully.png';
-import confusedImage from '../../../assets/images/help/help-confused.png';
 import needHelpImage from '../../../assets/images/help/help-need-help.png';
-import { GuideToolEvent } from '../../../events';
 import { useHelp } from '../../../hooks';
 
-/* Official main_help: a 420 px page of sections, each headed by its title: the help of the guides,
-   the report of a bully, the self-help links, and the emergency box with its way out of the room. */
 export const HelpIndexView: FC<{}> = () => {
-    const { setActiveReport = null } = useHelp();
+    const { report } = useHelp();
     const [leaveRoom, setLeaveRoom] = useState(false);
+    const startRequest = (urgent = false) => report(ReportType.STAFF_HELP, {
+        roomId: GetRoomSession()?.roomId ?? 0, urgent, leaveRoom: urgent && leaveRoom
+    });
 
-    const startReport = (reportType: number) => {
-        setActiveReport((prevValue) => ({
-            ...prevValue,
-            currentStep: ReportState.SELECT_USER,
-            reportType,
-            leaveRoom: reportType === ReportType.EMERGENCY && leaveRoom
-        }));
-    };
-
-    const openFaq = () => CreateLinkEvent('habbopages/help');
-
-    return (
-        <div className="octane-help-index">
-            <div className="octane-help-index__section-title">{localizeWithFallback('help.main.help.section.title', 'DO YOU NEED HELP?')}</div>
-            <div className="octane-help-index__row">
-                <img alt="" className="octane-help-index__image" src={needHelpImage} draggable={false} />
-                <div className="octane-help-index__copy">
-                    <div className="octane-help-index__heading">{localizeWithFallback('help.main.help.title', 'I need help using something')}</div>
-                    <div className="octane-help-index__text">{localizeWithFallback('help.main.help.content', 'The Habbo helpers are here to give you assistance.')}</div>
-                    <button
-                        className="octane-help-index__button"
-                        disabled={!GetConfigurationValue('guides.enabled')}
-                        type="button"
-                        onClick={() => DispatchUiEvent(new GuideToolEvent(GuideToolEvent.CREATE_HELP_REQUEST))}
-                    >
-                        {localizeWithFallback('help.main.help.button', 'Ask for instructions')}
-                    </button>
-                </div>
-            </div>
-
-            <div className="octane-help-index__section-title">{localizeWithFallback('help.main2.bully.title', 'SOMEONE IS BEHAVING BADLY')}</div>
-            <div className="octane-help-index__row">
-                <div className="octane-help-index__pictures">
-                    <img alt="" className="octane-help-index__image is-confused" src={confusedImage} draggable={false} />
-                    <img alt="" className="octane-help-index__image is-bully" src={bullyImage} draggable={false} />
-                </div>
-                <div className="octane-help-index__copy">
-                    <div className="octane-help-index__heading">{localizeWithFallback('help.main2.bully.subtitle', 'Report a case of bullying')}</div>
-                    <div className="octane-help-index__text">{localizeWithFallback('help.main2.bully.description', 'If you see others behaving badly, report it.')}</div>
-                    <button className="octane-help-index__button" type="button" onClick={() => startReport(ReportType.BULLY)}>
-                        {localizeWithFallback('help.main2.bully.button', 'Report a case of bullying')}
-                    </button>
-                </div>
-            </div>
-
-            <div className="octane-help-index__section-title is-left">{localizeWithFallback('help.main.self.section.title', 'SELF-HELP')}</div>
-            <div className="octane-help-index__self">
-                <div className="octane-help-index__self-column">
-                    <button className="octane-help-index__link" type="button" onClick={openFaq}>
-                        {localizeWithFallback('help.main.self.tips.title', 'Player support')}
-                    </button>
-                    <button className="octane-help-index__link is-plain" type="button" onClick={openFaq}>
-                        {localizeWithFallback('help.main.self.tips.content', 'Find answers in the FAQ.')}
-                    </button>
-                </div>
-                <div className="octane-help-index__self-column">
-                    <button className="octane-help-index__link" type="button" onClick={openFaq}>
-                        {localizeWithFallback('help.main.self.habboway.title', 'The Habbo Way')}
-                    </button>
-                    <button className="octane-help-index__link" type="button" onClick={openFaq}>
-                        {localizeWithFallback('help.main.self.safetybooklet.title', 'Safety rules')}
-                    </button>
-                </div>
-            </div>
-
-            <div className="octane-help-index__emergency">
-                <div className="octane-help-index__emergency-copy">
-                    <div className="octane-help-index__emergency-title">{localizeWithFallback('help.main2.emergency.title', 'This is an emergency!')}</div>
-                    <div className="octane-help-index__emergency-sub">{localizeWithFallback('help.main2.emergency.subtitle', '(URGENT MATTERS ONLY)')}</div>
-                </div>
-                <div className="octane-help-index__emergency-actions">
-                    <button className="octane-help-index__button is-red" type="button" onClick={() => startReport(ReportType.EMERGENCY)}>
-                        {localizeWithFallback('help.main2.emergency.button', 'Get help now!')}
-                    </button>
-                    <label className="octane-help-index__leave">
-                        <input checked={leaveRoom} type="checkbox" onChange={(event) => setLeaveRoom(event.target.checked)} />
-                        <span>{localizeWithFallback('help.main2.emergency.leave', 'I want to leave the room')}</span>
-                    </label>
-                </div>
-            </div>
-
-            <div className="octane-help-index__status">
-                <button className="octane-help-index__link" type="button" onClick={() => SendMessageComposer(new GetCfhStatusMessageComposer(false))}>
-                    {localizeWithFallback('help.main.my.sanction.status', 'My sanction status')}
-                </button>
-                <button className="octane-help-index__link" type="button" onClick={() => SendMessageComposer(new GetMyReportsStatusMessageComposer())}>
-                    {localizeWithFallback('help.main.my.reports.status', 'My reports')}
-                </button>
+    return <div className="octane-help-index">
+        <div className="heaven-help-welcome">
+            <img src="/branding/heaven-logo.png" alt="Heaven Hotel" />
+            <div><strong>A little help. A warm welcome.</strong><span>Our moderators and admins are here to help.</span></div>
+        </div>
+        <div className="octane-help-index__section-title">MAKE YOURSELF AT HOME</div>
+        <div className="octane-help-index__row">
+            <img alt="" className="octane-help-index__image" src={needHelpImage} draggable={false} />
+            <div className="octane-help-index__copy">
+                <h2 className="octane-help-index__heading">Ask the Heaven team</h2>
+                <p className="octane-help-index__text">Need help with your account, a room or something in the hotel? Send our staff a request.</p>
+                <button className="octane-help-index__button is-heaven" type="button" onClick={() => startRequest()}>Ask for help</button>
             </div>
         </div>
-    );
+        <div className="octane-help-index__section-title">KEEP HEAVEN WELCOMING</div>
+        <div className="octane-help-index__row">
+            <div className="heaven-help-report-art"><img alt="" src={bullyImage} draggable={false} /></div>
+            <div className="octane-help-index__copy">
+                <h2 className="octane-help-index__heading">Report a player</h2>
+                <p className="octane-help-index__text">Bullying, scams or inappropriate behaviour? Tell our moderators what happened.</p>
+                <button className="octane-help-index__button is-heaven" type="button" onClick={() => report(ReportType.BULLY, {roomId: GetRoomSession()?.roomId ?? 0})}>Make a report</button>
+            </div>
+        </div>
+        <div className="heaven-help-guides">
+            <details><summary>The Heaven way</summary><p>Be kind, welcome new guests and respect personal boundaries. Play fairly and follow staff instructions. Reports are private to the staff team.</p></details>
+            <details><summary>Keep your account safe</summary><p>Never share your password, email codes or recovery links. Heaven staff will never ask for them. Use the account page on heavenhotel.uk if you need a password recovery link.</p></details>
+        </div>
+        <div className="octane-help-index__emergency">
+            <div className="octane-help-index__emergency-copy"><strong className="octane-help-index__emergency-title">Need urgent staff help?</strong><span className="octane-help-index__emergency-sub">For urgent problems inside the hotel.</span></div>
+            <div className="octane-help-index__emergency-actions">
+                <button className="octane-help-index__button is-red" type="button" onClick={() => startRequest(true)}>Contact staff urgently</button>
+                <label className="octane-help-index__leave"><input checked={leaveRoom} type="checkbox" onChange={e => setLeaveRoom(e.target.checked)} /><span>Leave the room after sending</span></label>
+            </div>
+        </div>
+        <p className="heaven-help-queue-note">Requests are saved even when staff are offline. Staff will reply when available; please send one request per issue.</p>
+        <div className="octane-help-index__status">
+            <button className="octane-help-index__link" type="button" onClick={() => SendMessageComposer(new GetCfhStatusMessageComposer(false))}>My account status</button>
+            <button className="octane-help-index__link" type="button" onClick={() => SendMessageComposer(new GetMyReportsStatusMessageComposer())}>My requests & reports</button>
+        </div>
+    </div>;
 };

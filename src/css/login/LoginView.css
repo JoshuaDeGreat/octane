@@ -1656,3 +1656,57 @@
 .octane-login-card .room-template-option.room-template-skip.selected {
     border-style: solid;
 }
+
+
+/* HEAVEN HOTEL — responsive illustrated hotel panorama.
+   The vector sign is baked into the artwork, rather than layered on top of
+   somebody else's reception image. The enhanced AVIF preserves crisp detail at 2172 × 724. */
+.octane-login-view.heaven-custom-login-view {
+    background: #9ac7e0;
+}
+
+.octane-login-view .heaven-login-scene {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: #9ac7e0;
+    background-image: url('/branding/heaven-login-city-hq.avif?v=20261025');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: left center;
+    pointer-events: none;
+    user-select: none;
+}
+
+.octane-login-view .heaven-login-scene::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Gentle contrast under the centre login form without dimming the sign. */
+    background: linear-gradient(90deg, transparent 0%, rgba(17, 40, 57, .10) 38%, rgba(17, 40, 57, .16) 55%, transparent 86%);
+}
+
+@media (max-width: 900px) {
+    .octane-login-view .heaven-login-scene {
+        /* Crop from the hotel/entrance instead of trapping phone users on
+           the extreme left-hand billboard of the panoramic art. */
+        background-size: auto 100%;
+        background-position: 28% center;
+    }
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+    .octane-login-view .heaven-login-scene {
+        background-position: 33% center;
+    }
+    .octane-login-view .heaven-login-scene::after {
+        background: linear-gradient(180deg, rgba(17,40,57,.12) 0%, rgba(17,40,57,.07) 40%, rgba(17,40,57,.23) 100%);
+    }
+}
+
+@media (max-height: 500px) and (max-width: 900px) {
+    .octane-login-view .heaven-login-scene {
+        background-size: cover;
+        background-position: 14% center;
+    }
+}

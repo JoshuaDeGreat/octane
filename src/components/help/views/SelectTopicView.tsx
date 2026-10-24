@@ -23,6 +23,7 @@ export const SelectTopicView: FC<{}> = (props) => {
     };
 
     const back = () => {
+        if (selectedCategory >= 0) { setSelectedCategory(-1); setSelectedTopic(-1); return; }
         setActiveReport((prevValue) => {
             return { ...prevValue, currentStep: prevValue.currentStep - 1 };
         });
@@ -37,13 +38,13 @@ export const SelectTopicView: FC<{}> = (props) => {
             <Column gap={1} overflow="auto">
                 {selectedCategory < 0 &&
                     cfhCategories.map((category, index) => (
-                        <Button key={index} variant="danger" onClick={(event) => setSelectedCategory(index)}>
+                        <Button key={index} variant="secondary" onClick={(event) => setSelectedCategory(index)}>
                             {LocalizeText(`help.cfh.reason.${category.name}`)}
                         </Button>
                     ))}
                 {selectedCategory >= 0 &&
                     cfhCategories[selectedCategory].topics.map((topic, index) => (
-                        <Button key={index} active={selectedTopic === index} variant="danger" onClick={(event) => setSelectedTopic(index)}>
+                        <Button key={index} active={selectedTopic === index} variant="secondary" onClick={(event) => setSelectedTopic(index)}>
                             {LocalizeText(`help.cfh.topic.${topic.id}`)}
                         </Button>
                     ))}

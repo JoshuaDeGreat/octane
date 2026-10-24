@@ -3,6 +3,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from 'react-error-boundary';
 import { App } from './App';
+import { PasswordResetView } from './components/login/PasswordResetView';
+import { EmailVerificationView } from './components/login/EmailVerificationView';
 import { LoadingView } from './components/loading/LoadingView';
 
 const queryClient = new QueryClient({
@@ -117,7 +119,7 @@ createRoot(document.getElementById('root')).render(
                     />
                 )}
             >
-                <App />
+                {new URLSearchParams(window.location.search).get('recovery') === '1' ? <PasswordResetView /> : new URLSearchParams(window.location.search).get('verify') === '1' ? <EmailVerificationView /> : <App />}
             </ErrorBoundary>
         </QueryClientProvider>
     </StrictMode>

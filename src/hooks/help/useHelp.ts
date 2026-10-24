@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { registerSharedHook, useSharedHook } from '@/state/useSharedHook';
 import {
     CallForHelpResult,
+    createHelpReport,
     GetCloseReasonKey,
     IHelpReport,
     LocalizeText,
@@ -31,29 +32,13 @@ const useHelpState = () => {
     const { simpleAlert = null, showConfirm = null } = useNotification();
 
     const report = (type: number, options: Partial<IHelpReport>) => {
-        const newReport: IHelpReport = {
-            reportType: type,
-            reportedUserId: -1,
-            reportedChats: [],
-            cfhCategory: -1,
-            cfhTopic: -1,
-            roomId: -1,
-            roomName: '',
-            messageId: -1,
-            threadId: -1,
-            groupId: -1,
-            extraData: '',
-            roomObjectId: -1,
-            message: '',
-            currentStep: 0
-        };
+        const newReport = createHelpReport(type, options);
 
         switch (type) {
             case ReportType.BULLY:
             case ReportType.EMERGENCY:
             case ReportType.IM:
-                newReport.reportedUserId = options.reportedUserId;
-                newReport.currentStep = ReportState.SELECT_CHATS;
+                newReport.currentStep = options.reportedUserId > 0 ? ReportState.SELECT_CHATS : ReportState.SELECT_USER;
                 break;
             case ReportType.ROOM:
                 newReport.roomId = options.roomId;

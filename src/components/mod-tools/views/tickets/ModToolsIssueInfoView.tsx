@@ -4,6 +4,7 @@ import { GetIssueCategoryName, LocalizeText, localizeWithFallback, SendMessageCo
 import { Button, DraggableWindowPosition, OctaneCardContentView, OctaneCardHeaderView, OctaneCardView } from '../../../../common';
 import { useModTools } from '../../../../hooks';
 import { CfhChatlogView } from './CfhChatlogView';
+import { ModToolsUserSendMessageView } from '../user/ModToolsUserSendMessageView';
 import chatIcon from '../../../../assets/images/mod-tools/chatlog.png';
 import staffIcon from '../../../../assets/images/mod-tools/mod-action.png';
 
@@ -22,6 +23,7 @@ const Field: FC<{ label: string; children: React.ReactNode }> = ({ label, childr
 export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
     const { issueId = null, onIssueInfoClosed = null } = props;
     const [cfhChatlogOpen, setCfhChatlogOpen] = useState(false);
+    const [replyOpen, setReplyOpen] = useState(false);
     const { tickets = [], issueSanctions = {}, openUserInfo = null } = useModTools();
     const ticket = tickets.find((issue) => issue.issueId === issueId);
     const defaultSanction = issueSanctions[issueId] ?? null;
@@ -91,15 +93,17 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                             <Field label={LocalizeText('modtools.tickets.issue.field.reported')}>
                                 <button
                                     className="font-semibold text-sky-700 hover:text-sky-900 hover:underline inline-flex items-center gap-1"
-                                    onClick={() => openUserInfo(ticket.reportedUserId)}
+                                    disabled={ticket.reportedUserId <= 0}
+                                    onClick={() => ticket.reportedUserId > 0 && openUserInfo(ticket.reportedUserId)}
                                 >
-                                    {ticket.reportedUserName} 
+                                    {ticket.reportedUserName || 'General staff request'}
                                 </button>
                             </Field>
                         </dl>
                     </div>
 
                     {/* Tools */}
+                    <Button variant="primary" onClick={() => setReplyOpen(true)}>Reply to requester</Button>
                     <Button gap={1} variant="secondary" onClick={() => setCfhChatlogOpen((prev) => !prev)}>
                         <img alt="" className="octane-mod-tools-button-icon" src={chatIcon} />{' '}
                         {cfhChatlogOpen ? LocalizeText('modtools.tickets.issue.chatlog.close') : LocalizeText('modtools.tickets.issue.chatlog.view')}
@@ -121,7 +125,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                                 {LocalizeText('modtools.tickets.issue.resolve.abusive')}
                             </Button>
                         </div>
-                        <Button gap={1} variant="primary" onClick={closeWithDefaultSanction}>
+                        <Button gap={1} variant="primary" disabled={ticket.reportedUserId <= 0} onClick={closeWithDefaultSanction}>
                             <img alt="" className="octane-mod-tools-button-icon" src={staffIcon} />{' '}
                             {defaultSanction
                                 ? localizeWithFallback(
@@ -139,6 +143,7 @@ export const ModToolsIssueInfoView: FC<IssueInfoViewProps> = (props) => {
                 </OctaneCardContentView>
             </OctaneCardView>
             {cfhChatlogOpen && <CfhChatlogView issueId={issueId} onCloseClick={() => setCfhChatlogOpen(false)} />}
+            {replyOpen && <ModToolsUserSendMessageView user={{userId: ticket.reporterUserId, username: ticket.reporterUserName}} onCloseClick={() => setReplyOpen(false)} />}
         </>
     );
 };

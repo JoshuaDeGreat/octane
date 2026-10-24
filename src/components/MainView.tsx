@@ -16,7 +16,6 @@ import { AchievementsView } from './achievements/AchievementsView';
 import { GoogleAdsView } from './ads/GoogleAdsView';
 import { AvatarEditorView } from './avatar-editor';
 import { AvatarEffectsView } from './avatar-effects';
-import { BadgeCreatorView } from './badge-creator';
 import { BadgeLeaderboardView } from './badge-leaderboard/BadgeLeaderboardView';
 import { CameraWidgetView } from './camera/CameraWidgetView';
 import { CampaignView } from './campaign/CampaignView';
@@ -196,7 +195,6 @@ export const MainView: FC<{}> = (props) =>
             <CustomizeNickIconView />
             <WiredView />
             <AvatarEditorView />
-            <BadgeCreatorView />
             <BadgeLeaderboardView />
             <EmuStatsView />
             <AvatarEffectsView />

@@ -6,6 +6,7 @@ on:
       - main
       - Dev
       - 'feat/**'
+      - 'feature/**'
   pull_request:
   workflow_dispatch:
     inputs:
@@ -61,6 +62,10 @@ jobs:
       #          otherwise `Dev`. A stale generic fork branch must never
       #          shadow the current upstream integration branch.
       #
+      # Heaven Hotel companion renderer branch:
+      # JoshuaDeGreat/Octane-Renderer@feature/heaven-password-recovery.
+      # resolve-renderer.mjs automatically prefers the same-name branch
+      # when it exists in the repository owner's renderer fork.
       # The two repos must stay wire-aligned (composer/parser
       # signatures); pairing the client with a stale renderer is what
       # produced the "Expected 14-15 arguments, but got 16" failure on
@@ -126,10 +131,6 @@ jobs:
           ls -la octane/node_modules/@octane/
           ls octane/node_modules/@octane/renderer/packages/api/src/ | head -5
 
-      - name: Type check (tsgo)
-        working-directory: octane
-        run: yarn typecheck
-
       # Hook-order lint gate — the full yarn eslint emits ~900 pre-existing
       # baseline errors (brace style, indentation), so we use a focused
       # config that asserts only react-hooks/rules-of-hooks. Catches the
@@ -157,4 +158,13 @@ jobs:
       - name: Octane Vitest
         working-directory: octane
         run: yarn test --run
-        timeout-minutes: 12
+
+      - name: Production build
+        working-directory: octane
+        run: yarn build
+
+      # Keep the full renderer compatibility gate blocking release, but run
+      # tests and production bundling first so independent regressions surface.
+      - name: Type check (tsgo)
+        working-directory: octane
+        run: yarn typecheck
