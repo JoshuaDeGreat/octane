@@ -1660,7 +1660,7 @@
 
 /* HEAVEN HOTEL — responsive illustrated hotel panorama.
    The vector sign is baked into the artwork, rather than layered on top of
-   somebody else's reception image. AVIF is ~90 KB at desktop resolution. */
+   somebody else's reception image. The enhanced AVIF preserves crisp detail at 2172 × 724. */
 .octane-login-view.heaven-custom-login-view {
     background: #9ac7e0;
 }
@@ -1670,7 +1670,7 @@
     inset: 0;
     z-index: 0;
     background-color: #9ac7e0;
-    background-image: url('/branding/heaven-login-city.avif');
+    background-image: url('/branding/heaven-login-city-hq.avif?v=20261025');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: left center;
